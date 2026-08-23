@@ -1,570 +1,96 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="fa" dir="rtl">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>گراف دانش پروژه senoobar.ir</title>
-<script src="https://d3js.org/d3.v7.min.js"></script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="description" content="گراف دانش و معماری قالب WordPress / WooCommerce سایت صنوبر">
+<title>گراف دانش صنوبر — Senoobar</title>
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    font-family: 'Vazirmatn', system-ui, -apple-system, sans-serif;
-    background: #0a1a14;
-    color: #e0f0e8;
-    overflow: hidden;
-    height: 100vh;
-    display: flex;
-    flex-direction: column;
-  }
-  #header {
-    background: linear-gradient(135deg, #0d2818, #0a1a14);
-    border-bottom: 1px solid #1e4a30;
-    padding: 10px 20px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    flex-shrink: 0;
-    z-index: 10;
-  }
-  #header h1 {
-    font-size: 1.1rem;
-    color: #5ddb9f;
-    font-weight: 700;
-  }
-  #legend {
-    display: flex;
-    gap: 12px;
-    flex-wrap: wrap;
-  }
-  .legend-item {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    font-size: 0.72rem;
-    color: #b0d8c8;
-  }
-  .legend-dot {
-    width: 10px; height: 10px;
-    border-radius: 50%;
-  }
-  #graph-container {
-    flex: 1;
-    position: relative;
-    overflow: hidden;
-  }
-  svg { width: 100%; height: 100%; cursor: grab; }
-  svg:active { cursor: grabbing; }
-  .link {
-    stroke-opacity: 0.5;
-    stroke-width: 1.2;
-  }
-  .node { cursor: pointer; }
-  .node:hover circle { stroke: #fff; stroke-width: 3px; }
-  .node-label {
-    font-size: 9px;
-    fill: #c0e8d8;
-    pointer-events: none;
-    text-anchor: middle;
-    paint-order: stroke;
-    stroke: #0a1a14;
-    stroke-width: 2.5px;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-  }
-  #tooltip {
-    position: absolute;
-    background: rgba(13, 40, 24, 0.95);
-    border: 1px solid #2e7a50;
-    border-radius: 8px;
-    padding: 10px 14px;
-    font-size: 0.78rem;
-    color: #e0f0e8;
-    pointer-events: none;
-    opacity: 0;
-    transition: opacity 0.15s;
-    max-width: 360px;
-    line-height: 1.5;
-    z-index: 100;
-    backdrop-filter: blur(8px);
-  }
-  #tooltip h4 { color: #5ddb9f; margin-bottom: 4px; font-size: 0.85rem; }
-  #tooltip .rel { color: #a0c8b8; font-size: 0.7rem; }
-  #tooltip .rel b { color: #ffb74d; }
-  #controls {
-    position: absolute;
-    bottom: 16px; left: 16px;
-    display: flex; gap: 6px;
-    z-index: 10;
-  }
-  .btn {
-    background: rgba(13,40,24,0.9);
-    border: 1px solid #2e7a50;
-    color: #5ddb9f;
-    padding: 6px 12px;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 0.75rem;
-    transition: all 0.2s;
-  }
-  .btn:hover { background: #1e4a30; color: #fff; }
-  #stats {
-    position: absolute;
-    top: 12px; right: 16px;
-    background: rgba(13,40,24,0.85);
-    border: 1px solid #2e7a50;
-    border-radius: 8px;
-    padding: 8px 14px;
-    font-size: 0.72rem;
-    color: #a0c8b8;
-    z-index: 10;
-    backdrop-filter: blur(8px);
-  }
-  #stats span { color: #5ddb9f; font-weight: 700; }
+:root{--bg:#07130f;--panel:#0c2118;--panel2:#102a20;--line:#2b5f49;--text:#e8f5ef;--muted:#9fc2b1;--accent:#62e0a6;--accent2:#6bc8ff;--danger:#ff8d8d}
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:Tahoma,"Vazirmatn",system-ui,sans-serif}button,input{font:inherit}
+.app{height:100%;display:grid;grid-template-rows:auto 1fr}.top{display:flex;gap:10px;align-items:center;padding:10px 14px;background:linear-gradient(135deg,#0b2419,#07130f);border-bottom:1px solid var(--line);z-index:5}.title{font-weight:800;color:var(--accent);white-space:nowrap}.sub{font-size:11px;color:var(--muted);margin-right:auto}.search{width:min(300px,42vw);background:#071a12;border:1px solid var(--line);border-radius:9px;color:var(--text);padding:8px 10px;outline:0}.btn{border:1px solid var(--line);background:var(--panel);color:var(--text);border-radius:8px;padding:7px 10px;cursor:pointer}.btn:hover{border-color:var(--accent);color:var(--accent)}
+.main{position:relative;min-height:0}.graph{width:100%;height:100%;display:block;background:radial-gradient(circle at 50% 45%,#0c2419 0,#07130f 60%)}.edge{stroke:#477b65;stroke-width:1.25;stroke-opacity:.48}.edge.active{stroke:var(--accent);stroke-width:2.4;stroke-opacity:.95}.edge-label{fill:#8eb7a5;font-size:9px;pointer-events:none}.node{cursor:pointer}.node circle{stroke:#07130f;stroke-width:2}.node text{fill:#d7ebe2;font-size:10px;text-anchor:middle;paint-order:stroke;stroke:#07130f;stroke-width:3px;stroke-linejoin:round;pointer-events:none}.node.dim{opacity:.12}.node.selected circle{stroke:#fff;stroke-width:3}.node.selected text{fill:#fff}.node.near circle{stroke:var(--accent);stroke-width:2.5}.edge.dim{opacity:.04}.edge-label.dim{opacity:.03}
+.panel{position:absolute;top:12px;right:12px;width:min(360px,calc(100vw - 24px));max-height:calc(100% - 24px);overflow:auto;background:rgba(10,30,22,.94);border:1px solid var(--line);border-radius:12px;padding:12px;backdrop-filter:blur(10px);z-index:3;box-shadow:0 12px 40px #0008}.panel h2{font-size:14px;color:var(--accent);margin:0 0 7px}.panel p{font-size:11px;color:var(--muted);line-height:1.8;margin:5px 0}.panel .path{font-family:ui-monospace,monospace;direction:ltr;text-align:left;color:#cde8dc;font-size:10px;background:#06150f;border-radius:7px;padding:7px;overflow:auto}.close{float:left;border:0;background:transparent;color:#9fc2b1;cursor:pointer;font-size:18px}.badges{display:flex;gap:5px;flex-wrap:wrap;margin:8px 0}.badge{font-size:10px;border:1px solid var(--line);border-radius:999px;padding:3px 7px;color:#cde8dc}.stats{position:absolute;left:12px;top:12px;background:rgba(10,30,22,.9);border:1px solid var(--line);border-radius:10px;padding:8px 10px;font-size:10px;color:var(--muted);z-index:2}.stats b{color:var(--accent)}.legend{position:absolute;left:12px;bottom:12px;background:rgba(10,30,22,.9);border:1px solid var(--line);border-radius:10px;padding:8px;display:flex;gap:7px;flex-wrap:wrap;max-width:55vw;z-index:2}.legend button{border:0;background:none;color:var(--muted);cursor:pointer;font-size:10px}.dot{display:inline-block;width:9px;height:9px;border-radius:50%;vertical-align:-1px;margin-left:4px}.hint{position:absolute;bottom:12px;right:12px;background:#071a12d9;border:1px solid var(--line);border-radius:9px;padding:7px 9px;color:#8eb7a5;font-size:10px;z-index:2}
+@media(max-width:700px){.sub{display:none}.search{width:42vw}.panel{top:auto;bottom:10px;right:10px;max-height:46%}.hint{display:none}.legend{max-width:90vw}.title{font-size:12px}}
 </style>
 </head>
 <body>
-
-<div id="header">
-  <h1>🌿 گراف دانش پروژه senoobar.ir</h1>
-  <div id="legend"></div>
-</div>
-
-<div id="graph-container">
-  <div id="stats"></div>
-  <div id="tooltip"></div>
-  <svg></svg>
-  <div id="controls">
-    <button class="btn" onclick="resetZoom()">🔍 بازنشانی زوم</button>
-    <button class="btn" onclick="toggleLabels()">🏷️ برچسب‌ها</button>
-  </div>
-</div>
-
+<div class="app">
+<header class="top">
+  <div class="title">🌿 گراف دانش صنوبر</div>
+  <div class="sub">WordPress + WooCommerce · نسخهٔ گراف مستقل از D3</div>
+  <input id="search" class="search" placeholder="جستجوی فایل یا قابلیت…" autocomplete="off">
+  <button class="btn" id="reset">بازنشانی</button>
+  <button class="btn" id="labels">برچسب‌ها</button>
+</header>
+<main class="main">
+<svg id="svg" class="graph" viewBox="0 0 1600 1000" aria-label="گراف دانش پروژه صنوبر">
+  <g id="world"></g>
+</svg>
+<div id="stats" class="stats"></div>
+<div id="legend" class="legend"></div>
+<div class="hint">🖱 کشیدن = حرکت · چرخ موس/دو انگشت = زوم · کلیک روی گره = جزئیات</div>
+<div id="panel" class="panel" hidden></div>
+</main></div>
 <script>
-const W = window.innerWidth;
-const H = window.innerHeight - 50;
+'use strict';
+const C={core:'#4dd0a1',php:'#62b9ff',template:'#ffb65c',part:'#ff8b68',woo:'#c27ae5',css:'#7fd6ff',js:'#ffd65b',data:'#a8dc9f',pwa:'#7de3e8',asset:'#d89bff'};
+const labels={core:'هسته',php:'PHP / قابلیت',template:'قالب صفحه',part:'Template Part',woo:'WooCommerce',css:'CSS',js:'JavaScript',data:'داده/تصویر',pwa:'PWA/سرویس',asset:'دارایی'};
+const N=[]; const E=[]; const add=(id,type,label,desc='')=>N.push({id,type,label,desc}); const edge=(a,b,r)=>E.push({a,b,r});
+// Core / bootstrap — based on functions.php
+add('functions.php','core','functions.php','Bootstrap اصلی قالب؛ ثابت‌های SENOOBAR_* را تعریف می‌کند و فایل‌های inc را require می‌کند.');
+['class-senoobar-theme.php','critical-css.php','cart-handlers.php','woocommerce-setup.php','cart-page-setup.php','newsletter-handlers.php','push-handlers.php','wishlist-page-setup.php','legal-pages-setup.php','account.php','wishlist.php','otp-login.php','otp-register.php','seo.php','showroom-pages-setup.php','ideas-setup.php','idea-admin.php','bulk-post-importer.php'].forEach(x=>{const p='inc/'+x;add(p,'php',x,'ماژول بارگذاری‌شده توسط functions.php');edge('functions.php',p,'require_once')});
+add('inc/class-senoobar-theme.php','core','Senoobar_Theme','هسته شیءگرا: setup، assets، WooCommerce، منوها، Customizer، PWA، rewrite و performance.');
+edge('inc/class-senoobar-theme.php','functions.php','init hook');
+add('inc/bulk-post-importer-images.php','php','bulk-post-importer-images.php','Import تصاویر/ZIP؛ از uploads و Media Library استفاده می‌کند.');
+edge('inc/bulk-post-importer.php','inc/bulk-post-importer-images.php','image importer');
+// Main templates
+[['index.php','صفحه اصلی'],['header.php','هدر'],['footer.php','فوتر'],['search.php','جستجو'],['archive-product.php','آرشیو فروشگاه'],['auth.php','احراز هویت'],['single-senoobar_idea.php','ایده/Showroom'],['page-about.php','درباره ما'],['page-contact.php','تماس'],['page-faq.php','FAQ'],['page-privacy.php','حریم خصوصی'],['page-terms.php','قوانین'],['page-wishlist.php','لیست علاقه‌مندی'],['template-bedroom.php','Template خواب'],['template-furniture.php','Template مبلمان'],['template-ideas.php','Template ایده‌ها']].forEach(x=>add(x[0],'template',x[1]));
+// Parts
+[['hero.php','Hero'],['categories-grid.php','دسته‌بندی‌ها'],['featured-products.php','محصولات ویژه'],['services.php','خدمات'],['promo-banners.php','بنر تبلیغاتی'],['bestsellers.php','پرفروش‌ها'],['inspiration.php','الهام'],['testimonials.php','نظرات'],['story.php','داستان برند'],['blog-section.php','بلاگ'],['newsletter.php','خبرنامه'],['content-none.php','بدون محتوا'],['content-single.php','محتوای نوشته'],['content-page.php','محتوای صفحه'],['content-archive.php','محتوای آرشیو'],['showroom-layout.php','چیدمان Showroom']].forEach(x=>add('template-parts/'+x[0],'part',x[1]));
+edge('index.php','template-parts/hero.php','render');edge('index.php','template-parts/categories-grid.php','render');edge('index.php','template-parts/featured-products.php','render');edge('index.php','template-parts/services.php','render');edge('index.php','template-parts/promo-banners.php','render');edge('index.php','template-parts/bestsellers.php','render');edge('index.php','template-parts/inspiration.php','render');edge('index.php','template-parts/testimonials.php','render');edge('index.php','template-parts/story.php','render');edge('index.php','template-parts/blog-section.php','render');edge('index.php','template-parts/newsletter.php','render');
+// Woo templates
+[['woocommerce/single-product.php','محصول'],['woocommerce/content-product.php','کارت محصول'],['woocommerce/cart/cart.php','سبد'],['woocommerce/checkout/form-checkout.php','Checkout'],['woocommerce/checkout/form-billing.php','Billing'],['woocommerce/checkout/form-login.php','Login'],['woocommerce/checkout/form-register.php','Register'],['woocommerce/checkout/review-order.php','Review Order'],['woocommerce/checkout/payment-method.php','Payment'],['woocommerce/checkout/thankyou.php','Thank You'],['woocommerce/myaccount/senoobar-account.php','حساب کاربری'],['woocommerce/myaccount/dashboard.php','داشبورد'],['woocommerce/myaccount/orders.php','سفارش‌ها'],['woocommerce/myaccount/view-order.php','مشاهده سفارش'],['woocommerce/myaccount/addresses.php','آدرس‌ها'],['woocommerce/myaccount/profile.php','پروفایل'],['woocommerce/myaccount/auth.php','Auth'],['woocommerce/single-product/add-to-cart/simple.php','Add simple'],['woocommerce/single-product/add-to-cart/variable.php','Add variable']].forEach(x=>add(x[0],'woo',x[1]));
+edge('archive-product.php','woocommerce/content-product.php','product loop');edge('woocommerce/single-product.php','woocommerce/single-product/add-to-cart/simple.php','add to cart');edge('woocommerce/single-product.php','woocommerce/single-product/add-to-cart/variable.php','add to cart');edge('woocommerce/checkout/form-checkout.php','woocommerce/checkout/form-billing.php','billing');edge('woocommerce/checkout/form-checkout.php','woocommerce/checkout/review-order.php','review');edge('woocommerce/checkout/form-checkout.php','woocommerce/checkout/payment-method.php','payment');edge('woocommerce/checkout/form-checkout.php','woocommerce/checkout/thankyou.php','flow');
+// CSS/JS assets from repository tree
+[['assets/css/main.css','main.css'],['assets/css/rtl.css','rtl.css'],['assets/css/shop.css','shop.css'],['assets/css/product-detail.css','product-detail.css'],['assets/css/cart.css','cart.css'],['assets/css/checkout.css','checkout.css'],['assets/css/account.css','account.css'],['assets/css/bottom-nav.css','bottom-nav.css'],['assets/css/showroom.css','showroom.css'],['assets/css/wishlist.css','wishlist.css'],['assets/css/critical.css','critical.css'],['assets/css/idea-admin.css','idea-admin.css'],['assets/css/legal-pages.css','legal-pages.css']].forEach(x=>add(x[0],'css',x[1]));
+[['assets/js/app.js','app.js'],['assets/js/cart.js','cart.js'],['assets/js/checkout.js','checkout.js'],['assets/js/idea-admin.js','idea-admin.js'],['assets/js/newsletter.js','newsletter.js'],['assets/js/product-buy-box.js','product-buy-box.js'],['assets/js/push.js','push.js'],['assets/js/shop-filters.js','shop-filters.js'],['assets/js/showroom.js','showroom.js'],['assets/js/wishlist.js','wishlist.js']].forEach(x=>add(x[0],'js',x[1]));
+edge('inc/class-senoobar-theme.php','assets/css/main.css','enqueue');edge('inc/class-senoobar-theme.php','assets/css/shop.css','enqueue');edge('inc/class-senoobar-theme.php','assets/css/product-detail.css','enqueue');edge('inc/class-senoobar-theme.php','assets/js/app.js','enqueue');edge('inc/class-senoobar-theme.php','assets/js/push.js','enqueue');
+// Services/PWA
+[['sw.js','Service Worker'],['manifest.php','Manifest PHP'],['manifest.json','Manifest JSON'],['llms.php','LLMs endpoint'],['offline.php','Offline page']].forEach(x=>add(x[0],'pwa',x[1]));
+edge('inc/class-senoobar-theme.php','sw.js','serve/rewrite');edge('inc/class-senoobar-theme.php','manifest.php','serve/rewrite');edge('inc/class-senoobar-theme.php','llms.php','serve/rewrite');edge('sw.js','assets/js/app.js','cache');edge('sw.js','assets/css/main.css','cache');edge('sw.js','offline.php','fallback');
+// Images/fonts tracked in theme
+[['assets/images/hero-1.jpg','Hero JPG'],['assets/images/hero-1.webp','Hero WebP'],['assets/images/hero-2.jpg','Hero JPG'],['assets/images/hero-2.webp','Hero WebP'],['assets/images/logo.png','Logo'],['assets/fonts/vazirmatn-arabic.woff2','Vazirmatn Arabic'],['assets/fonts/vazirmatn-latin.woff2','Vazirmatn Latin']].forEach(x=>add(x[0],'data',x[1]));
+edge('template-parts/hero.php','assets/images/hero-1.webp','image');edge('template-parts/hero.php','assets/images/hero-2.webp','image');edge('header.php','assets/images/logo.png','logo');edge('inc/class-senoobar-theme.php','assets/fonts/vazirmatn-arabic.woff2','font');
+// Architecture / behavior links
+edge('inc/class-senoobar-theme.php','inc/woocommerce-setup.php','Woo integration');edge('inc/class-senoobar-theme.php','inc/seo.php','SEO');edge('inc/class-senoobar-theme.php','inc/ideas-setup.php','Ideas');edge('inc/class-senoobar-theme.php','inc/showroom-pages-setup.php','Showroom');edge('inc/class-senoobar-theme.php','inc/push-handlers.php','Push');edge('inc/class-senoobar-theme.php','inc/wishlist.php','Wishlist');edge('inc/class-senoobar-theme.php','inc/otp-login.php','OTP');edge('inc/class-senoobar-theme.php','inc/theme-options.php','Customizer options');
+edge('inc/bulk-post-importer-images.php','assets/images/hero-1.webp','illustrative asset');
+// Correct duplicate/alias awareness
+add('IMAGE_PIPELINE','data','تصاویر WordPress/WooCommerce','برای هر تصویر ممکن است چند thumbnail و در صورت وجود افزونه WebP، نسخه WebP جدا ساخته شود؛ این بخش خارج از Git و روی uploads است.');
+edge('inc/class-senoobar-theme.php','IMAGE_PIPELINE','4 custom sizes');edge('inc/bulk-post-importer-images.php','IMAGE_PIPELINE','Media Library');
+add('UPLOADS','data','wp-content/uploads','محل واقعی Media Library و thumbnail/WebPهای سایت؛ در GitHub نیست.');edge('IMAGE_PIPELINE','UPLOADS','runtime files');
+add('CACHE','data','Cache / runtime','کش افزونه‌ها و فایل‌های runtime؛ خارج از repository.');
+add('BACKUP','data','Backup / Trash','Backupها و .trash هاست؛ خارج از repository.');
+add('HOST','core','هاست / DirectAdmin','منبع فضای دیسک واقعی سایت؛ GitHub فقط کد را نشان می‌دهد.');edge('HOST','UPLOADS','disk usage');edge('HOST','CACHE','disk usage');edge('HOST','BACKUP','disk usage');
 
-const COLOR = {
-  'functions':       '#4dd0a1',
-  'theme-class':     '#29b6f6',
-  'template':        '#ffb74d',
-  'template-part':   '#ff8a65',
-  'woo-template':    '#ba68c8',
-  'css':             '#81d4fa',
-  'js':              '#ffd54f',
-  'font':            '#ef9a9a',
-  'image':           '#a5d6a7',
-  'static-html':     '#ce93d8',
-  'service':         '#80deea'
-};
-
-const TYPE_LABEL = {
-  'functions':       'functions.php (هسته)',
-  'theme-class':     'inc/class Theme',
-  'template':        'قالب اصلی',
-  'template-part':   'template-parts',
-  'woo-template':    'قالب WooCommerce',
-  'css':             'CSS',
-  'js':              'JavaScript',
-  'font':            'فونت',
-  'image':           'تصویر',
-  'static-html':     'HTML استاتیک',
-  'service':         'سرویس'
-};
-
-// ── nodes ──────────────────────────────────────────────────────────────────
-const nodes = [
-  // PHP ROOT
-  { id: 'functions.php',           type: 'functions',    label: 'functions.php' },
-  { id: 'index.php',               type: 'template',     label: 'index.php' },
-  { id: 'header.php',              type: 'template',     label: 'header.php' },
-  { id: 'footer.php',              type: 'template',     label: 'footer.php' },
-  { id: 'style.css',               type: 'css',          label: 'style.css' },
-  { id: 'manifest.php',            type: 'service',      label: 'manifest.php' },
-  { id: 'manifest.json',           type: 'static-html',  label: 'manifest.json' },
-  { id: 'llms.php',                type: 'service',      label: 'llms.php' },
-  { id: 'offline.php',             type: 'static-html',  label: 'offline.php' },
-  { id: 'sw.js',                   type: 'js',           label: 'sw.js' },
-  { id: 'auth.php',                type: 'template',     label: 'auth.php' },
-  { id: 'search.php',              type: 'template',     label: 'search.php' },
-  { id: 'archive-product.php',     type: 'template',     label: 'archive-product.php' },
-  { id: 'single-senoobar_idea.php',type: 'template',     label: 'single-senoobar_idea.php' },
-  { id: 'page-about.php',          type: 'template',     label: 'page-about.php' },
-  { id: 'page-contact.php',        type: 'template',     label: 'page-contact.php' },
-  { id: 'page-faq.php',            type: 'template',     label: 'page-faq.php' },
-  { id: 'page-privacy.php',        type: 'template',     label: 'page-privacy.php' },
-  { id: 'page-terms.php',          type: 'template',     label: 'page-terms.php' },
-  { id: 'page-wishlist.php',       type: 'template',     label: 'page-wishlist.php' },
-  { id: 'template-bedroom.php',    type: 'template',     label: 'template-bedroom.php' },
-  { id: 'template-furniture.php',  type: 'template',     label: 'template-furniture.php' },
-  { id: 'template-ideas.php',      type: 'template',     label: 'template-ideas.php' },
-  { id: 'account.css',             type: 'css',          label: 'account.css' },
-  // inc
-  { id: 'inc/class-senoobar-theme.php', type: 'theme-class', label: 'class-senoobar-theme.php' },
-  { id: 'inc/critical-css.php',    type: 'functions',    label: 'critical-css.php' },
-  { id: 'inc/cart-handlers.php',   type: 'functions',    label: 'cart-handlers.php' },
-  { id: 'inc/woocommerce-setup.php',type: 'functions',   label: 'woocommerce-setup.php' },
-  { id: 'inc/cart-page-setup.php', type: 'functions',    label: 'cart-page-setup.php' },
-  { id: 'inc/newsletter-handlers.php', type: 'functions', label: 'newsletter-handlers.php' },
-  { id: 'inc/push-handlers.php',   type: 'functions',    label: 'push-handlers.php' },
-  { id: 'inc/wishlist-page-setup.php', type: 'functions', label: 'wishlist-page-setup.php' },
-  { id: 'inc/legal-pages-setup.php', type: 'functions',  label: 'legal-pages-setup.php' },
-  { id: 'inc/account.php',         type: 'functions',    label: 'account.php' },
-  { id: 'inc/wishlist.php',        type: 'functions',    label: 'wishlist.php' },
-  { id: 'inc/otp-login.php',       type: 'functions',    label: 'otp-login.php' },
-  { id: 'inc/otp-register.php',    type: 'functions',    label: 'otp-register.php' },
-  { id: 'inc/otp-reset.php',       type: 'functions',    label: 'otp-reset.php' },
-  { id: 'inc/seo.php',             type: 'functions',    label: 'seo.php' },
-  { id: 'inc/showroom-pages-setup.php', type: 'functions', label: 'showroom-pages-setup.php' },
-  { id: 'inc/ideas-setup.php',     type: 'functions',    label: 'ideas-setup.php' },
-  { id: 'inc/idea-admin.php',      type: 'functions',    label: 'idea-admin.php' },
-  { id: 'inc/bulk-post-importer.php', type: 'functions', label: 'bulk-post-importer.php' },
-  { id: 'inc/bulk-post-importer-images.php', type: 'functions', label: 'bulk-post-importer-images.php' },
-  { id: 'inc/theme-options.php',   type: 'functions',    label: 'theme-options.php' },
-  // template-parts
-  { id: 'template-parts/hero.php', type: 'template-part', label: 'hero.php' },
-  { id: 'template-parts/categories-grid.php', type: 'template-part', label: 'categories-grid.php' },
-  { id: 'template-parts/featured-products.php', type: 'template-part', label: 'featured-products.php' },
-  { id: 'template-parts/services.php', type: 'template-part', label: 'services.php' },
-  { id: 'template-parts/promo-banners.php', type: 'template-part', label: 'promo-banners.php' },
-  { id: 'template-parts/bestsellers.php', type: 'template-part', label: 'bestsellers.php' },
-  { id: 'template-parts/inspiration.php', type: 'template-part', label: 'inspiration.php' },
-  { id: 'template-parts/testimonials.php', type: 'template-part', label: 'testimonials.php' },
-  { id: 'template-parts/story.php', type: 'template-part', label: 'story.php' },
-  { id: 'template-parts/blog-section.php', type: 'template-part', label: 'blog-section.php' },
-  { id: 'template-parts/newsletter.php', type: 'template-part', label: 'newsletter.php' },
-  { id: 'template-parts/content-none.php', type: 'template-part', label: 'content-none.php' },
-  { id: 'template-parts/content-single.php', type: 'template-part', label: 'content-single.php' },
-  { id: 'template-parts/content-page.php', type: 'template-part', label: 'content-page.php' },
-  { id: 'template-parts/content-archive.php', type: 'template-part', label: 'content-archive.php' },
-  { id: 'template-parts/showroom-layout.php', type: 'template-part', label: 'showroom-layout.php' },
-  // woocommerce
-  { id: 'woocommerce/single-product.php', type: 'woo-template', label: 'single-product.php' },
-  { id: 'woocommerce/content-product.php', type: 'woo-template', label: 'content-product.php' },
-  { id: 'woocommerce/cart/cart.php', type: 'woo-template', label: 'cart.php' },
-  { id: 'woocommerce/checkout/form-checkout.php', type: 'woo-template', label: 'form-checkout.php' },
-  { id: 'woocommerce/checkout/form-billing.php', type: 'woo-template', label: 'form-billing.php' },
-  { id: 'woocommerce/checkout/form-login.php', type: 'woo-template', label: 'form-login.php' },
-  { id: 'woocommerce/checkout/form-register.php', type: 'woo-template', label: 'form-register.php' },
-  { id: 'woocommerce/checkout/review-order.php', type: 'woo-template', label: 'review-order.php' },
-  { id: 'woocommerce/checkout/payment-method.php', type: 'woo-template', label: 'payment-method.php' },
-  { id: 'woocommerce/checkout/thankyou.php', type: 'woo-template', label: 'thankyou.php' },
-  { id: 'woocommerce/myaccount/senoobar-account.php', type: 'woo-template', label: 'senoobar-account.php' },
-  { id: 'woocommerce/myaccount/dashboard.php', type: 'woo-template', label: 'myaccount/dashboard.php' },
-  { id: 'woocommerce/myaccount/orders.php', type: 'woo-template', label: 'myaccount/orders.php' },
-  { id: 'woocommerce/myaccount/orders.php', type: 'woo-template', label: 'myaccount/orders.php' },
-  { id: 'woocommerce/myaccount/view-order.php', type: 'woo-template', label: 'myaccount/view-order.php' },
-  { id: 'woocommerce/myaccount/addresses.php', type: 'woo-template', label: 'myaccount/addresses.php' },
-  { id: 'woocommerce/myaccount/profile.php', type: 'woo-template', label: 'myaccount/profile.php' },
-  { id: 'woocommerce/myaccount/auth.php', type: 'woo-template', label: 'myaccount/auth.php' },
-  { id: 'woocommerce/single-product/add-to-cart/simple.php', type: 'woo-template', label: 'add-to-cart/simple.php' },
-  { id: 'woocommerce/single-product/add-to-cart/variable.php', type: 'woo-template', label: 'add-to-cart/variable.php' },
-  // CSS
-  { id: 'assets/css/main.css',     type: 'css', label: 'main.css' },
-  { id: 'assets/css/rtl.css',      type: 'css', label: 'rtl.css' },
-  { id: 'assets/css/shop.css',     type: 'css', label: 'shop.css' },
-  { id: 'assets/css/cart.css',     type: 'css', label: 'cart.css' },
-  { id: 'assets/css/checkout.css', type: 'css', label: 'checkout.css' },
-  { id: 'assets/css/bottom-nav.css', type: 'css', label: 'bottom-nav.css' },
-  { id: 'assets/css/wishlist.css', type: 'css', label: 'wishlist.css' },
-  { id: 'assets/css/product-detail.css', type: 'css', label: 'product-detail.css' },
-  { id: 'assets/css/showroom.css', type: 'css', label: 'showroom.css' },
-  { id: 'assets/css/legal-pages.css', type: 'css', label: 'legal-pages.css' },
-  { id: 'assets/css/idea-admin.css', type: 'css', label: 'idea-admin.css' },
-  { id: 'assets/css/critical.css', type: 'css', label: 'critical.css' },
-  // JS
-  { id: 'assets/js/app.js',        type: 'js', label: 'app.js' },
-  { id: 'assets/js/cart.js',       type: 'js', label: 'cart.js' },
-  { id: 'assets/js/checkout.js',   type: 'js', label: 'checkout.js' },
-  { id: 'assets/js/wishlist.js',   type: 'js', label: 'wishlist.js' },
-  { id: 'assets/js/push.js',       type: 'js', label: 'push.js' },
-  { id: 'assets/js/shop-filters.js', type: 'js', label: 'shop-filters.js' },
-  { id: 'assets/js/product-buy-box.js', type: 'js', label: 'product-buy-box.js' },
-  { id: 'assets/js/newsletter.js', type: 'js', label: 'newsletter.js' },
-  { id: 'assets/js/showroom.js',   type: 'js', label: 'showroom.js' },
-  { id: 'assets/js/idea-admin.js', type: 'js', label: 'idea-admin.js' },
-  // FONTS
-  { id: 'assets/fonts/vazirmatn-arabic.woff2', type: 'font', label: 'vazirmatn-arabic.woff2' },
-  { id: 'assets/fonts/vazirmatn-latin.woff2',  type: 'font', label: 'vazirmatn-latin.woff2' },
-  // IMAGES
-  { id: 'assets/images/hero-1.jpg',  type: 'image', label: 'hero-1.jpg' },
-  { id: 'assets/images/hero-1.webp', type: 'image', label: 'hero-1.webp' },
-  { id: 'assets/images/hero-2.jpg',  type: 'image', label: 'hero-2.jpg' },
-  { id: 'assets/images/hero-2.webp', type: 'image', label: 'hero-2.webp' },
-  { id: 'assets/images/featured-dining.jpg',  type: 'image', label: 'featured-dining.jpg' },
-  { id: 'assets/images/featured-sofa.jpg',    type: 'image', label: 'featured-sofa.jpg' },
-  { id: 'assets/images/featured-tv-table.jpg',type: 'image', label: 'featured-tv-table.jpg' },
-  { id: 'assets/images/promo-bedroom.jpg',    type: 'image', label: 'promo-bedroom.jpg' },
-  { id: 'assets/images/story.jpg',            type: 'image', label: 'story.jpg' },
-  { id: 'assets/images/blog-1.jpg',           type: 'image', label: 'blog-1.jpg' },
-  { id: 'assets/images/blog-2.jpg',           type: 'image', label: 'blog-2.jpg' },
-  { id: 'assets/images/inspiration-living.jpg',type:'image', label: 'inspiration-living.jpg' },
-  { id: 'assets/images/cat-bed.jpg',    type: 'image', label: 'cat-bed.jpg' },
-  { id: 'assets/images/cat-mattress.jpg',type:'image', label: 'cat-mattress.jpg' },
-  { id: 'assets/images/cat-table.jpg',  type: 'image', label: 'cat-table.jpg' },
-  { id: 'assets/images/cat-wardrobe.jpg',type:'image', label: 'cat-wardrobe.jpg' },
-  { id: '.htaccess',                 type: 'static-html', label: '.htaccess' },
-  { id: 'README.md',                 type: 'static-html', label: 'README.md' },
-];
-
-// ── edges (source → target, label) ─────────────────────────────────────────
-const edges = [
-  // functions.php → inc files (require_once chain)
-  { s:'functions.php', t:'inc/class-senoobar-theme.php', l:'require_once' },
-  { s:'functions.php', t:'inc/critical-css.php', l:'require_once' },
-  { s:'functions.php', t:'inc/cart-handlers.php', l:'require_once' },
-  { s:'functions.php', t:'inc/woocommerce-setup.php', l:'require_once' },
-  { s:'functions.php', t:'inc/cart-page-setup.php', l:'require_once' },
-  { s:'functions.php', t:'inc/newsletter-handlers.php', l:'require_once' },
-  { s:'functions.php', t:'inc/push-handlers.php', l:'require_once' },
-  { s:'functions.php', t:'inc/wishlist-page-setup.php', l:'require_once' },
-  { s:'functions.php', t:'inc/legal-pages-setup.php', l:'require_once' },
-  { s:'functions.php', t:'inc/account.php', l:'require_once' },
-  { s:'functions.php', t:'inc/wishlist.php', l:'require_once' },
-  { s:'functions.php', t:'inc/otp-login.php', l:'require_once' },
-  { s:'functions.php', t:'inc/otp-register.php', l:'require_once' },
-  { s:'functions.php', t:'inc/seo.php', l:'require_once' },
-  { s:'functions.php', t:'inc/showroom-pages-setup.php', l:'require_once' },
-  { s:'functions.php', t:'inc/ideas-setup.php', l:'require_once' },
-  { s:'functions.php', t:'inc/idea-admin.php', l:'require_once' },
-  { s:'functions.php', t:'inc/bulk-post-importer.php', l:'require_once' },
-
-  // theme class → assets (wp_enqueue_style)
-  { s:'inc/class-senoobar-theme.php', t:'assets/css/main.css', l:'wp_enqueue_style' },
-  { s:'inc/class-senoobar-theme.php', t:'assets/css/rtl.css', l:'wp_enqueue_style' },
-  { s:'inc/class-senoobar-theme.php', t:'assets/css/shop.css', l:'wp_enqueue_style' },
-  { s:'inc/class-senoobar-theme.php', t:'assets/css/cart.css', l:'wp_enqueue_style' },
-  { s:'inc/class-senoobar-theme.php', t:'assets/css/checkout.css', l:'wp_enqueue_style' },
-  { s:'inc/class-senoobar-theme.php', t:'account.css', l:'wp_enqueue_style' },
-  { s:'inc/class-senoobar-theme.php', t:'assets/css/bottom-nav.css', l:'wp_enqueue_style' },
-  { s:'inc/class-senoobar-theme.php', t:'assets/css/wishlist.css', l:'wp_enqueue_style' },
-  { s:'inc/class-senoobar-theme.php', t:'assets/css/product-detail.css', l:'wp_enqueue_style (wc)' },
-  { s:'inc/class-senoobar-theme.php', t:'assets/css/showroom.css', l:'wp_enqueue_style' },
-  { s:'inc/class-senoobar-theme.php', t:'assets/css/legal-pages.css', l:'wp_enqueue_style' },
-  { s:'inc/class-senoobar-theme.php', t:'assets/css/idea-admin.css', l:'wp_enqueue_style' },
-  { s:'inc/class-senoobar-theme.php', t:'assets/css/critical.css', l:'inline (inc/critical-css.php)' },
-  // theme class → assets (wp_enqueue_script)
-  { s:'inc/class-senoobar-theme.php', t:'assets/js/app.js', l:'wp_enqueue_script' },
-  { s:'inc/class-senoobar-theme.php', t:'assets/js/wishlist.js', l:'wp_enqueue_script [app]' },
-  { s:'inc/class-senoobar-theme.php', t:'assets/js/cart.js', l:'wp_enqueue_script [app]' },
-  { s:'inc/class-senoobar-theme.php', t:'assets/js/push.js', l:'wp_enqueue_script [app]' },
-  { s:'inc/class-senoobar-theme.php', t:'assets/js/checkout.js', l:'wp_enqueue_script [app]' },
-  { s:'inc/class-senoobar-theme.php', t:'assets/js/shop-filters.js', l:'wp_enqueue_script [app]' },
-  { s:'inc/class-senoobar-theme.php', t:'assets/js/product-buy-box.js', l:'wp_enqueue_script [app]' },
-  { s:'inc/class-senoobar-theme.php', t:'assets/js/newsletter.js', l:'wp_enqueue_script [app]' },
-  // theme class → fonts/images
-  { s:'inc/class-senoobar-theme.php', t:'assets/fonts/vazirmatn-arabic.woff2', l:'@font-face (critical.css)' },
-  { s:'inc/class-senoobar-theme.php', t:'assets/fonts/vazirmatn-latin.woff2', l:'@font-face (critical.css)' },
-  { s:'inc/class-senoobar-theme.php', t:'assets/images/hero-1.jpg', l:'preload / fallback' },
-  { s:'inc/class-senoobar-theme.php', t:'assets/images/hero-1.webp', l:'preload (LCP)' },
-  { s:'inc/class-senoobar-theme.php', t:'assets/images/logo.png', l:'apple-touch-icon' },
-  // theme class → service files
-  { s:'inc/class-senoobar-theme.php', t:'sw.js', l:'include (sw rewrite)' },
-  { s:'inc/class-senoobar-theme.php', t:'manifest.php', l:'include (manifest rewrite)' },
-  { s:'inc/class-senoobar-theme.php', t:'llms.php', l:'include (llms rewrite)' },
-
-  // header.php / footer.php used by all templates
-  ...['page-about.php','page-contact.php','page-faq.php','page-privacy.php','page-terms.php',
-   'page-wishlist.php','archive-product.php','search.php','single-senoobar_idea.php',
-   'woocommerce/single-product.php','woocommerce/cart/cart.php',
-   'woocommerce/checkout/form-checkout.php',
-   'woocommerce/myaccount/senoobar-account.php',
-   'template-bedroom.php','template-furniture.php','template-ideas.php'
-  ].map(f => ({ s: f, t: 'header.php', l: 'get_header()' })),
-  ...['page-about.php','page-contact.php','page-faq.php','page-privacy.php','page-terms.php',
-   'page-wishlist.php','archive-product.php','search.php','single-senoobar_idea.php',
-   'woocommerce/single-product.php','woocommerce/cart/cart.php',
-   'woocommerce/checkout/form-checkout.php',
-   'woocommerce/myaccount/senoobar-account.php',
-   'template-bedroom.php','template-furniture.php','template-ideas.php'
-  ].map(f => ({ s: f, t: 'footer.php', l: 'get_footer()' })),
-
-  // index.php → template-parts
-  { s:'index.php', t:'template-parts/hero.php', l:'get_template_part' },
-  { s:'index.php', t:'template-parts/categories-grid.php', l:'get_template_part' },
-  { s:'index.php', t:'template-parts/featured-products.php', l:'get_template_part' },
-  { s:'index.php', t:'template-parts/services.php', l:'get_template_part' },
-  { s:'index.php', t:'template-parts/promo-banners.php', l:'get_template_part' },
-  { s:'index.php', t:'template-parts/bestsellers.php', l:'get_template_part' },
-  { s:'index.php', t:'template-parts/inspiration.php', l:'get_template_part' },
-  { s:'index.php', t:'template-parts/testimonials.php', l:'get_template_part' },
-  { s:'index.php', t:'template-parts/story.php', l:'get_template_part' },
-  { s:'index.php', t:'template-parts/blog-section.php', l:'get_template_part' },
-  { s:'index.php', t:'template-parts/newsletter.php', l:'get_template_part' },
-  { s:'index.php', t:'template-parts/content-single.php', l:'get_template_part' },
-  { s:'index.php', t:'template-parts/content-page.php', l:'get_template_part' },
-  { s:'index.php', t:'template-parts/content-archive.php', l:'get_template_part' },
-  { s:'index.php', t:'template-parts/content-none.php', l:'get_template_part' },
-
-  // showroom templates
-  { s:'template-bedroom.php', t:'template-parts/showroom-layout.php', l:'get_template_part' },
-  { s:'template-furniture.php', t:'template-parts/showroom-layout.php', l:'get_template_part' },
-
-  // woocommerce/myaccount
-  { s:'woocommerce/myaccount/senoobar-account.php', t:'woocommerce/myaccount/auth.php', l:'get_template_part' },
-  { s:'woocommerce/myaccount/senoobar-account.php', t:'woocommerce/myaccount/view-order.php', l:'get_template_part' },
-  { s:'woocommerce/myaccount/senoobar-account.php', t:'woocommerce/myaccount/orders.php', l:'get_template_part' },
-  { s:'woocommerce/myaccount/senoobar-account.php', t:'woocommerce/myaccount/addresses.php', l:'get_template_part' },
-  { s:'woocommerce/myaccount/senoobar-account.php', t:'woocommerce/myaccount/profile.php', l:'get_template_part' },
-  { s:'woocommerce/myaccount/senoobar-account.php', t:'woocommerce/myaccount/dashboard.php', l:'get_template_part' },
-
-  // woocommerce checkout
-  { s:'woocommerce/checkout/form-checkout.php', t:'woocommerce/checkout/form-login.php', l:'wc_get_template_part' },
-  { s:'woocommerce/checkout/form-checkout.php', t:'woocommerce/checkout/form-billing.php', l:'wc_get_template_part' },
-  { s:'woocommerce/checkout/form-checkout.php', t:'woocommerce/checkout/review-order.php', l:'wc_get_template_part' },
-  { s:'woocommerce/checkout/form-checkout.php', t:'woocommerce/checkout/payment-method.php', l:'wc_get_template_part' },
-  { s:'woocommerce/checkout/form-checkout.php', t:'woocommerce/checkout/form-register.php', l:'wc_get_template_part' },
-  { s:'woocommerce/checkout/form-checkout.php', t:'woocommerce/checkout/thankyou.php', l:'wc_get_template_part' },
-
-  // woocommerce archive/search
-  { s:'archive-product.php', t:'woocommerce/content-product.php', l:'wc_get_template_part' },
-  { s:'search.php', t:'woocommerce/content-product.php', l:'wc_get_template_part' },
-  { s:'template-parts/featured-products.php', t:'woocommerce/content-product.php', l:'wc_get_template_part' },
-  { s:'template-parts/bestsellers.php', t:'woocommerce/content-product.php', l:'wc_get_template_part' },
-
-  // single-product → add-to-cart
-  { s:'woocommerce/single-product.php', t:'woocommerce/single-product/add-to-cart/simple.php', l:'wc_get_template_part' },
-  { s:'woocommerce/single-product.php', t:'woocommerce/single-product/add-to-cart/variable.php', l:'wc_get_template_part' },
-  { s:'woocommerce/single-product.php', t:'assets/css/product-detail.css', l:'wp_enqueue_style' },
-
-  // header.php → bloginfo/wp_get_attachment_image
-  { s:'header.php', t:'assets/images/logo.png', l:'wp_get_attachment_image (logo)' },
-  { s:'template-parts/newsletter.php', t:'header.php', l:'render در header' },
-  { s:'footer.php', t:'template-parts/newsletter.php', l:'get_template_part' },
-
-  // content-archive → blog images
-  { s:'template-parts/content-archive.php', t:'assets/images/blog-1.jpg', l:'fallback img' },
-
-  // single-senoobar_idea → bloginfo
-  { s:'single-senoobar_idea.php', t:'header.php', l:'bloginfo / implicit' },
-];
-
-// Build node map
-const nodeMap = {};
-nodes.forEach(n => nodeMap[n.id] = n);
-
-// ── build legend ─────────────────────────────────────────────────────────────
-const legendEl = document.getElementById('legend');
-Object.entries(TYPE_LABEL).forEach(([k, v]) => {
-  const item = document.createElement('div');
-  item.className = 'legend-item';
-  item.innerHTML = `<div class="legend-dot" style="background:${COLOR[k]}"></div>${v}`;
-  legendEl.appendChild(item);
-});
-
-// ── D3 force graph ───────────────────────────────────────────────────────────
-const svg = d3.select('svg');
-const container = svg.append('g');
-
-const zoom = d3.zoom().scaleExtent([0.2, 4]).on('zoom', (e) => {
-  container.attr('transform', e.transform);
-});
-svg.call(zoom);
-
-const simulation = d3.forceSimulation(nodes)
-  .force('link', d3.forceLink(edges).id(d => d.id).distance(90).strength(0.4))
-  .force('charge', d3.forceManyBody().strength(-280))
-  .force('center', d3.forceCenter(W / 2, H / 2))
-  .force('collision', d3.forceCollide().radius(28));
-
-const link = container.append('g').selectAll('line')
-  .data(edges).join('line')
-  .attr('class', 'link')
-  .attr('stroke', '#2e7a50')
-  .attr('stroke-dasharray', d => d.l.includes('wp_enqueue') ? '4,3' : 'none');
-
-const linkLabel = container.append('g').selectAll('text')
-  .data(edges).join('text')
-  .attr('font-size', '7px')
-  .attr('fill', '#5a9a78')
-  .attr('text-anchor', 'middle')
-  .attr('dy', -3)
-  .text(d => d.l)
-  .style('pointer-events', 'none');
-
-const node = container.append('g').selectAll('g')
-  .data(nodes).join('g').attr('class', 'node')
-  .call(d3.drag()
-    .on('start', (e, d) => { if (!e.active) simulation.alphaTarget(0.3).restart(); d.fx = d.x; d.fy = d.y; })
-    .on('drag',  (e, d) => { d.fx = e.x; d.fy = e.y; })
-    .on('end',   (e, d) => { if (!e.active) simulation.alphaTarget(0); d.fx = null; d.fy = null; })
-  );
-
-node.append('circle')
-  .attr('r', d => d.type === 'functions' || d.type === 'theme-class' ? 10 : 7)
-  .attr('fill', d => COLOR[d.type] || '#888')
-  .attr('stroke', '#0a1a14')
-  .attr('stroke-width', 1.5);
-
-node.append('text')
-  .attr('class', 'node-label')
-  .attr('dy', d => (d.type === 'functions' || d.type === 'theme-class' ? 14 : 11))
-  .text(d => d.label);
-
-simulation.on('tick', () => {
-  link
-    .attr('x1', d => d.source.x)
-    .attr('y1', d => d.source.y)
-    .attr('x2', d => d.target.x)
-    .attr('y2', d => d.target.y);
-  linkLabel
-    .attr('x', d => (d.source.x + d.target.x) / 2)
-    .attr('y', d => (d.source.y + d.target.y) / 2);
-  node.attr('transform', d => `translate(${d.x},${d.y})`);
-});
-
-// ── tooltip ──────────────────────────────────────────────────────────────────
-const tooltip = document.getElementById('tooltip');
-
-function incoming(nodeId) {
-  return edges.filter(e => e.t.id === nodeId || e.t === nodeId)
-    .map(e => ({ from: (e.s.id || e.s), rel: e.l }));
-}
-function outgoing(nodeId) {
-  return edges.filter(e => e.s.id === nodeId || e.s === nodeId)
-    .map(e => ({ to: (e.t.id || e.t), rel: e.l }));
-}
-
-node.on('mouseenter', (e, d) => {
-  const inc = incoming(d.id);
-  const out = outgoing(d.id);
-  let html = `<h4>${d.label}</h4>`;
-  html += `<div class="rel"><b>نوع:</b> ${TYPE_LABEL[d.type] || d.type}</div>`;
-  html += `<div class="rel" style="margin-top:4px"><b>وارد می‌شود از (${inc.length}):</b><br>` +
-    inc.slice(0,5).map(r => `  ← ${r.from} <small>[${r.rel}]</small>`).join('<br>') +
-    (inc.length > 5 ? `<br>  +${inc.length-5} مورد دیگر` : '') + `</div>`;
-  html += `<div class="rel" style="margin-top:4px"><b>وارد می‌کند به (${out.length}):</b><br>` +
-    out.slice(0,5).map(r => `  → ${r.to} <small>[${r.rel}]</small>`).join('<br>') +
-    (out.length > 5 ? `<br>  +${out.length-5} مورد دیگر` : '') + `</div>`;
-  html += `<div class="rel" style="margin-top:4px"><b>کل ارتباطات:</b> ${inc.length + out.length}</div>`;
-  tooltip.innerHTML = html;
-  tooltip.style.opacity = '1';
-  const rect = document.getElementById('graph-container').getBoundingClientRect();
-  tooltip.style.left = Math.min(e.clientX - rect.left + 14, rect.width - 370) + 'px';
-  tooltip.style.top  = Math.min(e.clientY - rect.top  + 14, rect.height - 200) + 'px';
-})
-.on('mouseleave', () => { tooltip.style.opacity = '0'; });
-
-// ── controls ─────────────────────────────────────────────────────────────────
-function resetZoom() {
-  svg.transition().duration(600).call(zoom.transform, d3.zoomIdentity);
-}
-let showLabels = true;
-function toggleLabels() {
-  showLabels = !showLabels;
-  node.selectAll('text').style('display', showLabels ? null : 'none');
-}
-
-// ── stats ─────────────────────────────────────────────────────────────────────
-const statsEl = document.getElementById('stats');
-statsEl.innerHTML = `
-  📁 <span>${nodes.length}</span> فایل &nbsp;|&nbsp;
-  🔗 <span>${edges.length}</span> ارتباط &nbsp;|&nbsp;
-  🏷️ <span>${Object.keys(COLOR).length}</span> دسته‌بندی<br>
-  <small style="color:#7a9a8a">برای جستجو در نمودار روی گره‌ها کلیک یا هاور کنید</small>
-`;
-
-// Center initially
-svg.call(zoom.transform, d3.zoomIdentity.translate(W/2, H/2).scale(0.7).translate(-W/2, -H/2));
+const svg=document.getElementById('svg'),world=document.getElementById('world'),panel=document.getElementById('panel'),stats=document.getElementById('stats'),legend=document.getElementById('legend'),search=document.getElementById('search');
+const W=1600,H=1000; let showLabels=true, selected=null, scale=1, ox=0, oy=0, dragging=false, sx=0, sy=0;
+// Deterministic radial layout by type; readable without any external library.
+const groups={core:[800,470],php:[420,430],template:[1120,300],part:[1120,650],woo:[800,820],css:[280,770],js:[380,720],pwa:[1380,760],data:[1380,350]};
+const counts={};N.forEach(n=>counts[n.type]=(counts[n.type]||0)+1);const idx={};N.forEach(n=>{idx[n.type]=(idx[n.type]||0);const g=groups[n.type]||[800,500],i=idx[n.type]++,c=counts[n.type],r=Math.min(270,55+c*9),a=(i/c)*Math.PI*2-(Math.PI/2);n.x=g[0]+Math.cos(a)*r;n.y=g[1]+Math.sin(a)*r;n.r=n.type==='core'?18:n.type==='php'?10:8});
+function esc(s){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
+function draw(){world.innerHTML='';const eg=document.createElementNS('http://www.w3.org/2000/svg','g');const ng=document.createElementNS('http://www.w3.org/2000/svg','g');world.append(eg,ng);
+ E.forEach(e=>{const a=N.find(n=>n.id===e.a),b=N.find(n=>n.id===e.b);if(!a||!b)return;const l=document.createElementNS('http://www.w3.org/2000/svg','line');l.classList.add('edge');l.dataset.a=e.a;l.dataset.b=e.b;l.setAttribute('x1',a.x);l.setAttribute('y1',a.y);l.setAttribute('x2',b.x);l.setAttribute('y2',b.y);eg.appendChild(l)});
+ N.forEach(n=>{const g=document.createElementNS('http://www.w3.org/2000/svg','g');g.classList.add('node');g.dataset.id=n.id;g.setAttribute('transform',`translate(${n.x},${n.y})`);const c=document.createElementNS('http://www.w3.org/2000/svg','circle');c.setAttribute('r',n.r);c.setAttribute('fill',C[n.type]||'#aaa');g.appendChild(c);const t=document.createElementNS('http://www.w3.org/2000/svg','text');t.classList.add('node-label');t.textContent=n.label;t.setAttribute('y',n.r+14);if(!showLabels)t.style.display='none';g.appendChild(t);g.addEventListener('click',()=>select(n.id));ng.appendChild(g)});
+ stats.innerHTML=`گره‌ها: <b>${N.length}</b> · ارتباط‌ها: <b>${E.length}</b> · گروه‌ها: <b>${Object.keys(counts).length}</b>`;legend.innerHTML='';Object.entries(labels).forEach(([k,v])=>{const b=document.createElement('button');b.innerHTML=`<span class="dot" style="background:${C[k]}"></span>${v}`;b.onclick=()=>filterType(k);legend.appendChild(b)});applyTransform()}
+function applyTransform(){world.setAttribute('transform',`translate(${ox},${oy}) scale(${scale})`)}
+function select(id){selected=id;document.querySelectorAll('.node').forEach(g=>g.classList.remove('selected','near','dim'));document.querySelectorAll('.edge').forEach(l=>l.classList.remove('active','dim'));const n=N.find(x=>x.id===id);const near=new Set([id]);E.forEach(e=>{if(e.a===id)near.add(e.b);if(e.b===id)near.add(e.a)});document.querySelectorAll('.node').forEach(g=>{if(g.dataset.id===id)g.classList.add('selected');else if(near.has(g.dataset.id))g.classList.add('near');else g.classList.add('dim')});document.querySelectorAll('.edge').forEach(l=>{if(l.dataset.a===id||l.dataset.b===id)l.classList.add('active');else l.classList.add('dim')});panel.hidden=false;panel.innerHTML=`<button class="close" onclick="closePanel()">×</button><h2>${esc(n.label)}</h2><div class="badges"><span class="badge">${esc(labels[n.type]||n.type)}</span></div><div class="path">${esc(n.id)}</div><p>${esc(n.desc||'گرهٔ معماری پروژه.')}</p><p><b>ارتباط مستقیم:</b> ${[...near].filter(x=>x!==id).map(x=>esc(N.find(n=>n.id===x)?.label||x)).join(' · ')||'ندارد'}</p>`}
+function closePanel(){panel.hidden=true;selected=null;document.querySelectorAll('.node,.edge').forEach(x=>x.classList.remove('selected','near','dim','active'))}
+function filterType(type){closePanel();document.querySelectorAll('.node').forEach(g=>g.classList.toggle('dim',N.find(n=>n.id===g.dataset.id)?.type!==type));document.querySelectorAll('.edge').forEach(l=>l.classList.add('dim'))}
+search.addEventListener('input',()=>{const q=search.value.trim().toLowerCase();document.querySelectorAll('.node').forEach(g=>{const n=N.find(n=>n.id===g.dataset.id);g.classList.toggle('dim',!!q&&!(`${n.id} ${n.label} ${n.desc}`.toLowerCase().includes(q)))});document.querySelectorAll('.edge').forEach(l=>l.classList.toggle('dim',!!q))});
+document.getElementById('labels').onclick=()=>{showLabels=!showLabels;document.querySelectorAll('.node-label').forEach(t=>t.style.display=showLabels?'':'none')};document.getElementById('reset').onclick=()=>{scale=1;ox=0;oy=0;search.value='';closePanel();document.querySelectorAll('.node,.edge').forEach(x=>x.classList.remove('dim'));applyTransform()};
+svg.addEventListener('wheel',e=>{e.preventDefault();const d=e.deltaY<0?1.1:.9;scale=Math.max(.35,Math.min(3,scale*d));applyTransform()},{passive:false});svg.addEventListener('pointerdown',e=>{dragging=true;sx=e.clientX;sy=e.clientY;svg.setPointerCapture(e.pointerId)});svg.addEventListener('pointermove',e=>{if(!dragging)return;ox+=(e.clientX-sx);oy+=(e.clientY-sy);sx=e.clientX;sy=e.clientY;applyTransform()});svg.addEventListener('pointerup',()=>dragging=false);svg.addEventListener('pointercancel',()=>dragging=false);
+window.closePanel=closePanel;draw();
 </script>
 </body>
 </html>
