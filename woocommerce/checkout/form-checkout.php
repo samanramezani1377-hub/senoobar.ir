@@ -24,6 +24,21 @@ if ( is_wc_endpoint_url( 'order-received' ) ) {
     return;
 }
 
+// Retry payment on an existing unpaid order ("Pay for order") and
+// add-payment-method: these are order-specific, not cart-based, so they
+// need WooCommerce's own order-aware template (via the checkout shortcode,
+// which internally renders checkout/form-pay.php with the right order,
+// totals and gateways) rather than our cart-based layout below.
+if ( is_wc_endpoint_url( 'order-pay' ) || is_wc_endpoint_url( 'add-payment-method' ) ) {
+    get_header();
+    echo '<main id="primary" class="site-main"><div class="container page-content" dir="rtl">';
+    wc_print_notices();
+    echo do_shortcode( '[woocommerce_checkout]' );
+    echo '</div></main>';
+    get_footer();
+    return;
+}
+
 get_header(); ?>
 
 <main id="primary" class="site-main">

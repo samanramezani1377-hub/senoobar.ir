@@ -58,21 +58,7 @@ add_filter('template_include', function ($template) {
         if ($is_cart) {
             $forced = '/woocommerce/cart/cart.php';
         } elseif ($is_checkout) {
-            // The custom form-checkout.php renders the CURRENT CART and has no
-            // concept of a specific order (order_id / order_key). The
-            // order-pay endpoint (retry payment on an existing unpaid order),
-            // order-received (thank-you), and add-payment-method all need
-            // WooCommerce's own order-aware templates instead — forcing our
-            // cart-based template there breaks retrying payment silently
-            // (the pay button submits against the wrong context).
-            $is_special_endpoint = function_exists('is_wc_endpoint_url') && (
-                is_wc_endpoint_url('order-pay') ||
-                is_wc_endpoint_url('order-received') ||
-                is_wc_endpoint_url('add-payment-method')
-            );
-            if (!$is_special_endpoint) {
-                $forced = '/woocommerce/checkout/form-checkout.php';
-            }
+            $forced = '/woocommerce/checkout/form-checkout.php';
         }
     }
     if ($forced !== '') {
