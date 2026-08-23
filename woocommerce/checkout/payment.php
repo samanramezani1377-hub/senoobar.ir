@@ -2,7 +2,8 @@
 /**
  * Senoobar - WooCommerce Checkout Payment Section
  *
- * Keeps the custom payment UI while preserving WooCommerce gateway processing.
+ * Renders the existing Senoobar payment-method UI exactly once while keeping
+ * WooCommerce's payment hooks and selected gateway available to checkout.
  *
  * @package Senoobar
  */
@@ -10,37 +11,21 @@
 defined( 'ABSPATH' ) || exit;
 
 $available_gateways = WC()->payment_gateways()->get_available_payment_gateways();
-$order_button_text  = apply_filters( 'woocommerce_order_button_text', __( 'ثبت سفارش', 'woocommerce' ) );
+$order_button_text  = apply_filters( 'woocommerce_order_button_text', __( 'Place order', 'woocommerce' ) );
 
 do_action( 'woocommerce_review_order_before_payment' );
 ?>
 
 <div id="payment" class="woocommerce-checkout-payment">
     <?php if ( WC()->cart && WC()->cart->needs_payment() ) : ?>
-        <ul class="wc_payment_methods payment_methods methods">
-            <?php if ( ! empty( $available_gateways ) ) : ?>
-                <?php
-                wc_get_template(
-                    'checkout/payment-method.php',
-                    array( 'available_gateways' => $available_gateways )
-                );
-                ?>
-            <?php else : ?>
-                <li>
-                    <?php
-                    wc_print_notice(
-                        apply_filters(
-                            'woocommerce_no_available_payment_methods_message',
-                            WC()->customer && WC()->customer->get_billing_country()
-                                ? esc_html__( 'در حال حاضر روش پرداختی در دسترس نیست. لطفاً با پشتیبانی تماس بگیرید.', 'woocommerce' )
-                                : esc_html__( 'لطفاً اطلاعات سفارش را تکمیل کنید تا روش‌های پرداخت نمایش داده شوند.', 'woocommerce' )
-                        ),
-                        'notice'
-                    );
-                    ?>
-                </li>
-            <?php endif; ?>
-        </ul>
+        <?php
+        // payment-method.php is the site's existing styled payment UI.
+        // It renders the available gateways once; do not create a second list.
+        wc_get_template(
+            'checkout/payment-method.php',
+            array( 'available_gateways' => $available_gateways )
+        );
+        ?>
     <?php endif; ?>
 
     <div class="form-row place-order">
