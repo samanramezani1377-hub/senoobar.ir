@@ -73,25 +73,3 @@ function senoobar_optimize_jquery() {
     }, 10, 2);
 }
 add_action('wp_enqueue_scripts', 'senoobar_optimize_jquery', 20);
-
-/**
- * The single-product buy-box is a critical above-the-fold interaction.
- * WP Rocket's Delay JavaScript Execution intentionally holds normal scripts
- * until the first user interaction. That is too late for this control: on a
- * mobile tap the browser can begin the interaction before the buy-box handler
- * has been installed, which defeats the instant UI transition.
- *
- * Mark only this script as nowprocket so WP Rocket leaves it executable at
- * page load. We keep all other performance optimizations intact.
- */
-add_filter('script_loader_tag', function ($tag, $handle) {
-    if ($handle !== 'senoobar-product-buy-box') {
-        return $tag;
-    }
-
-    if (stripos($tag, 'nowprocket') !== false) {
-        return $tag;
-    }
-
-    return preg_replace('/<script\b/i', '<script nowprocket', $tag, 1);
-}, 100, 2);
