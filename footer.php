@@ -48,6 +48,17 @@ $snb_f_privacy = function_exists('senoobar_legal_page_url') && senoobar_legal_pa
             <?php
             $enamad_code = get_theme_mod('senoobar_enamad_code', '');
             if (!empty($enamad_code)) :
+                // Serve a locally-hosted copy of the e-Namad badge image
+                // instead of loading it from enamad.ir's servers on every
+                // page view (which was slowing the site down). Only the
+                // <img src> is swapped — the <a href> link to enamad.ir's
+                // verification page is left exactly as configured.
+                $enamad_local_logo = SENOOBAR_URI . '/assets/images/enamad-badge.png';
+                $enamad_code = preg_replace(
+                    '/(<img\b[^>]*\ssrc=)(["\'])[^"\']*\2/i',
+                    '$1$2' . esc_url($enamad_local_logo) . '$2',
+                    $enamad_code
+                );
                 echo '<div class="enamad-badge">' . $enamad_code . '</div>';
             endif;
             ?>
