@@ -192,16 +192,13 @@ add_action('wp_print_scripts', function () {
     }
 }, 100);
 
-// ─── 12b. Disable default Woo checkout/cart JS on our custom pages ──
-// The theme uses its own checkout/cart markup. The stock wc-checkout / wc-cart
-// scripts intercept the form and submit via AJAX against a non-standard form
-// structure, which loses the field values (validation says everything is
-// "required"). Dequeue them so the form submits natively with all fields intact.
+// ─── 12b. Disable default Woo cart JS on our custom cart page ──
+// The theme uses its own cart markup. NOTE: wc-checkout must stay enabled —
+// WooCommerce's checkout (redirect to payment gateway, order creation) only
+// runs through its AJAX handler (wc-ajax=checkout). Dequeuing wc-checkout
+// makes the place-order button submit as a normal form post, which WooCommerce
+// does not process: the page just reloads and no order is created.
 add_action( 'wp_enqueue_scripts', function () {
-    if ( is_checkout() ) {
-        wp_dequeue_script( 'wc-checkout' );
-        wp_deregister_script( 'wc-checkout' );
-    }
     if ( is_cart() ) {
         wp_dequeue_script( 'wc-cart' );
         wp_deregister_script( 'wc-cart' );
