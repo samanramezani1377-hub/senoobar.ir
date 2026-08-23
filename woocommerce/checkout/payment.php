@@ -17,17 +17,10 @@ do_action( 'woocommerce_review_order_before_payment' );
 ?>
 
 <div id="payment" class="woocommerce-checkout-payment">
-    <div class="form-row place-order">
-        <?php do_action( 'woocommerce_review_order_before_submit' ); ?>
-        <?php
-        echo apply_filters(
-            'woocommerce_order_button_html',
-            '<button type="submit" class="button alt" name="woocommerce_checkout_place_order" id="place_order" value="' . esc_attr( $order_button_text ) . '" data-value="' . esc_attr( $order_button_text ) . '">' . esc_html( $order_button_text ) . '</button>'
-        );
-        ?>
-        <?php do_action( 'woocommerce_review_order_after_submit' ); ?>
-        <?php wp_nonce_field( 'woocommerce-process_checkout', 'woocommerce-process-checkout-nonce' ); ?>
-    </div>
+    <?php
+    // The place-order button is rendered once, in review-order.php.
+    // Do not add a second #place_order button here.
+    ?>
 </div>
 
 <?php do_action( 'woocommerce_review_order_after_payment' ); ?>
