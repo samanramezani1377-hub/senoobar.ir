@@ -10,9 +10,13 @@
 
 defined( 'ABSPATH' ) || exit;
 
-if ( ! wp_doing_ajax() ) {
-    do_action( 'woocommerce_review_order_before_payment' );
-}
+$available_gateways = WC()->payment_gateways()->get_available_payment_gateways();
+$order_button_text = apply_filters(
+    'woocommerce_order_button_text',
+    __( 'Place order', 'woocommerce' )
+);
+
+do_action( 'woocommerce_review_order_before_payment' );
 ?>
 
 <div id="payment" class="woocommerce-checkout-payment">
@@ -76,7 +80,4 @@ if ( ! wp_doing_ajax() ) {
     </div>
 </div>
 
-<?php
-if ( ! wp_doing_ajax() ) {
-    do_action( 'woocommerce_review_order_after_payment' );
-}
+<?php do_action( 'woocommerce_review_order_after_payment' ); ?>
