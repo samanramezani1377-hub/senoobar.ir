@@ -202,13 +202,10 @@
       });
     }
 
-    btn.addEventListener('click', function (e) {
+    function handleAdd(e) {
       e.preventDefault();
       e.stopPropagation();
       if (btn.dataset.pending === '1') return;
-
-      // Optimistic UI: change the button immediately, before any network trip.
-      // The actual WooCommerce/session work continues asynchronously below.
       btn.dataset.pending = '1';
       btn.disabled = true;
       setQty(1);
@@ -223,11 +220,35 @@
         if (typeof c === 'number') forceUpdateBadges(c);
         cartBump();
       }).catch(function () {
-        // Only revert the optimistic state when the server actually rejects it.
         btn.dataset.pending = '0';
         btn.disabled = false;
         showButton();
       });
+    }
+
+    // Mobile browsers can delay click dispatch. Handle the same action on the
+    // first touch/pointer press so the stepper is visible immediately, exactly
+    // like desktop. The click handler below performs the actual background work.
+    var pressHandled = false;
+    function handlePress(e) {
+      if (btn.dataset.pending === '1') return;
+      if (e.type === 'touchstart' || e.type === 'pointerdown') {
+        pressHandled = true;
+        e.preventDefault();
+        handleAdd(e);
+      }
+    }
+
+    btn.addEventListener('pointerdown', handlePress, { passive: false });
+    btn.addEventListener('touchstart', handlePress, { passive: false });
+    btn.addEventListener('click', function (e) {
+      if (pressHandled) {
+        pressHandled = false;
+        e.preventDefault();
+        e.stopPropagation();
+        return;
+      }
+      handleAdd(e);
     });
 
     minusBtn.addEventListener('click', function () {
