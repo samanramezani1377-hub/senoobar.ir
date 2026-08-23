@@ -9,15 +9,11 @@
 
 defined( 'ABSPATH' ) || exit;
 
-// When loaded directly via template_include, $checkout is not passed in the
-// way wc_get_template() normally would, so ensure it is always available.
 if ( ! isset( $checkout ) || ! is_object( $checkout ) ) {
     $checkout = WC()->checkout();
 }
 
-// Order received / thank-you view: after payment WooCommerce redirects to
-// .../order-received/{id}/?key=... on the same checkout page. Render the
-// thank-you template instead of the checkout form.
+// Order received / thank-you view.
 if ( is_wc_endpoint_url( 'order-received' ) ) {
     $order_id = absint( get_query_var( 'order-received' ) );
     get_header();
@@ -36,7 +32,6 @@ get_header(); ?>
 <?php
 do_action( 'woocommerce_before_checkout_form', $checkout );
 
-// If checkout registration is required and not logged in, show login/register.
 if ( ! is_user_logged_in() && $checkout->is_registration_required() ) {
     echo '<div class="senoobar-auth-section">';
     wc_get_template_part( 'checkout/login' );
@@ -45,10 +40,8 @@ if ( ! is_user_logged_in() && $checkout->is_registration_required() ) {
 ?>
 
 <div class="senoobar-checkout-page" dir="rtl">
-
     <div class="senoobar-checkout-container">
 
-        <!-- Breadcrumb -->
         <div class="senoobar-checkout-breadcrumb">
             <a href="<?php echo esc_url( home_url( '/' ) ); ?>">خانه</a>
             <span>/</span>
@@ -57,7 +50,6 @@ if ( ! is_user_logged_in() && $checkout->is_registration_required() ) {
             <span>تسویه حساب</span>
         </div>
 
-        <!-- Heading -->
         <div class="senoobar-checkout-heading">
             <div>
                 <h1>تسویه حساب</h1>
@@ -76,38 +68,25 @@ if ( ! is_user_logged_in() && $checkout->is_registration_required() ) {
 
             <div class="senoobar-checkout-layout">
 
-                <!-- =========================
-                     BILLING FORM (minimal)
-                ========================== -->
-
                 <section class="senoobar-form-card" aria-labelledby="billing-heading">
-
                     <h2 id="billing-heading" class="senoobar-section-title">اطلاعات سفارش</h2>
-
-                    <?php
-                    // Render the billing form directly so it does not depend on
-                    // the woocommerce_checkout_billing hook firing (which can be
-                    // unreliable when the template is loaded via template_include).
-                    wc_get_template( 'checkout/form-billing.php' );
-                    ?>
-
+                    <?php wc_get_template( 'checkout/form-billing.php' ); ?>
                 </section>
 
-                <!-- =========================
-                     ORDER SUMMARY / PAYMENT
-                ========================== -->
-
                 <aside>
-
                     <div class="senoobar-order-summary-card" aria-labelledby="order-summary-heading">
                         <h2 id="order-summary-heading">خلاصه سفارش</h2>
 
                         <div class="senoobar-checkout-section">
                             <?php wc_get_template( 'checkout/review-order.php' ); ?>
                         </div>
+
+                        <!-- Payment gateways must be rendered inside the same checkout form. -->
+                        <div class="senoobar-checkout-section senoobar-payment-section">
+                            <?php wc_get_template( 'checkout/payment.php', array( 'checkout' => $checkout ) ); ?>
+                        </div>
                     </div>
 
-                    <!-- Trust Badges -->
                     <div class="senoobar-trust-badges">
                         <h4>امنیت و اطمینان</h4>
                         <div class="senoobar-trust-list">
@@ -117,7 +96,6 @@ if ( ! is_user_logged_in() && $checkout->is_registration_required() ) {
                             <span class="senoobar-trust-item">🔄 مرجوعی آسان</span>
                         </div>
                     </div>
-
                 </aside>
 
             </div>
@@ -125,9 +103,7 @@ if ( ! is_user_logged_in() && $checkout->is_registration_required() ) {
             <?php do_action( 'woocommerce_checkout_after_customer_details' ); ?>
 
         </form>
-
     </div>
-
 </div>
 
 <?php do_action( 'woocommerce_after_checkout_form', $checkout ); ?>
