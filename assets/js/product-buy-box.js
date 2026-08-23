@@ -226,30 +226,10 @@
       });
     }
 
-    // Mobile browsers can delay click dispatch. Handle the same action on the
-    // first touch/pointer press so the stepper is visible immediately, exactly
-    // like desktop. The click handler below performs the actual background work.
-    var pressHandled = false;
-    function handlePress(e) {
-      if (btn.dataset.pending === '1') return;
-      if (e.type === 'touchstart' || e.type === 'pointerdown') {
-        pressHandled = true;
-        e.preventDefault();
-        handleAdd(e);
-      }
-    }
-
-    btn.addEventListener('pointerdown', handlePress, { passive: false });
-    btn.addEventListener('touchstart', handlePress, { passive: false });
-    btn.addEventListener('click', function (e) {
-      if (pressHandled) {
-        pressHandled = false;
-        e.preventDefault();
-        e.stopPropagation();
-        return;
-      }
-      handleAdd(e);
-    });
+    // Use the normal click event only. The UI changes immediately inside the
+    // click handler, before the AJAX request starts; touch/pointer events are
+    // intentionally not used so the control behaves like a normal button.
+    btn.addEventListener('click', handleAdd);
 
     minusBtn.addEventListener('click', function () {
       if (qty <= 1) return;
