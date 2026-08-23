@@ -151,7 +151,7 @@ $cart = WC()->cart;
         ?>
     </div>
 
-    <div id="place_order" class="senoobar-place-order-wrap">
+    <div id="place-order-wrap" class="senoobar-place-order-wrap">
         <?php do_action( 'woocommerce_review_order_before_submit' ); ?>
         <button type="submit" class="senoobar-place-order" name="woocommerce_checkout_place_order" id="place_order" value="<?php esc_attr_e( 'ثبت سفارش', 'woocommerce' ); ?>" data-value="<?php esc_attr_e( 'ثبت سفارش', 'woocommerce' ); ?>">
             <?php esc_html_e( 'ثبت سفارش', 'woocommerce' ); ?>
