@@ -57,6 +57,13 @@ function senoobar_img($src, $attr = []) {
 
 function senoobar_optimize_jquery() {
     if (is_admin()) return;
+    // On checkout, WooCommerce's wc-checkout script (and its inline
+    // localization) run without "defer" and need jQuery ready immediately.
+    // Deferring jQuery there makes wc-checkout execute before jQuery exists,
+    // throw a JS error, and silently fail to bind — so the place-order
+    // button falls back to a plain form submit (page reload, no gateway,
+    // no order). Skip the jQuery defer on the checkout page only.
+    if (function_exists('is_checkout') && is_checkout()) return;
     wp_deregister_script('jquery-migrate');
     wp_dequeue_script('jquery-migrate');
     add_filter('script_loader_tag', function ($tag, $handle) {
