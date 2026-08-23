@@ -100,7 +100,7 @@ if ( ! is_user_logged_in() && $checkout->is_registration_required() ) {
 
             </div>
 
-            <?php do_action( 'woocommerce_checkout_after_customer_details' ); ?>
+            
 
         </form>
     </div>
