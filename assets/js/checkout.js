@@ -1,6 +1,9 @@
 /**
  * Senoobar — Checkout JS
- * Form validation, payment method handling, address toggle
+ * Native WooCommerce checkout validation and payment handling.
+ *
+ * Important: wc-checkout.js is intentionally disabled by the theme, so this
+ * script must never prevent the native checkout form POST.
  */
 (function () {
     'use strict';
@@ -15,127 +18,145 @@
     });
 
     function initCheckout() {
-        const checkoutForm = document.querySelector('.woocommerce-checkout form.checkout');
+        const checkoutForm = document.querySelector('form.checkout.woocommerce-checkout');
         if (!checkoutForm) return;
 
-        // Payment method selection
-        initPaymentMethods();
-
-        // Ship to different address toggle
-        initShipToDifferentAddress();
-
-        // Auth tab toggle (login/register)
-        initAuthTabs();
-
-        // Form validation enhancement
-        initFormValidation();
-
-        // Place order button loading state
-        initPlaceOrderLoading();
+        initPaymentMethods(checkoutForm);
+        initFormValidation(checkoutForm);
+        initPlaceOrder(checkoutForm);
     }
 
-    function initPaymentMethods() {
-        const methods = document.querySelectorAll('.senoobar-payment-method input[type="radio"]');
-        methods.forEach(radio => {
-            radio.addEventListener('change', function() {
-                document.querySelectorAll('.senoobar-payment-method').forEach(m => m.classList.remove('selected'));
-                this.closest('.senoobar-payment-method')?.classList.add('selected');
-            });
-        });
-    }
-
-    function initShipToDifferentAddress() {
-        const checkbox = document.getElementById('ship_to_different_address');
-        const fields = document.getElementById('shipping_address_fields');
-        if (checkbox && fields) {
-            checkbox.addEventListener('change', function() {
-                fields.style.display = this.checked ? 'block' : 'none';
-            });
-        }
-    }
-
-    function initAuthTabs() {
-        const tabs = document.querySelectorAll('.senoobar-auth-btn');
-        tabs.forEach(tab => {
-            tab.addEventListener('click', function() {
-                const target = this.dataset.target;
-                tabs.forEach(t => {
-                    t.classList.remove('active');
-                    t.setAttribute('aria-selected', 'false');
+    function initPaymentMethods(checkoutForm) {
+        checkoutForm.querySelectorAll('input[name="payment_method"]').forEach(function (radio) {
+            radio.addEventListener('change', function () {
+                checkoutForm.querySelectorAll('.senoobar-payment-method').forEach(function (card) {
+                    card.classList.toggle('selected', card.querySelector('input[name="payment_method"]') === radio);
                 });
-                this.classList.add('active');
-                this.setAttribute('aria-selected', 'true');
-
-                document.querySelectorAll('.senoobar-auth-panel').forEach(p => {
-                    p.hidden = true;
-                });
-                document.getElementById(target)?.hidden = false;
-            });
-        });
-    }
-
-    function initFormValidation() {
-        const requiredInputs = checkoutForm.querySelectorAll('[required]');
-        requiredInputs.forEach(input => {
-            input.addEventListener('blur', function() {
-                validateField(this);
-            });
-            input.addEventListener('input', function() {
-                if (this.classList.contains('woocommerce-invalid')) {
-                    validateField(this);
-                }
             });
         });
 
-        function validateField(field) {
-            const group = field.closest('.form-row, .senoobar-form-group');
-            if (!group) return;
-
-            if (field.required && !field.value.trim()) {
-                group.classList.add('has-error');
-                field.classList.add('woocommerce-invalid');
-            } else {
-                group.classList.remove('has-error');
-                field.classList.remove('woocommerce-invalid');
+        const selected = checkoutForm.querySelector('input[name="payment_method"]:checked');
+        if (!selected) {
+            const first = checkoutForm.querySelector('input[name="payment_method"]');
+            if (first) {
+                first.checked = true;
+                first.dispatchEvent(new Event('change', { bubbles: true }));
             }
         }
     }
 
-    function initPlaceOrderLoading() {
-        const placeOrderBtn = document.getElementById('place_order');
-        if (!placeOrderBtn) return;
+    function getFieldLabel(field) {
+        const label = document.querySelector('label[for="' + CSS.escape(field.id) + '"]');
+        return label ? label.textContent.replace('*', '').trim() : 'این قسمت';
+    }
 
-        checkoutForm.addEventListener('submit', function() {
-            // Basic validation before showing loading
+    function showFieldError(field, message) {
+        const group = field.closest('.senoobar-form-group, .form-row') || field.parentElement;
+        if (!group) return;
+        group.classList.add('has-error', 'woocommerce-invalid', 'woocommerce-invalid-required-field');
+        let error = group.querySelector('.senoobar-field-error');
+        if (!error) {
+            error = document.createElement('div');
+            error.className = 'senoobar-field-error';
+            error.setAttribute('role', 'alert');
+            group.appendChild(error);
+        }
+        error.textContent = message;
+    }
+
+    function clearFieldError(field) {
+        const group = field.closest('.senoobar-form-group, .form-row') || field.parentElement;
+        if (!group) return;
+        group.classList.remove('has-error', 'woocommerce-invalid', 'woocommerce-invalid-required-field');
+        const error = group.querySelector('.senoobar-field-error');
+        if (error) error.remove();
+    }
+
+    function validateField(field) {
+        if (!field || field.type === 'hidden' || field.disabled) return true;
+        if (!field.required) {
+            clearFieldError(field);
+            return true;
+        }
+
+        const value = String(field.value || '').trim();
+        if (!value) {
+            showFieldError(field, 'لطفاً «' + getFieldLabel(field) + '» را وارد کنید.');
+            return false;
+        }
+
+        // Basic phone validation for the billing mobile/phone field.
+        if ((field.name === 'billing_phone' || field.id === 'billing_phone') && !/^[0-9۰-۹+\-\s()]{10,15}$/.test(value)) {
+            showFieldError(field, 'لطفاً شماره موبایل را به‌صورت صحیح وارد کنید.');
+            return false;
+        }
+
+        clearFieldError(field);
+        return true;
+    }
+
+    function initFormValidation(checkoutForm) {
+        checkoutForm.querySelectorAll('[required]').forEach(function (field) {
+            field.addEventListener('blur', function () { validateField(field); });
+            field.addEventListener('input', function () {
+                if (field.value.trim()) clearFieldError(field);
+            });
+            field.addEventListener('change', function () { validateField(field); });
+        });
+    }
+
+    function showCheckoutError(message) {
+        let box = document.getElementById('senoobar-checkout-errors');
+        if (!box) {
+            box = document.createElement('div');
+            box.id = 'senoobar-checkout-errors';
+            box.className = 'woocommerce-error senoobar-checkout-errors';
+            box.setAttribute('role', 'alert');
+            const form = document.querySelector('form.checkout.woocommerce-checkout');
+            if (form) form.parentNode.insertBefore(box, form);
+        }
+        box.innerHTML = '<strong>خطا در ثبت سفارش</strong><br>' + message;
+        box.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
+    function initPlaceOrder(checkoutForm) {
+        const button = document.getElementById('place_order');
+        if (!button) return;
+
+        checkoutForm.addEventListener('submit', function (event) {
+            // Do not use preventDefault: native POST is required because the
+            // WooCommerce checkout AJAX script is disabled in this theme.
             let valid = true;
-            requiredInputs = checkoutForm.querySelectorAll('[required]');
-            requiredInputs.forEach(input => {
-                if (!input.value.trim()) {
+            let firstInvalid = null;
+
+            checkoutForm.querySelectorAll('[required]').forEach(function (field) {
+                if (!validateField(field)) {
                     valid = false;
-                    const group = input.closest('.form-row, .senoobar-form-group');
-                    if (group) group.classList.add('has-error');
-                    input.classList.add('woocommerce-invalid');
+                    if (!firstInvalid) firstInvalid = field;
                 }
             });
 
-            if (valid) {
-                placeOrderBtn.disabled = true;
-                placeOrderBtn.innerHTML = 'در حال پردازش... <span class="spinner"></span>';
+            const payment = checkoutForm.querySelector('input[name="payment_method"]:checked');
+            if (!payment) {
+                valid = false;
+                showCheckoutError('لطفاً یک روش پرداخت را انتخاب کنید.');
             }
-        });
 
-        // Re-enable on error (woocommerce shows errors via AJAX)
-        document.body.addEventListener('checkout_error', function() {
-            placeOrderBtn.disabled = false;
-            placeOrderBtn.innerHTML = 'ثبت سفارش';
-        });
+            if (!valid) {
+                event.preventDefault();
+                if (firstInvalid) {
+                    firstInvalid.focus({ preventScroll: true });
+                    firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+                button.disabled = false;
+                return;
+            }
 
-        // Also listen for wc_checkout_error event
-        if (window.jQuery) {
-            jQuery(document.body).on('wc_checkout_error', function() {
-                placeOrderBtn.disabled = false;
-                placeOrderBtn.innerHTML = 'ثبت سفارش';
-            });
-        }
+            // Allow the browser to submit normally. WooCommerce will create
+            // the order and the selected gateway's process_payment() will run.
+            button.disabled = true;
+            button.dataset.originalText = button.textContent;
+            button.textContent = 'در حال انتقال به درگاه...';
+        });
     }
 })();
