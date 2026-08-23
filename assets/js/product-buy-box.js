@@ -28,7 +28,6 @@
     var qtyHidden = box.querySelector('#pdHiddenQty') || form.querySelector('input[name="quantity"]');
     var qty = 1;
 
-    // ── Stepper UI ──────────────────────────────
     var stepper = document.createElement('div');
     stepper.className = 'pd-buy-stepper';
     stepper.style.display = 'none';
@@ -47,7 +46,6 @@
     stepper.appendChild(qtyShow);
     stepper.appendChild(plusBtn);
     stepper.appendChild(removeBtn);
-
     btn.parentNode.insertBefore(stepper, btn);
 
     function variantId() {
@@ -74,11 +72,17 @@
         credentials: 'same-origin',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' },
         body: body.toString()
-      }).then(function (r) { return r.json(); });
+      }).then(function (r) {
+        return r.json().then(function (json) {
+          if (!r.ok || !json || json.success !== true) {
+            var msg = json && json.data && json.data.message ? json.data.message : 'افزودن به سبد خرید انجام نشد.';
+            throw new Error(msg);
+          }
+          return json;
+        });
+      });
     }
 
-    // Extract fragments from a response regardless of whether it is a flat
-    // object or wrapped in wp_send_json_success's { success, data } shape.
     function getFragments(resp) {
       if (!resp) return null;
       if (resp.fragments) return resp.fragments;
@@ -93,7 +97,6 @@
       return null;
     }
 
-    // Apply badge fragments so the number updates instantly.
     function applyFragments(fragments) {
       if (!fragments) return;
       Object.keys(fragments).forEach(function (selector) {
@@ -103,7 +106,6 @@
       if (window.jQuery) jQuery(document.body).trigger('wc_fragments_refreshed');
     }
 
-    // Update every cart badge count directly (robust fallback).
     function forceUpdateBadges(count) {
       document.querySelectorAll('.cart-badge[data-cart-count], .mbn-badge[data-cart-count]').forEach(function (el) {
         el.textContent = String(count);
@@ -112,7 +114,6 @@
       });
     }
 
-    // ── Cart actions ────────────────────────────
     function setCartQuantity(quantity) {
       return postAjax('senoobar_cart_set_quantity', {
         product_id: productId,
@@ -137,12 +138,10 @@
       });
     }
 
-    // ── Fly-to-cart + badge pop helpers ─────────
     function getCartTarget() {
       var bottom = document.querySelector('[data-cart-fly="bottom"]');
       var header = document.querySelector('[data-cart-fly="header"]');
       var isMobile = window.innerWidth < 1024;
-
       if (isMobile && bottom) {
         var br = bottom.getBoundingClientRect();
         if (br.width > 0 && br.height > 0) return bottom;
@@ -157,34 +156,23 @@
     function flyToCart() {
       var target = getCartTarget();
       if (!target) return;
-
       var startEl = stepper.style.display === 'none' ? btn : stepper;
       var startRect = startEl.getBoundingClientRect();
-
-      // Aim precisely at the cart icon: use the inner SVG (or the badge's
-      // icon wrapper) so the item lands on the basket glyph, not its label.
       var iconEl = target.querySelector('svg') || target;
       var endRect = iconEl.getBoundingClientRect();
-
       var flyer = document.createElement('div');
       flyer.className = 'pd-fly-item';
       flyer.textContent = '+';
-
       var sx = startRect.left + startRect.width / 2;
       var sy = startRect.top + startRect.height / 2;
       var ex = endRect.left + endRect.width / 2;
       var ey = endRect.top + endRect.height / 2;
-
-      flyer.style.left = '0px';
-      flyer.style.top = '0px';
+      flyer.style.left = '0px'; flyer.style.top = '0px';
       flyer.style.transform = 'translate(' + sx + 'px, ' + sy + 'px) scale(1)';
       document.body.appendChild(flyer);
-
       void flyer.offsetWidth;
-
       flyer.style.opacity = '0.35';
       flyer.style.transform = 'translate(' + ex + 'px, ' + ey + 'px) scale(0.15)';
-
       var badge = target.querySelector('.cart-badge, .mbn-badge');
       var done = false;
       var land = function () {
@@ -197,9 +185,7 @@
         }
         if (flyer.parentNode) flyer.parentNode.removeChild(flyer);
       };
-      flyer.addEventListener('transitionend', function (e) {
-        if (e.propertyName === 'transform') land();
-      });
+      flyer.addEventListener('transitionend', function (e) { if (e.propertyName === 'transform') land(); });
       setTimeout(land, 950);
     }
 
@@ -213,30 +199,34 @@
         wrap.classList.remove('cart-bump');
         void wrap.offsetWidth;
         wrap.classList.add('cart-bump');
-        wrap.addEventListener('animationend', function handler() {
-          wrap.classList.remove('cart-bump');
-          wrap.removeEventListener('animationend', handler);
-        });
       });
     }
 
-    // ── Handlers ────────────────────────────────
     btn.addEventListener('click', function (e) {
       e.preventDefault();
       e.stopPropagation();
+      if (btn.dataset.pending === '1') return;
+
+      // Optimistic UI: change the button immediately, before any network trip.
+      // The actual WooCommerce/session work continues asynchronously below.
+      btn.dataset.pending = '1';
       btn.disabled = true;
+      setQty(1);
+      showStepper();
+      flyToCart();
+
       setCartQuantity(1).then(function (data) {
+        btn.dataset.pending = '0';
         btn.disabled = false;
-        setQty(1);
-        showStepper();
         applyFragments(getFragments(data));
         var c = getCount(data);
         if (typeof c === 'number') forceUpdateBadges(c);
         cartBump();
-        flyToCart();
       }).catch(function () {
+        // Only revert the optimistic state when the server actually rejects it.
+        btn.dataset.pending = '0';
         btn.disabled = false;
-        form.submit();
+        showButton();
       });
     });
 
@@ -247,7 +237,7 @@
         applyFragments(getFragments(data));
         var c = getCount(data);
         if (typeof c === 'number') forceUpdateBadges(c);
-      });
+      }).catch(function () { setQty(qty + 1); });
     });
 
     plusBtn.addEventListener('click', function () {
@@ -258,10 +248,11 @@
         if (typeof c === 'number') forceUpdateBadges(c);
         cartBump();
         flyToCart();
-      });
+      }).catch(function () { setQty(qty - 1); });
     });
 
     removeBtn.addEventListener('click', function () {
+      if (removeBtn.disabled) return;
       removeBtn.disabled = true;
       removeFromCart().then(function (data) {
         removeBtn.disabled = false;
@@ -270,9 +261,7 @@
         applyFragments(getFragments(data));
         var c = getCount(data);
         if (typeof c === 'number') forceUpdateBadges(c);
-      }).catch(function () {
-        removeBtn.disabled = false;
-      });
+      }).catch(function () { removeBtn.disabled = false; });
     });
   }
 })();
