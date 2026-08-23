@@ -10,7 +10,7 @@
 defined( 'ABSPATH' ) || exit;
 
 $available_gateways = WC()->payment_gateways()->get_available_payment_gateways();
-$order_button_text  = apply_filters( 'woocommerce_order_button_text', __( 'Place order', 'woocommerce' ) );
+$order_button_text  = apply_filters( 'woocommerce_order_button_text', __( 'ثبت سفارش', 'woocommerce' ) );
 
 do_action( 'woocommerce_review_order_before_payment' );
 ?>
@@ -20,7 +20,6 @@ do_action( 'woocommerce_review_order_before_payment' );
         <ul class="wc_payment_methods payment_methods methods">
             <?php if ( ! empty( $available_gateways ) ) : ?>
                 <?php
-                // payment-method.php expects the complete gateway list.
                 wc_get_template(
                     'checkout/payment-method.php',
                     array( 'available_gateways' => $available_gateways )
@@ -46,14 +45,12 @@ do_action( 'woocommerce_review_order_before_payment' );
 
     <div class="form-row place-order">
         <?php do_action( 'woocommerce_review_order_before_submit' ); ?>
-
         <?php
         echo apply_filters(
             'woocommerce_order_button_html',
             '<button type="submit" class="button alt" name="woocommerce_checkout_place_order" id="place_order" value="' . esc_attr( $order_button_text ) . '" data-value="' . esc_attr( $order_button_text ) . '">' . esc_html( $order_button_text ) . '</button>'
         );
         ?>
-
         <?php do_action( 'woocommerce_review_order_after_submit' ); ?>
         <?php wp_nonce_field( 'woocommerce-process_checkout', 'woocommerce-process-checkout-nonce' ); ?>
     </div>
