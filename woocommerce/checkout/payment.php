@@ -17,17 +17,6 @@ do_action( 'woocommerce_review_order_before_payment' );
 ?>
 
 <div id="payment" class="woocommerce-checkout-payment">
-    <?php if ( WC()->cart && WC()->cart->needs_payment() ) : ?>
-        <?php
-        // payment-method.php is the site's existing styled payment UI.
-        // It renders the available gateways once; do not create a second list.
-        wc_get_template(
-            'checkout/payment-method.php',
-            array( 'available_gateways' => $available_gateways )
-        );
-        ?>
-    <?php endif; ?>
-
     <div class="form-row place-order">
         <?php do_action( 'woocommerce_review_order_before_submit' ); ?>
         <?php
