@@ -53,7 +53,8 @@ $snb_f_privacy = function_exists('senoobar_legal_page_url') && senoobar_legal_pa
                 // page view (which was slowing the site down). Only the
                 // <img src> is swapped — the <a href> link to enamad.ir's
                 // verification page is left exactly as configured.
-                $enamad_local_logo = SENOOBAR_URI . '/assets/images/enamad-badge.png';
+                $enamad_custom_image = get_theme_mod('senoobar_enamad_image', '');
+                $enamad_local_logo = !empty($enamad_custom_image) ? $enamad_custom_image : SENOOBAR_URI . '/assets/images/enamad-badge.png';
                 $enamad_code = preg_replace(
                     '/(<img\b[^>]*\ssrc=)(["\'])[^"\']*\2/i',
                     '$1$2' . esc_url($enamad_local_logo) . '$2',

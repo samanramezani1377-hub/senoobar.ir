@@ -414,6 +414,16 @@ final class Senoobar_Theme {
                 'type'        => 'textarea',
             ]));
 
+            $c->add_setting('senoobar_enamad_image', [
+                'default'           => '',
+                'sanitize_callback' => 'esc_url_raw',
+            ]);
+            $c->add_control(new WP_Customize_Image_Control($c, 'senoobar_enamad_image', [
+                'label'       => 'عکس نماد اعتماد الکترونیکی',
+                'description' => 'عکس دلخواه برای نماد اعتماد الکترونیکی را آپلود کنید. اگر خالی بگذارید، عکس پیش‌فرض استفاده می‌شود.',
+                'section'     => 'senoobar_trust',
+            ]));
+
             // Section Titles
             $c->add_section('senoobar_sections', [
                 'title'    => 'عناوین بخش‌ها',
