@@ -1027,7 +1027,7 @@ a.site-branding:hover .logo-text { color: var(--color-brand); }
   }
 }
 
-.footer-col h4 {
+.footer-col h3 {
   color: var(--color-white);
   font-size: 1.05rem;
   margin-bottom: 20px;
@@ -1036,7 +1036,7 @@ a.site-branding:hover .logo-text { color: var(--color-brand); }
   font-weight: 700;
 }
 
-.footer-col h4::after {
+.footer-col h3::after {
   content: '';
   position: absolute;
   bottom: 0;
@@ -1143,7 +1143,7 @@ a.site-branding:hover .logo-text { color: var(--color-brand); }
   padding: 20px 0;
   text-align: center;
   font-size: 0.8rem;
-  color: var(--color-gray-500);
+  color: var(--color-gray-200);  /* Better contrast on brand-dark */
   display: flex;
   flex-direction: column;
   align-items: center;

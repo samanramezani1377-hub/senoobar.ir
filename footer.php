@@ -8,7 +8,7 @@
             <p style="opacity:0.6;font-size:0.85rem;line-height:2;"><?php echo esc_html(get_theme_mod('senoobar_footer_about','فروشگاه صنوبر با ارائه محصولات باکیفیت برای خواب راحت، تجربه خریدی لذت‌بخش و مطمئن برای شما فراهم می‌کند. ما اینجا هستیم تا با محصولات بادوام، خدمات عالی و ارسال سریع، بهترین را برای شما رقم بزنیم — هدف ما رضایت شماست.')); ?></p>
             <div class="footer-social"><?php foreach(['instagram'=>'I','telegram'=>'T','pinterest'=>'P','linkedin'=>'L'] as $k=>$l): ?><a href="<?php echo esc_url(get_theme_mod("senoobar_footer_{$k}",'#')); ?>" aria-label="<?php echo $k; ?>"><?php echo $l; ?></a><?php endforeach; ?></div>
         </div>
-        <div class="footer-col"><h4>دسته‌بندی محصولات</h4><ul><?php
+        <div class="footer-col"><h3>دسته‌بندی محصولات</h3><ul><?php
 // Dynamic product category links (top-level WooCommerce categories).
 if ( function_exists('wc_get_page_permalink') && function_exists('get_terms') ) {
     $snb_footer_cats = get_terms(array('taxonomy'=>'product_cat','parent'=>0,'hide_empty'=>false));
@@ -31,7 +31,7 @@ $snb_f_faq     = function_exists('senoobar_legal_page_url') && senoobar_legal_pa
 $snb_f_terms   = function_exists('senoobar_legal_page_url') && senoobar_legal_page_url('terms')   ? senoobar_legal_page_url('terms')   : home_url('/terms-and-conditions/');
 $snb_f_privacy = function_exists('senoobar_legal_page_url') && senoobar_legal_page_url('privacy') ? senoobar_legal_page_url('privacy') : home_url('/privacy-policy/');
 ?>
-        <div class="footer-col"><h4>دسترسی سریع</h4><ul><li><a href="<?php echo esc_url($snb_f_about); ?>">درباره ما</a></li><li><a href="<?php echo esc_url($snb_f_contact); ?>">تماس با ما</a></li><li><a href="<?php echo esc_url($snb_f_faq); ?>">سوالات متداول</a></li><li><a href="<?php echo esc_url($snb_f_terms); ?>">شرایط و قوانین</a></li><li><a href="<?php echo esc_url($snb_f_privacy); ?>">حریم خصوصی</a></li></ul></div>
+        <div class="footer-col"><h3>دسترسی سریع</h3><ul><li><a href="<?php echo esc_url($snb_f_about); ?>">درباره ما</a></li><li><a href="<?php echo esc_url($snb_f_contact); ?>">تماس با ما</a></li><li><a href="<?php echo esc_url($snb_f_faq); ?>">سوالات متداول</a></li><li><a href="<?php echo esc_url($snb_f_terms); ?>">شرایط و قوانین</a></li><li><a href="<?php echo esc_url($snb_f_privacy); ?>">حریم خصوصی</a></li></ul></div>
         <?php
         // شماره‌های تماس با پیش‌فرض صحیح (هماهنگ با page-contact.php)
         $snb_f_phone1 = get_theme_mod('senoobar_footer_phone1', '۰۹۱۳۰۲۰۵۸۹۸');
@@ -40,7 +40,7 @@ $snb_f_privacy = function_exists('senoobar_legal_page_url') && senoobar_legal_pa
         $snb_f_address = get_theme_mod('senoobar_footer_address', 'اصفهان، شهرک صنعتی دولت‌آباد، خیابان شماره ۱۰ (خیام)، فروشگاه صنوبر');
         $snb_f_hours   = get_theme_mod('senoobar_footer_hours', 'شنبه تا پنجشنبه، ۱۰ صبح تا ۹ شب');
         ?>
-        <div class="footer-col"><h4>اطلاعات تماس</h4><div class="footer-contact"><div><span>📞</span><a href="tel:<?php echo esc_attr( senoobar_tel_href( $snb_f_phone1 ) ); ?>"><?php echo esc_html( $snb_f_phone1 ); ?></a></div><div><span>📲</span><a href="tel:<?php echo esc_attr( senoobar_tel_href( $snb_f_phone2 ) ); ?>"><?php echo esc_html( $snb_f_phone2 ); ?></a></div><div><span>☎️</span><a href="tel:<?php echo esc_attr( senoobar_tel_href( $snb_f_phone3 ) ); ?>"><?php echo esc_html( $snb_f_phone3 ); ?></a></div><div><span>📍</span><span><?php echo esc_html( $snb_f_address ); ?></span></div><div><span>🕐</span><span><?php echo esc_html( $snb_f_hours ); ?></span></div></div></div>
+        <div class="footer-col"><h3>اطلاعات تماس</h3><div class="footer-contact"><div><span>📞</span><a href="tel:<?php echo esc_attr( senoobar_tel_href( $snb_f_phone1 ) ); ?>"><?php echo esc_html( $snb_f_phone1 ); ?></a></div><div><span>📲</span><a href="tel:<?php echo esc_attr( senoobar_tel_href( $snb_f_phone2 ) ); ?>"><?php echo esc_html( $snb_f_phone2 ); ?></a></div><div><span>☎️</span><a href="tel:<?php echo esc_attr( senoobar_tel_href( $snb_f_phone3 ) ); ?>"><?php echo esc_html( $snb_f_phone3 ); ?></a></div><div><span>📍</span><span><?php echo esc_html( $snb_f_address ); ?></span></div><div><span>🕐</span><span><?php echo esc_html( $snb_f_hours ); ?></span></div></div></div>
     </div>
     <div class="footer-bottom">
         <p>&#169; <?php echo date('Y'); ?> فروشگاه صنوبر — تمامی حقوق برای فروشگاه صنوبر است.</p>
