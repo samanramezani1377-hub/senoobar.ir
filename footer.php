@@ -59,6 +59,12 @@ $snb_f_privacy = function_exists('senoobar_legal_page_url') && senoobar_legal_pa
                     '$1$2' . esc_url($enamad_local_logo) . '$2',
                     $enamad_code
                 );
+                // Add dimensions to prevent CLS
+                $enamad_code = preg_replace(
+                    '/(<img\b[^>]*)>/i',
+                    '$1 width="80" height="80">',
+                    $enamad_code
+                );
                 echo '<div class="enamad-badge">' . $enamad_code . '</div>';
             endif;
             ?>

@@ -6,6 +6,16 @@
     <meta name="theme-color" content="#1e3a2f">
     <link rel="manifest" href="<?php echo home_url('manifest.json'); ?>">
     <?php $custom_logo_id = get_theme_mod('custom_logo'); if($custom_logo_id){echo '<link rel="apple-touch-icon" href="'.esc_url(wp_get_attachment_url($custom_logo_id)).'">';} ?>
+    
+    <!-- Preconnect to critical origins -->
+    <link rel="preconnect" href="<?php echo esc_url(home_url('/')); ?>" crossorigin>
+    <link rel="preconnect" href="<?php echo esc_url(SENOOBAR_URI); ?>" crossorigin>
+    <link rel="dns-prefetch" href="<?php echo esc_url(home_url('/')); ?>">
+    <link rel="dns-prefetch" href="<?php echo esc_url(SENOOBAR_URI); ?>">
+    
+    <!-- Preload critical font -->
+    <link rel="preload" as="font" type="font/woff2" crossorigin href="<?php echo esc_url(SENOOBAR_URI . '/assets/fonts/vazirmatn-arabic.woff2'); ?>">
+    
     <?php wp_head(); ?>
 </head>
 <body <?php body_class('senoobar-body'); ?>>
@@ -29,7 +39,14 @@
             <?php
             $logo_id = get_theme_mod('custom_logo');
             if ($logo_id):
-                echo wp_get_attachment_image($logo_id, 'full', false, ['class' => 'site-logo', 'alt' => get_bloginfo('name')]);
+                // Get logo dimensions for CLS prevention
+                $logo_w = 180; $logo_h = 60;
+                $logo_meta = wp_get_attachment_metadata($logo_id);
+                if ($logo_meta && isset($logo_meta['width'], $logo_meta['height'])) {
+                    $logo_w = $logo_meta['width'];
+                    $logo_h = $logo_meta['height'];
+                }
+                echo wp_get_attachment_image($logo_id, 'full', false, ['class' => 'site-logo', 'alt' => get_bloginfo('name'), 'width' => $logo_w, 'height' => $logo_h]);
             else:
             ?>
             <div class="logo-icon">
@@ -259,7 +276,7 @@ $snb_newsletter_nonce = wp_create_nonce('senoobar_newsletter_nonce');
         <?php
         $logo_id = get_theme_mod('custom_logo');
         if ($logo_id):
-            echo wp_get_attachment_image($logo_id, 'full', false, ['class' => 'site-logo', 'style' => 'height:40px;width:auto', 'alt' => get_bloginfo('name')]);
+            echo wp_get_attachment_image($logo_id, 'full', false, ['class' => 'site-logo', 'style' => 'height:40px;width:auto', 'alt' => get_bloginfo('name'), 'width' => 180, 'height' => 60]);
         else:
         ?>
         <span class="logo-text"><?php bloginfo('name'); ?></span>

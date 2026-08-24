@@ -107,9 +107,23 @@ $cat_title    = get_theme_mod('senoobar_section_cats_title', '');
         <a href="<?php echo isset($c['link']) ? esc_url($c['link']) : '#'; ?>" class="cat-item">
           <div class="cat-item__thumb">
             <?php if (!empty($c['img'])): ?>
-              <?php echo senoobar_img($c['img'], ["alt"=>$c['name'], "loading"=>"lazy"]); ?>
+              <?php 
+              // Get image dimensions for CLS prevention
+              $img_w = 90; $img_h = 90;
+              if (preg_match('/wp-content\/uploads/', $c['img'])) {
+                  $attachment_id = attachment_url_to_postid($c['img']);
+                  if ($attachment_id) {
+                      $meta = wp_get_attachment_metadata($attachment_id);
+                      if ($meta && isset($meta['width'], $meta['height'])) {
+                          $img_w = $meta['width'];
+                          $img_h = $meta['height'];
+                      }
+                  }
+              }
+              echo senoobar_img($c['img'], ["alt"=>$c['name'], "loading"=>"lazy", "width"=>$img_w, "height"=>$img_h]); 
+              ?>
             <?php else: ?>
-              <div class="placeholder">🛋️</div>
+              <div class="placeholder" style="width:90px;height:90px;">🛋️</div>
             <?php endif; ?>
           </div>
           <span class="cat-item__title"><?php echo esc_html($c['name']); ?></span>

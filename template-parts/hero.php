@@ -17,10 +17,36 @@ if($hero_img2){ $s2=wp_get_attachment_image_src($hero_img2,'senoobar-hero'); if(
    uploads already get optimized by the site's media pipeline /Converter plugin). */
 $img1_webp = !$hero_img1 ? str_replace('.jpg', '.webp', $img1) : '';
 $img2_webp = !$hero_img2 ? str_replace('.jpg', '.webp', $img2) : '';
+
+// Generate responsive image sizes for hero
+$img1_srcset = $img1_webp ? $img1_webp . ' 800w' : '';
+$img2_srcset = $img2_webp ? $img2_webp . ' 800w' : '';
+if ($hero_img1) {
+    $sizes = [400, 600, 800, 1200];
+    foreach ($sizes as $size) {
+        $src = wp_get_attachment_image_url($hero_img1, ['width' => $size, 'height' => $size * 1.25]);
+        if ($src) $img1_srcset .= ($img1_srcset ? ', ' : '') . $src . ' ' . $size . 'w';
+    }
+}
+if ($hero_img2) {
+    $sizes = [400, 600, 800, 1200];
+    foreach ($sizes as $size) {
+        $src = wp_get_attachment_image_url($hero_img2, ['width' => $size, 'height' => $size * 1.25]);
+        if ($src) $img2_srcset .= ($img2_srcset ? ', ' : '') . $src . ' ' . $size . 'w';
+    }
+}
 ?><section class="hero"><div class="hero__grid"><div class="hero__image-wrap"><?php
-if($img1_webp){ echo '<picture><source type="image/webp" srcset="'.esc_url($img1_webp).'">'.senoobar_img($img1, ['alt'=>'نشیمن مدرن','width'=>$img1_w,'height'=>$img1_h,'fetchpriority'=>'high','decoding'=>'async']).'</picture>'; }
-else { echo senoobar_img($img1, ['alt'=>'نشیمن مدرن','width'=>$img1_w,'height'=>$img1_h,'fetchpriority'=>'high','decoding'=>'async']); }
+if($img1_webp){ 
+    echo '<picture><source type="image/webp" srcset="'.esc_attr($img1_srcset).'">'.senoobar_img($img1, ['alt'=>'نشیمن مدرن','width'=>$img1_w,'height'=>$img1_h,'fetchpriority'=>'high','decoding'=>'async','sizes'=>'(max-width: 767px) 100vw, 50vw','srcset'=>esc_attr($img1_srcset)]).'</picture>'; 
+}
+else { 
+    echo senoobar_img($img1, ['alt'=>'نشیمن مدرن','width'=>$img1_w,'height'=>$img1_h,'fetchpriority'=>'high','decoding'=>'async','sizes'=>'(max-width: 767px) 100vw, 50vw','srcset'=>esc_attr($img1_srcset)]); 
+}
 ?></div><div class="hero__image-wrap"><?php
-if($img2_webp){ echo '<picture><source type="image/webp" srcset="'.esc_url($img2_webp).'">'.senoobar_img($img2, ['alt'=>'اتاق خواب','width'=>$img2_w,'height'=>$img2_h,'loading'=>'lazy','fetchpriority'=>'low','decoding'=>'async']).'</picture>'; }
-else { echo senoobar_img($img2, ['alt'=>'اتاق خواب','width'=>$img2_w,'height'=>$img2_h,'loading'=>'lazy','fetchpriority'=>'low','decoding'=>'async']); }
+if($img2_webp){ 
+    echo '<picture><source type="image/webp" srcset="'.esc_attr($img2_srcset).'">'.senoobar_img($img2, ['alt'=>'اتاق خواب','width'=>$img2_w,'height'=>$img2_h,'loading'=>'lazy','fetchpriority'=>'low','decoding'=>'async','sizes'=>'(max-width: 767px) 100vw, 50vw','srcset'=>esc_attr($img2_srcset)]).'</picture>'; 
+}
+else { 
+    echo senoobar_img($img2, ['alt'=>'اتاق خواب','width'=>$img2_w,'height'=>$img2_h,'loading'=>'lazy','fetchpriority'=>'low','decoding'=>'async','sizes'=>'(max-width: 767px) 100vw, 50vw','srcset'=>esc_attr($img2_srcset)]); 
+}
 ?></div></div><div class="hero__content"><div class="hero__content-inner"><p class="hero__kicker">زیبایی در سادگی، کیفیت در جزئیات</p><h1 class="hero__title"><?php echo esc_html($hero_title); ?></h1><p class="hero__subtitle"><?php echo esc_html($hero_subtitle); ?></p><div class="hero__actions"><a href="<?php echo class_exists('WooCommerce')?get_permalink(wc_get_page_id('shop')):'#'; ?>" class="btn btn--primary">مشاهده محصولات</a><a href="#" class="hero__btn-outline">مشاهده مجموعه‌ها</a></div></div></div></section>

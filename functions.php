@@ -46,12 +46,17 @@ function senoobar_img($src, $attr = []) {
     $alt    = isset($attr['alt'])    ? $attr['alt']    : '';
     $width  = isset($attr['width'])  ? ' width="'  . (int)$attr['width']  . '"' : '';
     $height = isset($attr['height']) ? ' height="' . (int)$attr['height'] . '"' : '';
+    $srcset = isset($attr['srcset']) ? ' srcset="' . esc_attr($attr['srcset']) . '"' : '';
+    $sizes  = isset($attr['sizes'])  ? ' sizes="'  . esc_attr($attr['sizes'])  . '"' : '';
+    $loading = isset($attr['loading']) ? ' loading="' . esc_attr($attr['loading']) . '"' : '';
+    $fetchpriority = isset($attr['fetchpriority']) ? ' fetchpriority="' . esc_attr($attr['fetchpriority']) . '"' : '';
+    $decoding = isset($attr['decoding']) ? ' decoding="' . esc_attr($attr['decoding']) . '"' : '';
     $extra  = '';
     foreach ($attr as $k => $v) {
-        if (in_array($k, ['alt', 'width', 'height'], true)) continue;
+        if (in_array($k, ['alt', 'width', 'height', 'srcset', 'sizes', 'loading', 'fetchpriority', 'decoding'], true)) continue;
         $extra .= ' ' . $k . '="' . esc_attr($v) . '"';
     }
-    return '<img src="' . esc_url($src) . '" alt="' . esc_attr($alt) . '"' . $width . $height . $extra . '>';
+    return '<img src="' . esc_url($src) . '" alt="' . esc_attr($alt) . '"' . $width . $height . $srcset . $sizes . $loading . $fetchpriority . $decoding . $extra . '>';
 }
 
 function senoobar_optimize_jquery() {

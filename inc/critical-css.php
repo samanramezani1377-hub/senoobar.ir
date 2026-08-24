@@ -33,3 +33,11 @@ function senoobar_print_critical_css() {
     echo "<style id=\"senoobar-critical-css\">\n" . $css . "\n</style>\n";
 }
 add_action( 'wp_head', 'senoobar_print_critical_css', 1 );
+
+// Add preconnect for fonts and critical resources
+add_action( 'wp_head', function() {
+    // Preconnect to self-hosted font origin
+    echo '<link rel="preconnect" href="' . esc_url(SENOOBAR_URI) . '" crossorigin>';
+    // Preload critical font
+    echo '<link rel="preload" as="font" type="font/woff2" crossorigin href="' . esc_url(SENOOBAR_URI . '/assets/fonts/vazirmatn-arabic.woff2') . '">';
+}, 0 );

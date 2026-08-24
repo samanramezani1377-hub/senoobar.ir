@@ -13,10 +13,10 @@ $archive_url = senoobar_ideas_page_url();
 
 // ── نمونه‌های پیش‌فرض (وقتی هنوز ایده‌ای ثبت نشده) ──
 $fallback = [
-	[ 'label' => 'اتاق نشیمن مدرن',     'img' => SENOOBAR_URI . '/assets/images/hero-1.jpg' ],
-	[ 'label' => 'اتاق خواب آرامش‌بخش',  'img' => SENOOBAR_URI . '/assets/images/hero-2.jpg' ],
-	[ 'label' => 'ناهارخوری شیک',       'img' => SENOOBAR_URI . '/assets/images/featured-dining.jpg' ],
-	[ 'label' => 'پذیرایی مینیمال',     'img' => SENOOBAR_URI . '/assets/images/inspiration-living.jpg' ],
+	[ 'label' => 'اتاق نشیمن مدرن',     'img' => SENOOBAR_URI . '/assets/images/hero-1.jpg', 'img_w' => 800, 'img_h' => 1000 ],
+	[ 'label' => 'اتاق خواب آرامش‌بخش',  'img' => SENOOBAR_URI . '/assets/images/hero-2.jpg', 'img_w' => 800, 'img_h' => 1000 ],
+	[ 'label' => 'ناهارخوری شیک',       'img' => SENOOBAR_URI . '/assets/images/featured-dining.jpg', 'img_w' => 900, 'img_h' => 593 ],
+	[ 'label' => 'پذیرایی مینیمال',     'img' => SENOOBAR_URI . '/assets/images/inspiration-living.jpg', 'img_w' => 900, 'img_h' => 593 ],
 ];
 ?>
 
@@ -37,9 +37,22 @@ $fallback = [
 			<a href="<?php echo esc_url( $idea['link'] ); ?>" class="idea-card">
 				<div class="idea-card__media">
 					<?php if ( $idea['cover'] ) : ?>
-						<img src="<?php echo esc_url( $idea['cover'] ); ?>" alt="<?php echo esc_attr( $idea['title'] ); ?>" loading="lazy">
+						<?php 
+						$cover_w = 800; $cover_h = 800;
+						if (preg_match('/wp-content\/uploads/', $idea['cover'])) {
+						    $attachment_id = attachment_url_to_postid($idea['cover']);
+						    if ($attachment_id) {
+						        $meta = wp_get_attachment_metadata($attachment_id);
+						        if ($meta && isset($meta['width'], $meta['height'])) {
+						            $cover_w = $meta['width'];
+						            $cover_h = $meta['height'];
+						        }
+						    }
+						}
+						?>
+						<img src="<?php echo esc_url( $idea['cover'] ); ?>" alt="<?php echo esc_attr( $idea['title'] ); ?>" loading="lazy" width="<?php echo $cover_w; ?>" height="<?php echo $cover_h; ?>">
 					<?php else : ?>
-						<img src="<?php echo esc_url( SENOOBAR_URI . '/assets/images/hero-1.jpg' ); ?>" alt="<?php echo esc_attr( $idea['title'] ); ?>" loading="lazy">
+						<img src="<?php echo esc_url( SENOOBAR_URI . '/assets/images/hero-1.jpg' ); ?>" alt="<?php echo esc_attr( $idea['title'] ); ?>" loading="lazy" width="800" height="800">
 					<?php endif; ?>
 					<?php if ( ! empty( $idea['video'] ) ) : ?>
 						<span class="idea-card__badge">
@@ -58,7 +71,7 @@ $fallback = [
 		<div class="gallery-grid">
 			<?php foreach ( $fallback as $idea ) : ?>
 			<div class="gallery-item">
-				<?php echo senoobar_img( $idea['img'], [ 'alt' => $idea['label'], 'loading' => 'lazy' ] ); ?>
+				<?php echo senoobar_img( $idea['img'], [ 'alt' => $idea['label'], 'loading' => 'lazy', 'width' => $idea['img_w'], 'height' => $idea['img_h'] ] ); ?>
 				<div class="gallery-item__overlay"></div>
 				<div class="gallery-item__label"><?php echo esc_html( $idea['label'] ); ?></div>
 			</div>

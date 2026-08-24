@@ -55,7 +55,7 @@ $desc  = get_theme_mod('senoobar_section_featured_desc', 'بهترین انتخ�
                 foreach ($fallback as $p): ?>
                 <div class="woocommerce"><ul class="products"><li class="product">
                     <div style="position:relative;overflow:hidden;">
-                        <?php echo senoobar_img($p['img'], ["alt"=>$p['name'], "loading"=>"lazy", "style"=>"aspect-ratio:1;object-fit:cover;width:100%;"]); ?>
+                        <?php echo senoobar_img($p['img'], ["alt"=>$p['name'], "loading"=>"lazy", "width"=>400, "height"=>400, "style"=>"aspect-ratio:1;object-fit:cover;width:100%;"]); ?>
                         <?php if (!empty($p['discount'])): ?>
                         <span class="discount-badge"><?php echo $p['discount']; ?></span>
                         <?php endif; ?>

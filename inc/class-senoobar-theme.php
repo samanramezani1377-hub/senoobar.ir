@@ -174,7 +174,7 @@ final class Senoobar_Theme {
 
         // Defer theme JS
         add_filter('script_loader_tag', function ($t, $h) {
-            if (in_array($h, ['senoobar-app', 'senoobar-push'])) {
+            if (in_array($h, ['senoobar-app', 'senoobar-push', 'senoobar-wishlist', 'senoobar-cart', 'senoobar-newsletter', 'senoobar-shop-filters', 'senoobar-product-buy-box', 'senoobar-checkout'])) {
                 return str_replace(' src', ' defer src', $t);
             }
             return $t;
@@ -195,6 +195,23 @@ final class Senoobar_Theme {
             }
             echo '<link rel="preload" as="image" href="' . esc_url($src) . '" fetchpriority="high">';
         }, 1);
+
+        // Defer non-critical CSS
+        add_filter('style_loader_tag', function ($tag, $handle) {
+            $critical_handles = ['senoobar-main', 'senoobar-rtl', 'senoobar-critical'];
+            if (!in_array($handle, $critical_handles)) {
+                // Use media="print" with onload to defer non-critical CSS
+                $tag = str_replace(
+                    'rel="stylesheet"',
+                    'rel="preload" as="style" onload="this.onload=null;this.rel=\'stylesheet\'"',
+                    $tag
+                );
+                // Add noscript fallback for browsers without JS
+                $tag .= '<noscript><link rel="stylesheet" href="' . SENOOBAR_URI . '/assets/css/' . $handle . '.css?ver=' . SENOOBAR_VERSION . '" media="all"></noscript>';
+                return $tag;
+            }
+            return $tag;
+        }, 10, 2);
     }
 
     // ─── Customizer ───────────────────────────────
