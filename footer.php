@@ -64,7 +64,7 @@ $snb_f_privacy = function_exists('senoobar_legal_page_url') && senoobar_legal_pa
                 // 1. Add alt, width, height, role to img
                 $enamad_code = preg_replace(
                     '/(<img\b[^>]*)>/i',
-                    '$1 width="80" height="80" alt="نماد اعتماد الکترونیکی اینماد" role="img">',
+                    '$1 width="80" height="80" alt="نماد اعتماد الکترونیکی اینماد">',
                     $enamad_code
                 );
                 // 2. Add aria-label to parent <a> if missing
