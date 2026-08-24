@@ -43,16 +43,16 @@
   --color-gray-200: #e8e4df;
   --color-gray-300: #b4afaa;           /* Darker for better contrast on dark backgrounds */
   --color-gray-400: #98928c;
-  --color-gray-500: #7a746e;          /* Darker for 4.5:1 contrast on white */
-  --color-gray-600: #6b6560;
+  --color-gray-500: #6b6560;          /* Darker for 4.5:1 contrast on white */
+  --color-gray-600: #5a5550;
   --color-gray-700: #524d48;
   --color-gray-800: #3d3833;
   --color-gray-900: #1a1816;
 
-  /* Text */
+/* Text */
   --color-text: #1a1816;
-  --color-text-light: #524d48;        /* Was #6b6560 - darker for 4.5:1 contrast on white */
-  --color-text-muted: #6b6560;        /* Was #9e9890 - darker for 4.5:1 contrast on white */
+  --color-text-light: #524d48;
+  --color-text-muted: #5a5550;        /* Updated to match gray-600 for 4.5:1 contrast */
 
   /* Functional */
   --color-success: #4a9c5d;
