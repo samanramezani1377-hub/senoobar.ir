@@ -125,6 +125,40 @@
   }
 }
 
+/* iPhone PWA: give the bottom navigation enough vertical space for the
+   safe-area/home-indicator region instead of squeezing the five items. */
+@supports (-webkit-touch-callout: none) {
+  @media (display-mode: standalone) and (max-width: 767px) {
+    .mobile-bottom-nav {
+      height: 76px;
+      min-height: 76px;
+      box-sizing: border-box;
+      padding-bottom: env(safe-area-inset-bottom, 0px);
+    }
+
+    .mobile-bottom-nav .mbn-item {
+      min-height: 68px;
+      padding-top: 8px;
+      padding-bottom: 8px;
+      margin-top: 2px;
+      margin-bottom: 2px;
+    }
+
+    .mobile-bottom-nav .mbn-label {
+      font-size: 11px;
+      line-height: 1.15;
+    }
+
+    .mobile-bottom-nav .mbn-home {
+      margin-top: -12px;
+    }
+
+    body {
+      padding-bottom: calc(76px + env(safe-area-inset-bottom, 0px));
+    }
+  }
+}
+
 /* Hide on desktop */
 @media (min-width: 768px) {
   .mobile-bottom-nav {
