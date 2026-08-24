@@ -41,18 +41,18 @@
   --color-gray-50: #faf9f7;
   --color-gray-100: #f7f5f2;
   --color-gray-200: #e8e4df;
-  --color-gray-300: #d4cfc9;
-  --color-gray-400: #b8b2ab;
-  --color-gray-500: #9e9890;
-  --color-gray-600: #6b6560;
+  --color-gray-300: #c4bfb9;           /* Was #d4cfc9 - slightly darker */
+  --color-gray-400: #a8a29b;          /* Was #b8b2ab - slightly darker */
+  --color-gray-500: #8e8880;          /* Was #9e9890 - darker for contrast */
+  --color-gray-600: #6b6560;          /* Was #6b6560 - OK for large text */
   --color-gray-700: #524d48;
   --color-gray-800: #3d3833;
   --color-gray-900: #1a1816;
 
   /* Text */
   --color-text: #1a1816;
-  --color-text-light: #6b6560;
-  --color-text-muted: #9e9890;
+  --color-text-light: #524d48;        /* Was #6b6560 - darker for 4.5:1 contrast on white */
+  --color-text-muted: #6b6560;        /* Was #9e9890 - darker for 4.5:1 contrast on white */
 
   /* Functional */
   --color-success: #4a9c5d;

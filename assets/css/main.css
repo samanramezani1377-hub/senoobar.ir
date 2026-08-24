@@ -2020,7 +2020,7 @@ body .shop-main.list-view ul.products li.product {
 .pd-currency {
   font-size: 0.72em;
   font-weight: 500;
-  color: var(--color-text-muted, #9e9890);
+  color: var(--color-text-muted);
   margin-inline-start: 4px;
   letter-spacing: 0.2px;
   white-space: nowrap;
