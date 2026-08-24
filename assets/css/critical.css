@@ -34,17 +34,17 @@
   --color-brand-light: #2d5a47;
   --color-brand-lighter: #e8f0ec;
 
-  /* Neutrals */
+/* Neutrals */
   --color-white: #ffffff;
   --color-off-white: #faf9f7;
   --color-cream: #fdf9f4;
   --color-gray-50: #faf9f7;
   --color-gray-100: #f7f5f2;
   --color-gray-200: #e8e4df;
-  --color-gray-300: #c4bfb9;           /* Was #d4cfc9 - slightly darker */
-  --color-gray-400: #a8a29b;          /* Was #b8b2ab - slightly darker */
-  --color-gray-500: #8e8880;          /* Was #9e9890 - darker for contrast */
-  --color-gray-600: #6b6560;          /* Was #6b6560 - OK for large text */
+  --color-gray-300: #b4afaa;           /* Darker for better contrast on dark backgrounds */
+  --color-gray-400: #98928c;
+  --color-gray-500: #7a746e;          /* Darker for 4.5:1 contrast on white */
+  --color-gray-600: #6b6560;
   --color-gray-700: #524d48;
   --color-gray-800: #3d3833;
   --color-gray-900: #1a1816;
@@ -1004,7 +1004,7 @@ a.site-branding:hover .logo-text { color: var(--color-brand); }
    ============================================ */
 .site-footer {
   background: var(--color-brand-dark);
-  color: var(--color-gray-300);
+  color: var(--color-gray-200);
   padding: 56px 0 0;
 }
 
@@ -1051,6 +1051,7 @@ a.site-branding:hover .logo-text { color: var(--color-brand); }
 .footer-col li a {
   font-size: 0.85rem;
   line-height: 2.2;
+  color: var(--color-gray-200);
 }
 
 .footer-col li {

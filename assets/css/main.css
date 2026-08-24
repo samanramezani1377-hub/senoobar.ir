@@ -1146,7 +1146,7 @@ body:not(.woocommerce-shop):not(.woocommerce-taxonomy) .products-grid ul.product
 
 .blog-card__meta {
   font-size: 0.7rem;
-  color: var(--color-gray-500);
+  color: var(--color-gray-600);
   margin-bottom: 4px;
   display: flex;
   gap: 8px;
