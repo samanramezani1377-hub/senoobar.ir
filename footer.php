@@ -59,6 +59,40 @@ $snb_f_privacy = function_exists('senoobar_legal_page_url') && senoobar_legal_pa
                     '$1$2' . esc_url($enamad_local_logo) . '$2',
                     $enamad_code
                 );
+                // Add accessibility attributes for well-formed accessibility tree
+                // 1. Add alt, width, height, role to img
+                $enamad_code = preg_replace(
+                    '/(<img\b[^>]*)>/i',
+                    '$1 width="80" height="80" alt="نماد اعتماد الکترونیکی اینماد" role="img">',
+                    $enamad_code
+                );
+                // 2. Add aria-label to parent <a> if missing
+                $enamad_code = preg_replace_callback(
+                    '/<a\b([^>]*)><img/i',
+                    function ($matches) {
+                        $attrs = $matches[1];
+                        if (stripos($attrs, 'aria-label') === false && stripos($attrs, 'aria-labelledby') === false) {
+                            return '<a' . $attrs . ' aria-label="نماد اعتماد الکترونیکی اینماد - کلیک برای تأیید"><img';
+                        }
+                        return $matches[0];
+                    },
+                    $enamad_code
+                );
+                // 3. Add rel="noopener noreferrer" to <a> with target="_blank"
+                $enamad_code = preg_replace_callback(
+                    '/<a\b([^>]*\btarget=["\']_blank["\'][^>]*)>/i',
+                    function ($matches) {
+                        $attrs = $matches[1];
+                        if (stripos($attrs, 'rel=') === false) {
+                            return '<a' . $attrs . ' rel="noopener noreferrer">';
+                        }
+                        if (stripos($attrs, 'noopener') === false || stripos($attrs, 'noreferrer') === false) {
+                            return preg_replace('/\srel=(["\'])[^"\']*\1/i', ' rel=$1noopener noreferrer$1', $matches[0]);
+                        }
+                        return $matches[0];
+                    },
+                    $enamad_code
+                );
                 echo '<div class="enamad-badge">' . $enamad_code . '</div>';
             endif;
             ?>
