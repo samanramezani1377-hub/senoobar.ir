@@ -29,6 +29,7 @@ require_once SENOOBAR_DIR . '/inc/wishlist-page-setup.php';
 require_once SENOOBAR_DIR . '/inc/legal-pages-setup.php';
 require_once SENOOBAR_DIR . '/inc/account.php';
 require_once SENOOBAR_DIR . '/inc/password-change.php';
+require_once SENOOBAR_DIR . '/inc/shipping-display.php';
 require_once SENOOBAR_DIR . '/inc/wishlist.php';
 require_once SENOOBAR_DIR . '/inc/otp-login.php';
 require_once SENOOBAR_DIR . '/inc/otp-register.php';
