@@ -9,9 +9,6 @@ if ( ! class_exists( 'WooCommerce' ) ) {
     return;
 }
 
-/**
- * Allow WooCommerce to calculate shipping on the custom cart/checkout.
- */
 add_filter( 'woocommerce_cart_ready_to_calc_shipping', function ( $ready ) {
     if ( is_admin() || ! function_exists( 'is_cart' ) ) {
         return $ready;
@@ -19,7 +16,6 @@ add_filter( 'woocommerce_cart_ready_to_calc_shipping', function ( $ready ) {
 
     if ( is_cart() || ( function_exists( 'is_checkout' ) && is_checkout() ) ) {
         $customer = WC()->customer;
-
         if ( $customer ) {
             if ( ! $customer->get_shipping_country() ) {
                 $customer->set_shipping_country( WC()->countries->get_base_country() );
@@ -28,19 +24,12 @@ add_filter( 'woocommerce_cart_ready_to_calc_shipping', function ( $ready ) {
                 $customer->set_shipping_state( WC()->countries->get_base_state() );
             }
         }
-
         return true;
     }
 
     return $ready;
 }, 999 );
 
-/**
- * Custom templates must show the shipping section even when WooCommerce's
- * default "show shipping" flag is false (for example with a zero-cost
- * pay-on-delivery/پس‌کرایه method). The actual rate calculation is still
- * performed by WooCommerce.
- */
 add_filter( 'woocommerce_cart_show_shipping', function ( $show ) {
     if ( is_admin() ) {
         return $show;
@@ -53,9 +42,6 @@ add_filter( 'woocommerce_cart_show_shipping', function ( $show ) {
     return $show;
 }, 999 );
 
-/**
- * Recalculate WooCommerce shipping packages before custom totals render.
- */
 add_action( 'woocommerce_before_calculate_totals', function ( $cart ) {
     if ( is_admin() || ! $cart || ! WC()->customer ) {
         return;
@@ -67,58 +53,55 @@ add_action( 'woocommerce_before_calculate_totals', function ( $cart ) {
 }, 1 );
 
 /**
- * Get the configured WooCommerce shipping method title as a fallback when
- * the rate list is empty in the custom template.
+ * Return the actual currently available/selected WooCommerce shipping method
+ * title. This reads the calculated package rates, not a hard-coded label.
  */
 function senoobar_get_shipping_method_title() {
-    if ( ! class_exists( 'WC_Shipping_Zones' ) ) {
+    if ( ! WC()->cart || ! WC()->cart->needs_shipping() ) {
         return '';
     }
 
-    $zone = WC_Shipping_Zones::get_zone_matching_package( [
-        'destination' => [
+    $chosen = WC()->session ? WC()->session->get( 'chosen_shipping_methods', [] ) : [];
+    $chosen = is_array( $chosen ) ? $chosen : [];
+
+    // First: use the currently selected calculated rate.
+    $packages = WC()->shipping() ? WC()->shipping()->get_packages() : [];
+    foreach ( $packages as $package_index => $package ) {
+        $rates = isset( $package['rates'] ) && is_array( $package['rates'] ) ? $package['rates'] : [];
+        $chosen_rate_id = isset( $chosen[ $package_index ] ) ? $chosen[ $package_index ] : '';
+
+        if ( $chosen_rate_id && isset( $rates[ $chosen_rate_id ] ) ) {
+            $rate = $rates[ $chosen_rate_id ];
+            if ( is_object( $rate ) && method_exists( $rate, 'get_label' ) && $rate->get_label() ) {
+                return $rate->get_label();
+            }
+        }
+
+        // If no chosen rate is stored, use the first calculated rate.
+        foreach ( $rates as $rate ) {
+            if ( is_object( $rate ) && method_exists( $rate, 'get_label' ) && $rate->get_label() ) {
+                return $rate->get_label();
+            }
+        }
+    }
+
+    // Fallback: read the active method directly from the matching WooCommerce
+    // shipping zone. This is still the configured method name, never a fixed
+    // "رایگان" label.
+    if ( class_exists( 'WC_Shipping_Zones' ) ) {
+        $destination = [
             'country'  => WC()->customer ? WC()->customer->get_shipping_country() : WC()->countries->get_base_country(),
             'state'    => WC()->customer ? WC()->customer->get_shipping_state() : WC()->countries->get_base_state(),
             'postcode' => WC()->customer ? WC()->customer->get_shipping_postcode() : '',
             'city'     => WC()->customer ? WC()->customer->get_shipping_city() : '',
-        ],
-    ] );
+        ];
 
-    if ( $zone ) {
-        foreach ( $zone->get_shipping_methods( true ) as $method ) {
-            if ( $method->is_enabled() ) {
-                $title = $method->get_title();
-                if ( $title ) {
-                    return $title;
+        $zone = WC_Shipping_Zones::get_zone_matching_package( [ 'destination' => $destination ] );
+        if ( $zone ) {
+            foreach ( $zone->get_shipping_methods( true ) as $method ) {
+                if ( $method->is_enabled() && $method->get_title() ) {
+                    return $method->get_title();
                 }
-            }
-        }
-    }
-
-    // Final fallback: inspect the store's configured zones, including the
-    // "Rest of the world" zone, and return the first enabled method title.
-    $zones = WC_Shipping_Zones::get_zones();
-    foreach ( $zones as $zone_data ) {
-        if ( empty( $zone_data['shipping_methods'] ) ) {
-            continue;
-        }
-
-        foreach ( $zone_data['shipping_methods'] as $method ) {
-            if ( $method->is_enabled() ) {
-                $title = $method->get_title();
-                if ( $title ) {
-                    return $title;
-                }
-            }
-        }
-    }
-
-    $rest_zone = new WC_Shipping_Zone( 0 );
-    foreach ( $rest_zone->get_shipping_methods( true ) as $method ) {
-        if ( $method->is_enabled() ) {
-            $title = $method->get_title();
-            if ( $title ) {
-                return $title;
             }
         }
     }
@@ -127,9 +110,8 @@ function senoobar_get_shipping_method_title() {
 }
 
 /**
- * WooCommerce normally appends "رایگان" to a zero-cost rate. The store's
- * configured method name (e.g. "پس‌کرایه") is the correct customer-facing
- * label, so use the actual method title instead.
+ * Do not append WooCommerce's generic "رایگان" text to zero-cost shipping.
+ * The configured method title (e.g. پس‌کرایه) is the customer-facing label.
  */
 add_filter( 'woocommerce_cart_shipping_method_full_label', function ( $label, $method ) {
     if ( is_admin() ) {
@@ -138,10 +120,9 @@ add_filter( 'woocommerce_cart_shipping_method_full_label', function ( $label, $m
 
     if ( ( function_exists( 'is_cart' ) && is_cart() ) || ( function_exists( 'is_checkout' ) && is_checkout() ) ) {
         if ( is_object( $method ) && is_callable( [ $method, 'get_label' ] ) ) {
-            $method_title = $method->get_label();
-
-            if ( $method_title !== '' ) {
-                return esc_html( $method_title );
+            $title = $method->get_label();
+            if ( $title !== '' ) {
+                return esc_html( $title );
             }
         }
     }
