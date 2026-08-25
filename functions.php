@@ -28,6 +28,7 @@ require_once SENOOBAR_DIR . '/inc/push-handlers.php';
 require_once SENOOBAR_DIR . '/inc/wishlist-page-setup.php';
 require_once SENOOBAR_DIR . '/inc/legal-pages-setup.php';
 require_once SENOOBAR_DIR . '/inc/account.php';
+require_once SENOOBAR_DIR . '/inc/password-change.php';
 require_once SENOOBAR_DIR . '/inc/wishlist.php';
 require_once SENOOBAR_DIR . '/inc/otp-login.php';
 require_once SENOOBAR_DIR . '/inc/otp-register.php';
@@ -56,12 +57,6 @@ function senoobar_img($src, $attr = []) {
 
 function senoobar_optimize_jquery() {
     if (is_admin()) return;
-    // On checkout, WooCommerce's wc-checkout script (and its inline
-    // localization) run without "defer" and need jQuery ready immediately.
-    // Deferring jQuery there makes wc-checkout execute before jQuery exists,
-    // throw a JS error, and silently fail to bind — so the place-order
-    // button falls back to a plain form submit (page reload, no gateway,
-    // no order). Skip the jQuery defer on the checkout page only.
     if (function_exists('is_checkout') && is_checkout()) return;
     wp_deregister_script('jquery-migrate');
     wp_dequeue_script('jquery-migrate');
@@ -75,10 +70,7 @@ function senoobar_optimize_jquery() {
 add_action('wp_enqueue_scripts', 'senoobar_optimize_jquery', 20);
 
 /**
- * Prioritize the Persian Vazirmatn subset. The Latin subset is intentionally
- * not preloaded so it does not compete with the Persian font on the initial
- * render of this RTL/Persian site. It remains available through @font-face
- * when Latin glyphs are actually needed.
+ * Prioritize the Persian Vazirmatn subset.
  */
 function senoobar_preload_vazirmatn_arabic() {
     if (is_admin()) return;
@@ -88,8 +80,6 @@ add_action('wp_head', 'senoobar_preload_vazirmatn_arabic', 0);
 
 /**
  * Keep the newsletter script out of the browser's critical request chain.
- * It only performs an AJAX request after a visitor submits the newsletter
- * form, so it does not need to block initial rendering/LCP.
  */
 function senoobar_defer_newsletter_script($tag, $handle) {
     if (is_admin()) return $tag;
@@ -101,8 +91,6 @@ add_filter('script_loader_tag', 'senoobar_defer_newsletter_script', 20, 2);
 
 /**
  * Keep cart and wishlist JavaScript out of the render-blocking critical path.
- * Both scripts remain loaded because wishlist -> add-to-cart and cart AJAX
- * are required functionality; only their execution is deferred.
  */
 function senoobar_defer_cart_wishlist_scripts($tag, $handle) {
     if (is_admin()) return $tag;
@@ -121,8 +109,7 @@ add_filter('script_loader_tag', 'senoobar_defer_cart_wishlist_scripts', 20, 2);
 /**
  * Reduce main-thread Style & Layout work by allowing the browser to skip
  * rendering work for sections that are below the viewport until they are
- * near the viewport. This does not remove content, JavaScript, or AJAX.
- * The hero and other above-the-fold content are intentionally untouched.
+ * near the viewport.
  */
 function senoobar_reduce_below_fold_layout_work() {
     if (is_admin()) return;
