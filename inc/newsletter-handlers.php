@@ -3,7 +3,7 @@
  * Newsletter Subscription Handler — Senoobar
  */
 
-// Create subscribers table on activation
+// Create subscribers table on activation.
 add_action('after_switch_theme', 'senoobar_create_subscribers_table');
 function senoobar_create_subscribers_table() {
     global $wpdb;
@@ -28,16 +28,20 @@ function senoobar_create_subscribers_table() {
 
     require_once ABSPATH . 'wp-admin/includes/upgrade.php';
     dbDelta($sql);
+
+    // Mark the schema as initialized so normal frontend requests do not need
+    // to query SHOW TABLES on every page load.
+    update_option('senoobar_subscribers_table_version', '1', false);
 }
 
-// Run on init if table doesn't exist
+// One-time safety check for sites upgraded from an older theme version.
+// The previous implementation ran SHOW TABLES on every request, adding an
+// unnecessary database query to the critical path.
 add_action('init', function() {
-    global $wpdb;
-    $table_name = $wpdb->prefix . 'senoobar_subscribers';
-    if ($wpdb->get_var("SHOW TABLES LIKE '$table_name'") !== $table_name) {
+    if (get_option('senoobar_subscribers_table_version') !== '1') {
         senoobar_create_subscribers_table();
     }
-});
+}, 1);
 
 // AJAX Subscribe
 add_action('wp_ajax_senoobar_newsletter_subscribe', 'senoobar_newsletter_subscribe');
