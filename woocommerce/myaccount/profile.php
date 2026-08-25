@@ -144,6 +144,34 @@ $password_messages = [
             border-color: #bbf7d0;
             color: #15803d;
         }
+
+        /* Mobile: stack all three password fields and make them full width. */
+        @media (max-width: 760px) {
+            .snb-password-form .snb-card {
+                padding: 18px 14px;
+            }
+            .snb-password-form .snb-form-grid {
+                display: flex;
+                flex-direction: column;
+                width: 100%;
+                gap: 14px;
+            }
+            .snb-password-form .snb-password-field,
+            .snb-password-form .snb-password-input-wrap,
+            .snb-password-form .snb-password-input-wrap input {
+                width: 100%;
+                max-width: none;
+                min-width: 0;
+                box-sizing: border-box;
+            }
+            .snb-password-form .snb-password-field {
+                display: flex;
+                flex-direction: column;
+            }
+            .snb-password-form .snb-password-input-wrap input {
+                height: 48px;
+            }
+        }
         </style>
     <?php endif; ?>
 </div>
