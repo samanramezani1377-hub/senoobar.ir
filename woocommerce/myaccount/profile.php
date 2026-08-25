@@ -17,15 +17,15 @@ $show_password = isset( $_GET['tab'] ) && $_GET['tab'] === 'password';
 $password_status = isset( $_GET['password_status'] ) ? sanitize_key( wp_unslash( $_GET['password_status'] ) ) : '';
 
 $password_messages = [
-    'success'          => [ 'success', 'رمز عبور شما با موفقیت تغییر کرد.' ],
+    'success' => [ 'success', 'رمز عبور شما با موفقیت تغییر کرد.' ],
     'current_required' => [ 'error', 'لطفاً رمز عبور فعلی را وارد کنید.' ],
-    'current_invalid'  => [ 'error', 'رمز عبور فعلی اشتباه است.' ],
-    'new_required'     => [ 'error', 'لطفاً رمز عبور جدید را وارد کنید.' ],
-    'too_short'        => [ 'error', 'رمز عبور جدید باید حداقل ۶ کاراکتر باشد.' ],
-    'mismatch'         => [ 'error', 'تکرار رمز عبور جدید با رمز عبور جدید یکسان نیست.' ],
-    'same_password'    => [ 'error', 'رمز عبور جدید باید با رمز عبور فعلی متفاوت باشد.' ],
-    'invalid_request'  => [ 'error', 'درخواست تغییر رمز معتبر نیست. لطفاً دوباره تلاش کنید.' ],
-    'account_not_found'=> [ 'error', 'حساب کاربری پیدا نشد. لطفاً دوباره وارد حساب شوید.' ],
+    'current_invalid' => [ 'error', 'رمز عبور فعلی اشتباه است.' ],
+    'new_required' => [ 'error', 'لطفاً رمز عبور جدید را وارد کنید.' ],
+    'too_short' => [ 'error', 'رمز عبور جدید باید حداقل ۶ کاراکتر باشد.' ],
+    'mismatch' => [ 'error', 'تکرار رمز عبور جدید با رمز عبور جدید یکسان نیست.' ],
+    'same_password' => [ 'error', 'رمز عبور جدید باید با رمز عبور فعلی متفاوت باشد.' ],
+    'invalid_request' => [ 'error', 'درخواست تغییر رمز معتبر نیست. لطفاً دوباره تلاش کنید.' ],
+    'account_not_found' => [ 'error', 'حساب کاربری پیدا نشد. لطفاً دوباره وارد حساب شوید.' ],
 ];
 ?>
 
@@ -74,17 +74,28 @@ $password_messages = [
 
             <div class="snb-card">
                 <div class="snb-form-grid">
-                    <div class="snb-field snb-field-full">
+                    <div class="snb-field snb-field-full snb-password-field">
                         <label for="snb-password-current">رمز عبور فعلی</label>
-                        <input id="snb-password-current" type="password" name="password_current" dir="ltr" style="text-align:right" autocomplete="current-password" required>
+                        <div class="snb-password-input-wrap">
+                            <input id="snb-password-current" type="password" name="password_current" dir="ltr" style="text-align:right" autocomplete="current-password" required>
+                            <button type="button" class="snb-password-toggle" data-password-target="snb-password-current" aria-label="نمایش رمز عبور فعلی" aria-pressed="false"><span aria-hidden="true">◉</span></button>
+                        </div>
                     </div>
-                    <div class="snb-field snb-field-full">
+                    <div class="snb-field snb-field-full snb-password-field">
                         <label for="snb-password-1">رمز عبور جدید</label>
-                        <input id="snb-password-1" type="password" name="password_1" dir="ltr" style="text-align:right" autocomplete="new-password" minlength="6" required>
+                        <div class="snb-password-input-wrap">
+                            <input id="snb-password-1" type="password" name="password_1" dir="ltr" style="text-align:right" autocomplete="new-password" minlength="6" required>
+                            <button type="button" class="snb-password-toggle" data-password-target="snb-password-1" aria-label="نمایش رمز عبور جدید" aria-pressed="false"><span aria-hidden="true">◉</span></button>
+                        </div>
                     </div>
-                    <div class="snb-field snb-field-full">
+                    <div class="snb-field snb-field-full snb-password-field">
                         <label for="snb-password-2">تکرار رمز عبور جدید</label>
-                        <input id="snb-password-2" type="password" name="password_2" dir="ltr" style="text-align:right" autocomplete="new-password" minlength="6" required>
+                        <div class="snb-password-input-wrap">
+                            <div class="snb-password-input-wrap">
+                                <input id="snb-password-2" type="password" name="password_2" dir="ltr" style="text-align:right" autocomplete="new-password" minlength="6" required>
+                                <button type="button" class="snb-password-toggle" data-password-target="snb-password-2" aria-label="نمایش تکرار رمز عبور جدید" aria-pressed="false"><span aria-hidden="true">◉</span></button>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div class="snb-note">🔒 رمز عبور باید حداقل ۶ کاراکتر باشد.</div>
@@ -92,5 +103,21 @@ $password_messages = [
 
             <button type="submit" class="snb-btn snb-btn-primary">تغییر رمز عبور</button>
         </form>
+
+        <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            document.querySelectorAll('.snb-password-toggle').forEach(function (button) {
+                button.addEventListener('click', function () {
+                    var input = document.getElementById(button.getAttribute('data-password-target'));
+                    if (!input) return;
+                    var visible = input.type === 'text';
+                    input.type = visible ? 'password' : 'text';
+                    button.setAttribute('aria-pressed', visible ? 'false' : 'true');
+                    button.setAttribute('aria-label', visible ? 'نمایش رمز عبور' : 'مخفی کردن رمز عبور');
+                    button.classList.toggle('is-visible', !visible);
+                });
+            });
+        });
+        </script>
     <?php endif; ?>
 </div>
