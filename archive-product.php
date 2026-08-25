@@ -27,7 +27,40 @@ $current_cat_id = is_product_category() ? get_queried_object()->term_id : 0;
 $current_cat_slug = is_product_category() ? get_queried_object()->slug : '';
 ?>
 
-<main class="shop-page">
+<!-- Shop accessibility: keep the global skip link visually hidden until keyboard focus. -->
+<style id="senoobar-shop-accessibility">
+  .skip-link.screen-reader-text {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+  .skip-link.screen-reader-text:focus {
+    position: fixed;
+    top: 12px;
+    left: 12px;
+    width: auto;
+    height: auto;
+    margin: 0;
+    padding: 10px 14px;
+    overflow: visible;
+    clip: auto;
+    white-space: normal;
+    z-index: 999999;
+    background: #fff;
+    color: #111;
+    border: 2px solid currentColor;
+    border-radius: 6px;
+    box-shadow: 0 4px 16px rgba(0,0,0,.18);
+  }
+</style>
+
+<main class="shop-page" id="primary">
   <!-- ─── Page Header ─────────────────────────── -->
   <section class="shop-header">
     <div class="container">
@@ -68,14 +101,14 @@ $current_cat_slug = is_product_category() ? get_queried_object()->slug : '';
         
         <!-- Filter Header (Mobile Toggle) -->
         <div class="filter-header">
-          <h3 class="filter-title">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <h2 class="filter-title">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
               <path d="M22 3H2l8 9.46V19l4 2v-8.54L22 3z"/>
             </svg>
             فیلترها
-          </h3>
+          </h2>
           <button type="button" class="filter-close" id="filterClose" aria-label="بستن فیلترها">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
               <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
             </svg>
           </button>
@@ -137,7 +170,7 @@ $current_cat_slug = is_product_category() ? get_queried_object()->slug : '';
 
         <!-- Reset Filters -->
         <button type="button" class="btn-reset-filters" id="resetFilters">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
             <path d="M1 4v6h6M23 20v-6h-6"/>
             <path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"/>
           </svg>
@@ -163,7 +196,7 @@ $current_cat_slug = is_product_category() ? get_queried_object()->slug : '';
             </span>
             <!-- Mobile Filter Button -->
             <button type="button" class="btn-filter-toggle" id="filterToggle">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                 <path d="M22 3H2l8 9.46V19l4 2v-8.54L22 3z"/>
               </svg>
               فیلترها
@@ -174,7 +207,7 @@ $current_cat_slug = is_product_category() ? get_queried_object()->slug : '';
             <!-- Sort -->
             <div class="sort-wrapper">
               <label for="sortBy" class="sort-label">مرتب‌سازی:</label>
-              <select id="sortBy" name="orderby" class="sort-select">
+              <select id="sortBy" name="orderby" class="sort-select" aria-label="مرتب‌سازی محصولات">
                 <option value="menu_order" <?php selected(isset($_GET['orderby']) ? sanitize_key($_GET['orderby']) : '', 'menu_order'); ?>>پیش‌فرض</option>
                 <option value="popularity" <?php selected(isset($_GET['orderby']) ? sanitize_key($_GET['orderby']) : '', 'popularity'); ?>>محبوب‌ترین</option>
                 <option value="rating" <?php selected(isset($_GET['orderby']) ? sanitize_key($_GET['orderby']) : '', 'rating'); ?>>بالاترین امتیاز</option>
@@ -187,13 +220,13 @@ $current_cat_slug = is_product_category() ? get_queried_object()->slug : '';
             <!-- View Toggle -->
             <div class="view-toggle">
               <button type="button" class="view-btn active" data-view="grid" aria-label="نمایش جدولی">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                   <rect x="2" y="2" width="9" height="9" rx="1"/><rect x="13" y="2" width="9" height="9" rx="1"/>
                   <rect x="2" y="13" width="9" height="9" rx="1"/><rect x="13" y="13" width="9" height="9" rx="1"/>
                 </svg>
               </button>
               <button type="button" class="view-btn" data-view="list" aria-label="نمایش لیستی">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                   <rect x="2" y="3" width="20" height="3" rx="1"/>
                   <rect x="2" y="10.5" width="20" height="3" rx="1"/>
                   <rect x="2" y="18" width="20" height="3" rx="1"/>
