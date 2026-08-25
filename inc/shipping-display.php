@@ -41,7 +41,30 @@ add_action( 'woocommerce_before_calculate_totals', function ( $cart ) {
         return;
     }
 
-    if ( function_exists( 'is_cart' ) && is_cart() || function_exists( 'is_checkout' ) && is_checkout() ) {
+    if ( ( function_exists( 'is_cart' ) && is_cart() ) || ( function_exists( 'is_checkout' ) && is_checkout() ) ) {
         WC()->customer->set_calculated_shipping( true );
     }
 }, 1 );
+
+/**
+ * The store uses a zero-cost "پس کرایه" style shipping method.
+ * WooCommerce normally adds "رایگان" to a zero-cost rate. On this shop,
+ * show the configured WooCommerce shipping method title instead.
+ */
+add_filter( 'woocommerce_cart_shipping_method_full_label', function ( $label, $method ) {
+    if ( is_admin() ) {
+        return $label;
+    }
+
+    if ( ( function_exists( 'is_cart' ) && is_cart() ) || ( function_exists( 'is_checkout' ) && is_checkout() ) ) {
+        if ( is_object( $method ) && is_callable( [ $method, 'get_label' ] ) ) {
+            $method_title = $method->get_label();
+
+            if ( $method_title !== '' ) {
+                return esc_html( $method_title );
+            }
+        }
+    }
+
+    return $label;
+}, 20, 2 );
