@@ -13,18 +13,18 @@ $last_name  = $user->last_name;
 $email      = $user->user_email;
 $mobile     = get_user_meta( $user_id, 'mobile', true ) ?: get_user_meta( $user_id, 'billing_phone', true );
 
-$show_password = isset( $_GET['tab'] ) && $_GET['tab'] === 'password';
+$show_password   = isset( $_GET['tab'] ) && $_GET['tab'] === 'password';
 $password_status = isset( $_GET['password_status'] ) ? sanitize_key( wp_unslash( $_GET['password_status'] ) ) : '';
 
 $password_messages = [
-    'success' => [ 'success', 'رمز عبور شما با موفقیت تغییر کرد.' ],
-    'current_required' => [ 'error', 'لطفاً رمز عبور فعلی را وارد کنید.' ],
-    'current_invalid' => [ 'error', 'رمز عبور فعلی اشتباه است.' ],
-    'new_required' => [ 'error', 'لطفاً رمز عبور جدید را وارد کنید.' ],
-    'too_short' => [ 'error', 'رمز عبور جدید باید حداقل ۶ کاراکتر باشد.' ],
-    'mismatch' => [ 'error', 'تکرار رمز عبور جدید با رمز عبور جدید یکسان نیست.' ],
-    'same_password' => [ 'error', 'رمز عبور جدید باید با رمز عبور فعلی متفاوت باشد.' ],
-    'invalid_request' => [ 'error', 'درخواست تغییر رمز معتبر نیست. لطفاً دوباره تلاش کنید.' ],
+    'success'           => [ 'success', 'رمز عبور شما با موفقیت تغییر کرد.' ],
+    'current_required'  => [ 'error', 'لطفاً رمز عبور فعلی را وارد کنید.' ],
+    'current_invalid'   => [ 'error', 'رمز عبور فعلی اشتباه است.' ],
+    'new_required'      => [ 'error', 'لطفاً رمز عبور جدید را وارد کنید.' ],
+    'too_short'         => [ 'error', 'رمز عبور جدید باید حداقل ۶ کاراکتر باشد.' ],
+    'mismatch'          => [ 'error', 'تکرار رمز عبور جدید با رمز عبور جدید یکسان نیست.' ],
+    'same_password'     => [ 'error', 'رمز عبور جدید باید با رمز عبور فعلی متفاوت باشد.' ],
+    'invalid_request'   => [ 'error', 'درخواست تغییر رمز معتبر نیست. لطفاً دوباره تلاش کنید.' ],
     'account_not_found' => [ 'error', 'حساب کاربری پیدا نشد. لطفاً دوباره وارد شوید.' ],
 ];
 ?>
@@ -36,8 +36,9 @@ $password_messages = [
     </header>
 
     <?php if ( $show_password && isset( $password_messages[ $password_status ] ) ) : ?>
-        <div class="woocommerce-<?php echo esc_attr( $password_messages[ $password_status ][0] ); ?>" role="alert">
-            <?php echo esc_html( $password_messages[ $password_status ][1] ); ?>
+        <?php $notice = $password_messages[ $password_status ]; ?>
+        <div class="snb-password-notice snb-password-notice-<?php echo esc_attr( $notice[0] ); ?>" role="alert" aria-live="polite">
+            <?php echo esc_html( $notice[1] ); ?>
         </div>
     <?php endif; ?>
 
@@ -103,15 +104,8 @@ $password_messages = [
         </script>
 
         <style>
-        .snb-password-input-wrap {
-            position: relative;
-            width: 100%;
-        }
-        .snb-password-input-wrap input {
-            width: 100%;
-            padding-left: 78px;
-            box-sizing: border-box;
-        }
+        .snb-password-input-wrap { position: relative; width: 100%; }
+        .snb-password-input-wrap input { width: 100%; padding-left: 78px; box-sizing: border-box; }
         .snb-password-toggle {
             position: absolute;
             left: 0;
@@ -127,8 +121,28 @@ $password_messages = [
             font: inherit;
             z-index: 2;
         }
-        .snb-password-toggle:hover {
-            opacity: .7;
+        .snb-password-toggle:hover { opacity: .7; }
+
+        .snb-password-notice {
+            width: 100%;
+            box-sizing: border-box;
+            margin: 0 0 18px;
+            padding: 12px 16px;
+            border-radius: 10px;
+            border: 1px solid transparent;
+            font-size: 14px;
+            line-height: 1.8;
+            font-weight: 500;
+        }
+        .snb-password-notice-error {
+            background: #fff1f2;
+            border-color: #fecdd3;
+            color: #be123c;
+        }
+        .snb-password-notice-success {
+            background: #f0fdf4;
+            border-color: #bbf7d0;
+            color: #15803d;
         }
         </style>
     <?php endif; ?>
