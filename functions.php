@@ -89,11 +89,8 @@ add_filter('script_loader_tag', 'senoobar_defer_newsletter_script', 20, 2);
 
 /**
  * Keep cart and wishlist JavaScript out of the render-blocking critical path.
- * Both scripts are safe to defer: cart.js exits when its cart container is
- * absent, while wishlist.js uses delegated handlers for product-card hearts
- * and initializes its full page UI only when the wishlist grid exists.
- * We keep both scripts loaded because wishlist -> add-to-cart and cart AJAX
- * remain required functionality.
+ * Both scripts remain loaded because wishlist -> add-to-cart and cart AJAX
+ * are required functionality; only their execution is deferred.
  */
 function senoobar_defer_cart_wishlist_scripts($tag, $handle) {
     if (is_admin()) return $tag;
@@ -108,3 +105,23 @@ function senoobar_defer_cart_wishlist_scripts($tag, $handle) {
     return str_replace(' src', ' defer src', $tag);
 }
 add_filter('script_loader_tag', 'senoobar_defer_cart_wishlist_scripts', 20, 2);
+
+/**
+ * Reduce main-thread Style & Layout work by allowing the browser to skip
+ * rendering work for sections that are below the viewport until they are
+ * near the viewport. This does not remove content, JavaScript, or AJAX.
+ * The hero and other above-the-fold content are intentionally untouched.
+ */
+function senoobar_reduce_below_fold_layout_work() {
+    if (is_admin()) return;
+    ?>
+    <style id="senoobar-below-fold-performance">
+      .cats-section,
+      .section {
+        content-visibility: auto;
+        contain-intrinsic-size: auto 500px;
+      }
+    </style>
+    <?php
+}
+add_action('wp_head', 'senoobar_reduce_below_fold_layout_work', 99);
