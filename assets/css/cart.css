@@ -110,4 +110,7 @@ a.senoobar-cart-product-name:hover { color:var(--senoobar-green); }
     .senoobar-mobile-label { display:block; margin-bottom:4px; color:#8a908c; font-size:10px; font-weight:500; }
     .senoobar-summary-card { padding:20px 16px; }
     .senoobar-cart-footer { padding:15px 14px; }
+    .senoobar-coupon-form { flex-direction:column; }
+    .senoobar-coupon-form input { width:100%; }
+    .senoobar-coupon-form button { width:100%; }
 }
