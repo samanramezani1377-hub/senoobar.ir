@@ -11,115 +11,20 @@ get_header(); ?>
 
 <main id="primary" class="site-main">
 <div class="container page-content">
-
-<?php do_action( 'woocommerce_before_cart' );
-
-$cart = WC()->cart;
-
-$cart_page_id = wc_get_page_id('cart');
-if ( ! $cart_page_id ) {
-    ?>
-    <div class="senoobar-cart-page" dir="rtl">
-        <div class="senoobar-cart-container">
-            <div class="senoobar-cart-message error" style="display:block; margin-bottom:24px; padding:16px; background:#fff0f0; color:#b73737; border-radius:12px;">
-                <strong>تنظیمات سبد خرید کامل نیست</strong><br>
-                برگه «سبد خرید» در تنظیمات ووکامرس انتخاب نشده است.
-                <?php if ( current_user_can( 'manage_woocommerce' ) ) : ?>
-                    <br><a href="<?php echo esc_url( admin_url( 'admin.php?page=wc-settings&tab=advanced' ) ); ?>" class="senoobar-primary-button" style="display:inline-block; margin-top:12px;">تنظیم برگه سبد خرید</a>
-                <?php endif; ?>
-            </div>
-            <div class="senoobar-empty-cart">
-                <div class="senoobar-empty-cart-icon">🛒</div>
-                <h2>سبد خرید شما خالی است</h2>
-                <p>هنوز محصولی به سبد خرید خود اضافه نکرده‌اید.</p>
-                <a href="<?php echo esc_url( wc_get_page_permalink( 'shop' ) ); ?>" class="senoobar-primary-button">مشاهده محصولات</a>
-            </div>
-        </div>
-    </div>
-    <?php
-    return;
-}
-?>
-
-<div class="senoobar-cart-page" dir="rtl">
-    <div class="senoobar-cart-container">
-        <div class="senoobar-cart-breadcrumb">
-            <a href="<?php echo esc_url( home_url( '/' ) ); ?>">خانه</a><span>/</span><span>سبد خرید</span>
-        </div>
-        <div class="senoobar-cart-heading">
-            <div><h1>سبد خرید شما</h1><p><span class="senoobar-cart-count"><?php echo esc_html( $cart->get_cart_contents_count() ); ?></span> محصول در سبد خرید</p></div>
-        </div>
-        <div id="senoobar-cart-message" class="senoobar-cart-message" role="alert" aria-live="polite"></div>
-
-        <?php if ( $cart->is_empty() ) : ?>
-            <div class="senoobar-empty-cart">
-                <div class="senoobar-empty-cart-icon">🛒</div><h2>سبد خرید شما خالی است</h2><p>هنوز محصولی به سبد خرید خود اضافه نکرده‌اید.</p>
-                <a href="<?php echo esc_url( wc_get_page_permalink( 'shop' ) ); ?>" class="senoobar-primary-button">مشاهده محصولات</a>
-            </div>
-        <?php else : ?>
-            <div class="senoobar-cart-layout">
-                <section class="senoobar-cart-products">
-                    <div class="senoobar-cart-card">
-                        <div class="senoobar-cart-table-header"><div class="product-col">محصول</div><div class="price-col">قیمت</div><div class="quantity-col">تعداد</div><div class="subtotal-col">جمع</div><div class="remove-col"></div></div>
-                        <div id="senoobar-cart-items">
-                            <?php foreach ( $cart->get_cart() as $cart_item_key => $cart_item ) : ?>
-                                <?php
-                                $_product = apply_filters( 'woocommerce_cart_item_product', $cart_item['data'], $cart_item, $cart_item_key );
-                                if ( ! $_product || ! $_product->exists() || $cart_item['quantity'] < 1 ) { continue; }
-                                $product_name = $_product->get_name();
-                                $product_permalink = $_product->is_visible() ? $_product->get_permalink( $cart_item ) : '';
-                                $thumbnail = $_product->get_image( 'woocommerce_thumbnail' );
-                                $unit_price = $cart->get_product_price( $_product );
-                                $line_subtotal = $cart->get_product_subtotal( $_product, $cart_item['quantity'] );
-                                ?>
-                                <article class="senoobar-cart-item" data-cart-key="<?php echo esc_attr( $cart_item_key ); ?>">
-                                    <div class="senoobar-cart-product"><div class="senoobar-cart-product-image"><?php if ( $product_permalink ) : ?><a href="<?php echo esc_url( $product_permalink ); ?>"><?php echo $thumbnail; ?></a><?php else : echo $thumbnail; endif; ?></div>
-                                        <div class="senoobar-cart-product-info"><?php if ( $product_permalink ) : ?><a class="senoobar-cart-product-name" href="<?php echo esc_url( $product_permalink ); ?>"><?php echo esc_html( $product_name ); ?></a><?php else : ?><span class="senoobar-cart-product-name"><?php echo esc_html( $product_name ); ?></span><?php endif; ?><?php echo wc_get_formatted_cart_item_data( $cart_item ); ?><?php if ( $_product->get_sku() ) : ?><span class="senoobar-product-sku">کد محصول: <?php echo esc_html( $_product->get_sku() ); ?></span><?php endif; ?></div>
-                                    </div>
-                                    <div class="senoobar-cart-price"><span class="senoobar-mobile-label">قیمت</span><span><?php echo wp_kses_post( $unit_price ); ?></span></div>
-                                    <div class="senoobar-cart-quantity"><span class="senoobar-mobile-label">تعداد</span><div class="senoobar-quantity-control"><button type="button" class="senoobar-qty-button senoobar-qty-plus" data-key="<?php echo esc_attr( $cart_item_key ); ?>" aria-label="افزایش تعداد">+</button><input type="number" class="senoobar-qty-input" value="<?php echo esc_attr( $cart_item['quantity'] ); ?>" min="1" step="1" inputmode="numeric" data-key="<?php echo esc_attr( $cart_item_key ); ?>" aria-label="تعداد محصول" /><button type="button" class="senoobar-qty-button senoobar-qty-minus" data-key="<?php echo esc_attr( $cart_item_key ); ?>" aria-label="کاهش تعداد">−</button></div></div>
-                                    <div class="senoobar-cart-subtotal"><span class="senoobar-mobile-label">جمع</span><span><?php echo wp_kses_post( $line_subtotal ); ?></span></div>
-                                    <div class="senoobar-cart-remove"><button type="button" class="senoobar-remove-button" data-key="<?php echo esc_attr( $cart_item_key ); ?>" aria-label="حذف <?php echo esc_attr( $product_name ); ?>"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v5"/><path d="M14 11v5"/></svg></button></div>
-                                </article>
-                            <?php endforeach; ?>
-                        </div>
-                        <div class="senoobar-cart-footer"><a href="<?php echo esc_url( wc_get_page_permalink( 'shop' ) ); ?>" class="senoobar-continue-shopping"><span>←</span> ادامه خرید</a></div>
-                    </div>
-                </section>
-
-                <aside class="senoobar-cart-summary">
-                    <div class="senoobar-summary-card">
-                        <h2>خلاصه سفارش</h2>
-                        <div class="senoobar-summary-row"><span>جمع جزء</span><strong id="senoobar-cart-subtotal"><?php echo wp_kses_post( $cart->get_cart_subtotal() ); ?></strong></div>
-                        <?php if ( $cart->get_discount_total() > 0 ) : ?><div class="senoobar-summary-row discount"><span>تخفیف</span><strong id="senoobar-cart-discount">−<?php echo wp_kses_post( wc_price( $cart->get_discount_total() ) ); ?></strong></div><?php endif; ?>
-
-                        <?php if ( $cart->needs_shipping() ) : ?>
-                            <div class="senoobar-summary-row senoobar-shipping-row">
-                                <span>حمل و نقل</span>
-                                <div class="senoobar-shipping-methods">
-                                    <?php
-                                    wc_cart_totals_shipping_html();
-                                    if ( empty( trim( wp_strip_all_tags( wc_get_shipping_methods() ? '' : '' ) ) ) ) {
-                                        $shipping_title = function_exists( 'senoobar_get_shipping_method_title' ) ? senoobar_get_shipping_method_title() : '';
-                                        if ( $shipping_title ) {
-                                            echo '<span class="senoobar-shipping-title">' . esc_html( $shipping_title ) . '</span>';
-                                        }
-                                    }
-                                    ?>
-                                </div>
-                            </div>
-                        <?php endif; ?>
-
-                        <div class="senoobar-summary-total"><span>مبلغ قابل پرداخت</span><strong id="senoobar-cart-total"><?php echo wp_kses_post( $cart->get_total() ); ?></strong></div>
-                        <div class="senoobar-coupon"><button type="button" class="senoobar-coupon-toggle" aria-expanded="false"><span>کد تخفیف دارید؟</span><span>+</span></button><div class="senoobar-coupon-content"><div class="senoobar-coupon-form"><input type="text" id="senoobar-coupon-code" placeholder="کد تخفیف" autocomplete="off" /><button type="button" id="senoobar-apply-coupon">اعمال</button></div></div></div>
-                        <a href="<?php echo esc_url( wc_get_checkout_url() ); ?>" class="senoobar-checkout-button">ادامه جهت تسویه حساب</a>
-                    </div>
-                    <div class="senoobar-services-card"><div class="senoobar-service"><span class="senoobar-service-icon">🚚</span><div><strong>ارسال سریع</strong><small>ارسال مطمئن سفارش</small></div></div><div class="senoobar-service"><span class="senoobar-service-icon">🛡️</span><div><strong>ضمانت کیفیت</strong><small>تضمین کیفیت محصولات</small></div></div><div class="senoobar-service"><span class="senoobar-service-icon">🔒</span><div><strong>پرداخت امن</strong><small>پرداخت امن و مطمئن</small></div></div></div>
-                </aside>
-            </div>
-        <?php endif; ?>
-    </div>
-</div>
-<?php do_action( 'woocommerce_after_cart' ); ?>
-</div></main>
-<?php get_footer();
+<?php do_action( 'woocommerce_before_cart' ); $cart = WC()->cart; $cart_page_id = wc_get_page_id('cart');
+if ( ! $cart_page_id ) { ?>
+<div class="senoobar-cart-page" dir="rtl"><div class="senoobar-cart-container"><div class="senoobar-cart-message error" style="display:block; margin-bottom:24px; padding:16px; background:#fff0f0; color:#b73737; border-radius:12px;"><strong>تنظیمات سبد خرید کامل نیست</strong><br>برگه «سبد خرید» در تنظیمات ووکامرس انتخاب نشده است.</div><div class="senoobar-empty-cart"><div class="senoobar-empty-cart-icon">🛒</div><h2>سبد خرید شما خالی است</h2><p>هنوز محصولی به سبد خرید خود اضافه نکرده‌اید.</p><a href="<?php echo esc_url( wc_get_page_permalink( 'shop' ) ); ?>" class="senoobar-primary-button">مشاهده محصولات</a></div></div></div>
+<?php return; } ?>
+<div class="senoobar-cart-page" dir="rtl"><div class="senoobar-cart-container">
+<div class="senoobar-cart-breadcrumb"><a href="<?php echo esc_url( home_url( '/' ) ); ?>">خانه</a><span>/</span><span>سبد خرید</span></div>
+<div class="senoobar-cart-heading"><div><h1>سبد خرید شما</h1><p><span class="senoobar-cart-count"><?php echo esc_html( $cart->get_cart_contents_count() ); ?></span> محصول در سبد خرید</p></div></div>
+<div id="senoobar-cart-message" class="senoobar-cart-message" role="alert" aria-live="polite"></div>
+<?php if ( $cart->is_empty() ) : ?><div class="senoobar-empty-cart"><div class="senoobar-empty-cart-icon">🛒</div><h2>سبد خرید شما خالی است</h2><p>هنوز محصولی به سبد خرید خود اضافه نکرده‌اید.</p><a href="<?php echo esc_url( wc_get_page_permalink( 'shop' ) ); ?>" class="senoobar-primary-button">مشاهده محصولات</a></div>
+<?php else : ?><div class="senoobar-cart-layout"><section class="senoobar-cart-products"><div class="senoobar-cart-card"><div class="senoobar-cart-table-header"><div class="product-col">محصول</div><div class="price-col">قیمت</div><div class="quantity-col">تعداد</div><div class="subtotal-col">جمع</div><div class="remove-col"></div></div><div id="senoobar-cart-items">
+<?php foreach ( $cart->get_cart() as $cart_item_key => $cart_item ) : $_product = apply_filters( 'woocommerce_cart_item_product', $cart_item['data'], $cart_item, $cart_item_key ); if ( ! $_product || ! $_product->exists() || $cart_item['quantity'] < 1 ) continue; $product_name=$_product->get_name(); $product_permalink=$_product->is_visible()?$_product->get_permalink($cart_item):''; $thumbnail=$_product->get_image('woocommerce_thumbnail'); $unit_price=$cart->get_product_price($_product); $line_subtotal=$cart->get_product_subtotal($_product,$cart_item['quantity']); ?>
+<article class="senoobar-cart-item" data-cart-key="<?php echo esc_attr($cart_item_key); ?>"><div class="senoobar-cart-product"><div class="senoobar-cart-product-image"><?php if($product_permalink): ?><a href="<?php echo esc_url($product_permalink); ?>"><?php echo $thumbnail; ?></a><?php else: echo $thumbnail; endif; ?></div><div class="senoobar-cart-product-info"><?php if($product_permalink): ?><a class="senoobar-cart-product-name" href="<?php echo esc_url($product_permalink); ?>"><?php echo esc_html($product_name); ?></a><?php else: ?><span class="senoobar-cart-product-name"><?php echo esc_html($product_name); ?></span><?php endif; ?><?php echo wc_get_formatted_cart_item_data($cart_item); ?><?php if($_product->get_sku()): ?><span class="senoobar-product-sku">کد محصول: <?php echo esc_html($_product->get_sku()); ?></span><?php endif; ?></div></div><div class="senoobar-cart-price"><span class="senoobar-mobile-label">قیمت</span><span><?php echo wp_kses_post($unit_price); ?></span></div><div class="senoobar-cart-quantity"><span class="senoobar-mobile-label">تعداد</span><div class="senoobar-quantity-control"><button type="button" class="senoobar-qty-button senoobar-qty-plus" data-key="<?php echo esc_attr($cart_item_key); ?>">+</button><input type="number" class="senoobar-qty-input" value="<?php echo esc_attr($cart_item['quantity']); ?>" min="1" step="1" inputmode="numeric" data-key="<?php echo esc_attr($cart_item_key); ?>" /><button type="button" class="senoobar-qty-button senoobar-qty-minus" data-key="<?php echo esc_attr($cart_item_key); ?>">−</button></div></div><div class="senoobar-cart-subtotal"><span class="senoobar-mobile-label">جمع</span><span><?php echo wp_kses_post($line_subtotal); ?></span></div><div class="senoobar-cart-remove"><button type="button" class="senoobar-remove-button" data-key="<?php echo esc_attr($cart_item_key); ?>" aria-label="حذف <?php echo esc_attr($product_name); ?>">×</button></div></article>
+<?php endforeach; ?></div><div class="senoobar-cart-footer"><a href="<?php echo esc_url(wc_get_page_permalink('shop')); ?>" class="senoobar-continue-shopping"><span>←</span> ادامه خرید</a></div></div></section>
+<aside class="senoobar-cart-summary"><div class="senoobar-summary-card"><h2>خلاصه سفارش</h2><div class="senoobar-summary-row"><span>جمع جزء</span><strong id="senoobar-cart-subtotal"><?php echo wp_kses_post($cart->get_cart_subtotal()); ?></strong></div><?php if($cart->get_discount_total()>0): ?><div class="senoobar-summary-row discount"><span>تخفیف</span><strong id="senoobar-cart-discount">−<?php echo wp_kses_post(wc_price($cart->get_discount_total())); ?></strong></div><?php endif; ?>
+<?php if($cart->needs_shipping()): ?><div class="senoobar-summary-row senoobar-shipping-row"><span>حمل و نقل</span><div class="senoobar-shipping-methods"><?php ob_start(); wc_cart_totals_shipping_html(); $shipping_html=ob_get_clean(); if(trim(wp_strip_all_tags($shipping_html))!==''){echo $shipping_html;} else {$shipping_title=function_exists('senoobar_get_shipping_method_title')?senoobar_get_shipping_method_title():''; if($shipping_title) echo '<span class="senoobar-shipping-title">'.esc_html($shipping_title).'</span>'; else echo '<span class="senoobar-shipping-title">پس‌کرایه</span>'; } ?></div></div><?php endif; ?>
+<div class="senoobar-summary-total"><span>مبلغ قابل پرداخت</span><strong id="senoobar-cart-total"><?php echo wp_kses_post($cart->get_total()); ?></strong></div><div class="senoobar-coupon"><button type="button" class="senoobar-coupon-toggle" aria-expanded="false"><span>کد تخفیف دارید؟</span><span>+</span></button><div class="senoobar-coupon-content"><div class="senoobar-coupon-form"><input type="text" id="senoobar-coupon-code" placeholder="کد تخفیف" autocomplete="off"/><button type="button" id="senoobar-apply-coupon">اعمال</button></div></div></div><a href="<?php echo esc_url(wc_get_checkout_url()); ?>" class="senoobar-checkout-button">ادامه جهت تسویه حساب</a></div></aside></div><?php endif; ?></div></div>
+<?php do_action('woocommerce_after_cart'); ?></div></main><?php get_footer();
