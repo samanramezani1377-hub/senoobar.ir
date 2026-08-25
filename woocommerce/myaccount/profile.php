@@ -25,7 +25,7 @@ $password_messages = [
     'mismatch' => [ 'error', 'تکرار رمز عبور جدید با رمز عبور جدید یکسان نیست.' ],
     'same_password' => [ 'error', 'رمز عبور جدید باید با رمز عبور فعلی متفاوت باشد.' ],
     'invalid_request' => [ 'error', 'درخواست تغییر رمز معتبر نیست. لطفاً دوباره تلاش کنید.' ],
-    'account_not_found' => [ 'error', 'حساب کاربری پیدا نشد. لطفاً دوباره وارد حساب شوید.' ],
+    'account_not_found' => [ 'error', 'حساب کاربری پیدا نشد. لطفاً دوباره وارد شوید.' ],
 ];
 ?>
 
@@ -45,22 +45,10 @@ $password_messages = [
         <form method="post" action="" class="snb-form">
             <div class="snb-card">
                 <div class="snb-form-grid">
-                    <div class="snb-field">
-                        <label>نام</label>
-                        <input type="text" name="account_first_name" value="<?php echo esc_attr( $first_name ); ?>">
-                    </div>
-                    <div class="snb-field">
-                        <label>نام خانوادگی</label>
-                        <input type="text" name="account_last_name" value="<?php echo esc_attr( $last_name ); ?>">
-                    </div>
-                    <div class="snb-field snb-field-full">
-                        <label>شماره موبایل</label>
-                        <input type="tel" name="mobile" value="<?php echo esc_attr( $mobile ); ?>" dir="ltr" readonly class="snb-input-readonly">
-                    </div>
-                    <div class="snb-field snb-field-full">
-                        <label>ایمیل</label>
-                        <input type="email" name="account_email" value="<?php echo esc_attr( $email ); ?>" dir="ltr" style="text-align:right">
-                    </div>
+                    <div class="snb-field"><label>نام</label><input type="text" name="account_first_name" value="<?php echo esc_attr( $first_name ); ?>"></div>
+                    <div class="snb-field"><label>نام خانوادگی</label><input type="text" name="account_last_name" value="<?php echo esc_attr( $last_name ); ?>"></div>
+                    <div class="snb-field snb-field-full"><label>شماره موبایل</label><input type="tel" name="mobile" value="<?php echo esc_attr( $mobile ); ?>" dir="ltr" readonly class="snb-input-readonly"></div>
+                    <div class="snb-field snb-field-full"><label>ایمیل</label><input type="email" name="account_email" value="<?php echo esc_attr( $email ); ?>" dir="ltr" style="text-align:right"></div>
                 </div>
             </div>
             <?php do_action( 'woocommerce_edit_account_form' ); ?>
@@ -74,29 +62,23 @@ $password_messages = [
 
             <div class="snb-card">
                 <div class="snb-form-grid">
-                    <div class="snb-field snb-field-full snb-password-field">
-                        <label for="snb-password-current">رمز عبور فعلی</label>
-                        <div class="snb-password-input-wrap">
-                            <input id="snb-password-current" type="password" name="password_current" dir="ltr" style="text-align:right" autocomplete="current-password" required>
-                            <button type="button" class="snb-password-toggle" data-password-target="snb-password-current" aria-label="نمایش رمز عبور فعلی" aria-pressed="false"><span aria-hidden="true">◉</span></button>
-                        </div>
-                    </div>
-                    <div class="snb-field snb-field-full snb-password-field">
-                        <label for="snb-password-1">رمز عبور جدید</label>
-                        <div class="snb-password-input-wrap">
-                            <input id="snb-password-1" type="password" name="password_1" dir="ltr" style="text-align:right" autocomplete="new-password" minlength="6" required>
-                            <button type="button" class="snb-password-toggle" data-password-target="snb-password-1" aria-label="نمایش رمز عبور جدید" aria-pressed="false"><span aria-hidden="true">◉</span></button>
-                        </div>
-                    </div>
-                    <div class="snb-field snb-field-full snb-password-field">
-                        <label for="snb-password-2">تکرار رمز عبور جدید</label>
-                        <div class="snb-password-input-wrap">
+                    <?php
+                    $password_fields = [
+                        [ 'snb-password-current', 'password_current', 'رمز عبور فعلی', 'current-password' ],
+                        [ 'snb-password-1', 'password_1', 'رمز عبور جدید', 'new-password' ],
+                        [ 'snb-password-2', 'password_2', 'تکرار رمز عبور جدید', 'new-password' ],
+                    ];
+                    foreach ( $password_fields as $field ) :
+                        [ $field_id, $field_name, $label, $autocomplete ] = $field;
+                        ?>
+                        <div class="snb-field snb-field-full snb-password-field">
+                            <label for="<?php echo esc_attr( $field_id ); ?>"><?php echo esc_html( $label ); ?></label>
                             <div class="snb-password-input-wrap">
-                                <input id="snb-password-2" type="password" name="password_2" dir="ltr" style="text-align:right" autocomplete="new-password" minlength="6" required>
-                                <button type="button" class="snb-password-toggle" data-password-target="snb-password-2" aria-label="نمایش تکرار رمز عبور جدید" aria-pressed="false"><span aria-hidden="true">◉</span></button>
+                                <input id="<?php echo esc_attr( $field_id ); ?>" type="password" name="<?php echo esc_attr( $field_name ); ?>" dir="ltr" style="text-align:right" autocomplete="<?php echo esc_attr( $autocomplete ); ?>" minlength="6" required>
+                                <button type="button" class="snb-password-toggle" data-password-target="<?php echo esc_attr( $field_id ); ?>" aria-label="نمایش <?php echo esc_attr( $label ); ?>" aria-pressed="false">نمایش</button>
                             </div>
                         </div>
-                    </div>
+                    <?php endforeach; ?>
                 </div>
                 <div class="snb-note">🔒 رمز عبور باید حداقل ۶ کاراکتر باشد.</div>
             </div>
@@ -112,9 +94,9 @@ $password_messages = [
                     if (!input) return;
                     var visible = input.type === 'text';
                     input.type = visible ? 'password' : 'text';
+                    button.textContent = visible ? 'نمایش' : 'مخفی کردن';
                     button.setAttribute('aria-pressed', visible ? 'false' : 'true');
                     button.setAttribute('aria-label', visible ? 'نمایش رمز عبور' : 'مخفی کردن رمز عبور');
-                    button.classList.toggle('is-visible', !visible);
                 });
             });
         });
