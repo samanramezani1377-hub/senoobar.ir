@@ -73,3 +73,16 @@ function senoobar_optimize_jquery() {
     }, 10, 2);
 }
 add_action('wp_enqueue_scripts', 'senoobar_optimize_jquery', 20);
+
+/**
+ * Keep the newsletter script out of the browser's critical request chain.
+ * It only performs an AJAX request after a visitor submits the newsletter
+ * form, so it does not need to block initial rendering/LCP.
+ */
+function senoobar_defer_newsletter_script($tag, $handle) {
+    if (is_admin()) return $tag;
+    if (strpos($tag, '/assets/js/newsletter.js') === false) return $tag;
+    if (strpos($tag, ' defer') !== false) return $tag;
+    return str_replace(' src', ' defer src', $tag);
+}
+add_filter('script_loader_tag', 'senoobar_defer_newsletter_script', 20, 2);
