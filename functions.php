@@ -86,3 +86,25 @@ function senoobar_defer_newsletter_script($tag, $handle) {
     return str_replace(' src', ' defer src', $tag);
 }
 add_filter('script_loader_tag', 'senoobar_defer_newsletter_script', 20, 2);
+
+/**
+ * Keep cart and wishlist JavaScript out of the render-blocking critical path.
+ * Both scripts are safe to defer: cart.js exits when its cart container is
+ * absent, while wishlist.js uses delegated handlers for product-card hearts
+ * and initializes its full page UI only when the wishlist grid exists.
+ * We keep both scripts loaded because wishlist -> add-to-cart and cart AJAX
+ * remain required functionality.
+ */
+function senoobar_defer_cart_wishlist_scripts($tag, $handle) {
+    if (is_admin()) return $tag;
+
+    $is_target = (
+        strpos($tag, '/assets/js/cart.js') !== false ||
+        strpos($tag, '/assets/js/wishlist.js') !== false
+    );
+
+    if (!$is_target || strpos($tag, ' defer') !== false) return $tag;
+
+    return str_replace(' src', ' defer src', $tag);
+}
+add_filter('script_loader_tag', 'senoobar_defer_cart_wishlist_scripts', 20, 2);
