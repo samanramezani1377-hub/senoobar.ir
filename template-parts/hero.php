@@ -18,8 +18,8 @@ if($hero_img2){ $s2=wp_get_attachment_image_src($hero_img2,'senoobar-hero'); if(
 $img1_webp = !$hero_img1 ? str_replace('.jpg', '.webp', $img1) : '';
 $img2_webp = !$hero_img2 ? str_replace('.jpg', '.webp', $img2) : '';
 ?><section class="hero"><div class="hero__grid"><div class="hero__image-wrap"><?php
-if($img1_webp){ echo '<picture><source type="image/webp" srcset="'.esc_url($img1_webp).'">'.senoobar_img($img1, ['alt'=>'نشیمن مدرن','width'=>$img1_w,'height'=>$img1_h,'fetchpriority'=>'high','decoding'=>'async']).'</picture>'; }
-else { echo senoobar_img($img1, ['alt'=>'نشیمن مدرن','width'=>$img1_w,'height'=>$img1_h,'fetchpriority'=>'high','decoding'=>'async']); }
+if($img1_webp){ echo '<picture><source type="image/webp" srcset="'.esc_url($img1_webp).'">'.senoobar_img($img1, ['alt'=>'نشیمن مدرن','width'=>$img1_w,'height'=>$img1_h,'fetchpriority'=>'high','loading'=>'eager','decoding'=>'async']).'</picture>'; }
+else { echo senoobar_img($img1, ['alt'=>'نشیمن مدرن','width'=>$img1_w,'height'=>$img1_h,'fetchpriority'=>'high','loading'=>'eager','decoding'=>'async']); }
 ?></div><div class="hero__image-wrap"><?php
 if($img2_webp){ echo '<picture><source type="image/webp" srcset="'.esc_url($img2_webp).'">'.senoobar_img($img2, ['alt'=>'اتاق خواب','width'=>$img2_w,'height'=>$img2_h,'loading'=>'lazy','fetchpriority'=>'low','decoding'=>'async']).'</picture>'; }
 else { echo senoobar_img($img2, ['alt'=>'اتاق خواب','width'=>$img2_w,'height'=>$img2_h,'loading'=>'lazy','fetchpriority'=>'low','decoding'=>'async']); }
