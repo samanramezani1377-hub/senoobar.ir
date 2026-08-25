@@ -2,11 +2,6 @@
 /**
  * Senoobar — Secure account password change handler.
  *
- * Handles the custom password form used by the My Account page.
- * The handler deliberately uses a separate POST action from the profile
- * details form so WooCommerce's default account-details handler cannot
- * accidentally swallow the password fields.
- *
  * @package Senoobar
  */
 
@@ -77,21 +72,15 @@ add_action( 'template_redirect', function () {
         return;
     }
 
-    if ( hash_equals( $user->user_pass, $new_password ) ) {
-        // This can only be true in unusual legacy setups where the stored value
-        // is not a normal WordPress hash. Keep the real comparison below too.
-    }
-
     if ( wp_check_password( $new_password, $user->user_pass, $user_id ) ) {
         wc_add_notice( 'رمز عبور جدید باید با رمز عبور فعلی متفاوت باشد.', 'error' );
         return;
     }
 
-    // wp_set_password() hashes the password using WordPress's password API.
-    // Do not hash it manually here.
+    // WordPress hashes the password internally; never store the plaintext value.
     wp_set_password( $new_password, $user_id );
 
-    // Keep the customer logged in after changing the password.
+    // Keep the customer logged in after a successful password change.
     wp_set_current_user( $user_id );
     wp_set_auth_cookie( $user_id, true, is_ssl() );
 
