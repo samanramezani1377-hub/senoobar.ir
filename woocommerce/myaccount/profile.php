@@ -101,5 +101,35 @@ $password_messages = [
             });
         });
         </script>
+
+        <style>
+        .snb-password-input-wrap {
+            position: relative;
+            width: 100%;
+        }
+        .snb-password-input-wrap input {
+            width: 100%;
+            padding-left: 78px;
+            box-sizing: border-box;
+        }
+        .snb-password-toggle {
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            height: calc(100% - 2px);
+            min-width: 68px;
+            padding: 0 10px;
+            border: 0;
+            background: transparent;
+            color: inherit;
+            cursor: pointer;
+            font: inherit;
+            z-index: 2;
+        }
+        .snb-password-toggle:hover {
+            opacity: .7;
+        }
+        </style>
     <?php endif; ?>
 </div>
