@@ -9,11 +9,6 @@ if ( ! class_exists( 'WooCommerce' ) ) {
     return;
 }
 
-/**
- * Ensure WooCommerce has a destination to calculate rates against on the
- * initial cart/checkout render. The store base country/state is only a
- * fallback; WooCommerce replaces it with the customer's entered address.
- */
 add_filter( 'woocommerce_cart_ready_to_calc_shipping', function ( $ready ) {
     if ( is_admin() || ! function_exists( 'is_cart' ) ) {
         return $ready;
@@ -26,7 +21,6 @@ add_filter( 'woocommerce_cart_ready_to_calc_shipping', function ( $ready ) {
             if ( ! $customer->get_shipping_country() ) {
                 $customer->set_shipping_country( WC()->countries->get_base_country() );
             }
-
             if ( ! $customer->get_shipping_state() ) {
                 $customer->set_shipping_state( WC()->countries->get_base_state() );
             }
@@ -37,3 +31,17 @@ add_filter( 'woocommerce_cart_ready_to_calc_shipping', function ( $ready ) {
 
     return $ready;
 }, 999 );
+
+/**
+ * Recalculate WooCommerce shipping packages on cart/checkout before the
+ * custom templates render their shipping totals.
+ */
+add_action( 'woocommerce_before_calculate_totals', function ( $cart ) {
+    if ( is_admin() || ! $cart || ! WC()->customer ) {
+        return;
+    }
+
+    if ( function_exists( 'is_cart' ) && is_cart() || function_exists( 'is_checkout' ) && is_checkout() ) {
+        WC()->customer->set_calculated_shipping( true );
+    }
+}, 1 );
