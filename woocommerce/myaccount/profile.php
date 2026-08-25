@@ -49,26 +49,26 @@ $show_password = isset( $_GET['tab'] ) && $_GET['tab'] === 'password';
             <button type="submit" name="save_account_details" value="1" class="snb-btn snb-btn-primary">ذخیره تغییرات</button>
         </form>
     <?php else : ?>
-        <form method="post" action="" class="snb-form snb-password-form">
+        <form method="post" action="" class="snb-form snb-password-form" autocomplete="off">
             <div class="snb-card">
                 <div class="snb-form-grid">
                     <div class="snb-field snb-field-full">
-                        <label>رمز عبور فعلی</label>
-                        <input type="password" name="password_current" dir="ltr" style="text-align:right" autocomplete="current-password">
+                        <label for="snb-password-current">رمز عبور فعلی</label>
+                        <input id="snb-password-current" type="password" name="password_current" dir="ltr" style="text-align:right" autocomplete="current-password" required>
                     </div>
                     <div class="snb-field snb-field-full">
-                        <label>رمز عبور جدید</label>
-                        <input type="password" name="password_1" dir="ltr" style="text-align:right" autocomplete="new-password">
+                        <label for="snb-password-1">رمز عبور جدید</label>
+                        <input id="snb-password-1" type="password" name="password_1" dir="ltr" style="text-align:right" autocomplete="new-password" minlength="6" required>
                     </div>
                     <div class="snb-field snb-field-full">
-                        <label>تکرار رمز عبور جدید</label>
-                        <input type="password" name="password_2" dir="ltr" style="text-align:right" autocomplete="new-password">
+                        <label for="snb-password-2">تکرار رمز عبور جدید</label>
+                        <input id="snb-password-2" type="password" name="password_2" dir="ltr" style="text-align:right" autocomplete="new-password" minlength="6" required>
                     </div>
                 </div>
                 <div class="snb-note">🔒 رمز عبور باید حداقل ۶ کاراکتر باشد.</div>
             </div>
-            <?php wp_nonce_field( 'save_account_details', 'save-account-details-nonce' ); ?>
-            <button type="submit" name="save_account_details" value="1" class="snb-btn snb-btn-primary">تغییر رمز عبور</button>
+            <?php wp_nonce_field( 'senoobar_change_password', 'senoobar_change_password_nonce' ); ?>
+            <button type="submit" name="senoobar_change_password" value="1" class="snb-btn snb-btn-primary">تغییر رمز عبور</button>
         </form>
     <?php endif; ?>
 </div>
