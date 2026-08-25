@@ -1,7 +1,9 @@
 <?php
 /**
  * Senoobar - Order Review Template
- * Styled order summary table matching cart/summary design
+ * Styled order summary table matching cart/summary design.
+ * Shipping is rendered by WooCommerce so all configured shipping methods,
+ * rates and radio selections remain functional on checkout.
  *
  * @package Senoobar
  */
@@ -74,19 +76,16 @@ $cart = WC()->cart;
     </table>
 
     <div class="senoobar-order-totals">
-        <?php
-        // Subtotal
-        ?>
         <div class="senoobar-summary-row">
             <span>جمع جزء</span>
             <strong><?php echo wc_price( $cart->get_subtotal() ); ?></strong>
         </div>
 
         <?php if ( $cart->get_cart_discount_total() > 0 ) : ?>
-        <div class="senoobar-summary-row discount">
-            <span>تخفیف</span>
-            <strong>−<?php echo wc_price( $cart->get_cart_discount_total() ); ?></strong>
-        </div>
+            <div class="senoobar-summary-row discount">
+                <span>تخفیف</span>
+                <strong>−<?php echo wc_price( $cart->get_cart_discount_total() ); ?></strong>
+            </div>
         <?php endif; ?>
 
         <?php
@@ -94,43 +93,45 @@ $cart = WC()->cart;
         if ( wc_coupons_enabled() && ! empty( $applied_coupons ) ) :
             foreach ( $applied_coupons as $coupon_code ) :
                 $coupon = new WC_Coupon( $coupon_code );
-        ?>
-        <div class="senoobar-summary-row discount">
-            <span>کوپن (<?php echo esc_html( $coupon_code ); ?>)</span>
-            <strong>−<?php wc_cart_totals_coupon_html( $coupon ); ?></strong>
-        </div>
-        <?php
+                ?>
+                <div class="senoobar-summary-row discount">
+                    <span>کوپن (<?php echo esc_html( $coupon_code ); ?>)</span>
+                    <strong>−<?php wc_cart_totals_coupon_html( $coupon ); ?></strong>
+                </div>
+                <?php
             endforeach;
         endif;
         ?>
 
         <?php if ( $cart->needs_shipping() && $cart->show_shipping() ) : ?>
-        <div class="senoobar-summary-row">
-            <span>ارسال</span>
-            <strong><?php wc_cart_totals_shipping_html(); ?></strong>
-        </div>
+            <div class="senoobar-summary-row senoobar-shipping-row">
+                <span>حمل و نقل</span>
+                <div class="senoobar-shipping-methods">
+                    <?php wc_cart_totals_shipping_html(); ?>
+                </div>
+            </div>
         <?php endif; ?>
 
         <?php foreach ( WC()->cart->get_fees() as $fee ) : ?>
-        <div class="senoobar-summary-row">
-            <span><?php echo esc_html( $fee->name ); ?></span>
-            <strong><?php wc_cart_totals_fee_html( $fee ); ?></strong>
-        </div>
+            <div class="senoobar-summary-row">
+                <span><?php echo esc_html( $fee->name ); ?></span>
+                <strong><?php wc_cart_totals_fee_html( $fee ); ?></strong>
+            </div>
         <?php endforeach; ?>
 
         <?php if ( wc_tax_enabled() && ! WC()->cart->display_prices_including_tax() ) : ?>
             <?php if ( 'itemized' === get_option( 'woocommerce_tax_total_display' ) ) : ?>
                 <?php foreach ( WC()->cart->get_tax_totals() as $code => $tax ) : ?>
-                <div class="senoobar-summary-row">
-                    <span><?php echo esc_html( $tax->label ); ?></span>
-                    <strong><?php echo wp_kses_post( $tax->formatted_amount ); ?></strong>
-                </div>
+                    <div class="senoobar-summary-row">
+                        <span><?php echo esc_html( $tax->label ); ?></span>
+                        <strong><?php echo wp_kses_post( $tax->formatted_amount ); ?></strong>
+                    </div>
                 <?php endforeach; ?>
             <?php else : ?>
-            <div class="senoobar-summary-row">
-                <span><?php echo esc_html( WC()->countries->tax_or_vat() ); ?></span>
-                <strong><?php wc_cart_totals_taxes_total_html(); ?></strong>
-            </div>
+                <div class="senoobar-summary-row">
+                    <span><?php echo esc_html( WC()->countries->tax_or_vat() ); ?></span>
+                    <strong><?php wc_cart_totals_taxes_total_html(); ?></strong>
+                </div>
             <?php endif; ?>
         <?php endif; ?>
 
@@ -163,22 +164,11 @@ $cart = WC()->cart;
 </div>
 
 <style>
-/* Order Review Table */
 .senoobar-review-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
-.senoobar-review-table th {
-    text-align: right;
-    padding: 12px 16px;
-    font-size: 13px;
-    font-weight: 700;
-    color: #777d79;
-    background: #fafbfa;
-    border-bottom: 1px solid #e9ecea;
-}
+.senoobar-review-table th { text-align: right; padding: 12px 16px; font-size: 13px; font-weight: 700; color: #777d79; background: #fafbfa; border-bottom: 1px solid #e9ecea; }
 .senoobar-review-table td { padding: 16px; border-bottom: 1px solid #f0f1f0; vertical-align: middle; }
 .senoobar-review-table tr:last-child td { border-bottom: none; }
-.senoobar-review-table td.product-name { width: auto; }
 .senoobar-review-table td.product-total { width: 1%; white-space: nowrap; text-align: left; }
-
 .senoobar-review-product { display: flex; align-items: flex-start; gap: 12px; }
 .senoobar-review-thumb { width: 52px; height: 52px; flex: 0 0 52px; border-radius: 10px; overflow: hidden; background: #f4f5f4; }
 .senoobar-review-thumb img { width: 100%; height: 100%; object-fit: cover; }
@@ -189,15 +179,19 @@ $cart = WC()->cart;
 .senoobar-review-info .variation dt, .senoobar-review-info .variation dd { display: inline; }
 .senoobar-review-sku { font-size: 10px; color: #9b9f9c; }
 .senoobar-review-qty { display: inline-block; margin-top: 6px; padding: 2px 8px; background: #f0f7f4; color: #1e3a2f; font-size: 11px; font-weight: 600; border-radius: 6px; }
-
 .senoobar-order-totals { border-top: 1px solid #e9ecea; padding-top: 16px; }
 .senoobar-summary-row { display: flex; align-items: center; justify-content: space-between; gap: 15px; padding: 10px 0; border-bottom: 1px solid #f0f1f0; font-size: 13px; color: #666c68; }
 .senoobar-summary-row strong { color: #333835; font-size: 13px; }
 .senoobar-summary-row.discount strong { color: #2e805d; }
 .senoobar-summary-total { display: flex; align-items: center; justify-content: space-between; gap: 15px; padding: 16px 0 18px; font-size: 14px; font-weight: 700; }
 .senoobar-summary-total strong { color: #1e3a2f; font-size: 21px; font-weight: 800; }
-
-/* Payment Section */
+.senoobar-shipping-row { align-items: flex-start; }
+.senoobar-shipping-methods { flex: 1; min-width: 0; }
+.senoobar-shipping-methods ul#shipping_method { margin: 0; padding: 0; list-style: none; }
+.senoobar-shipping-methods ul#shipping_method li { margin: 0 0 8px; padding: 0; display: flex; align-items: flex-start; gap: 8px; }
+.senoobar-shipping-methods ul#shipping_method li:last-child { margin-bottom: 0; }
+.senoobar-shipping-methods ul#shipping_method li input[type="radio"] { margin-top: 4px; flex: 0 0 auto; }
+.senoobar-shipping-methods ul#shipping_method li label { display: block; cursor: pointer; line-height: 1.7; }
 .senoobar-payment-section { margin-top: 24px; padding-top: 20px; border-top: 1px solid #e9ecea; }
 .senoobar-payment-methods { display: flex; flex-direction: column; gap: 10px; }
 .senoobar-payment-method { display: flex; align-items: center; gap: 12px; padding: 14px 16px; border: 1px solid #e9ecea; border-radius: 12px; cursor: pointer; transition: all .15s ease; }
@@ -208,8 +202,6 @@ $cart = WC()->cart;
 .senoobar-payment-info { flex: 1; }
 .senoobar-payment-name { font-weight: 600; font-size: 14px; color: #171a18; }
 .senoobar-payment-desc { font-size: 11px; color: #777d79; margin-top: 2px; }
-
-/* Place Order */
 .senoobar-place-order-wrap { margin-top: 24px; }
 .senoobar-place-order { width: 100%; min-height: 52px; border: none; border-radius: 13px; background: #1e3a2f; color: #fff; font-family: inherit; font-size: 15px; font-weight: 800; cursor: pointer; transition: background .2s ease, transform .2s ease; }
 .senoobar-place-order:hover { background: #152a21; transform: translateY(-1px); }
@@ -222,5 +214,7 @@ $cart = WC()->cart;
     .senoobar-review-table .product-name { display: flex; flex-direction: column; gap: 8px; }
     .senoobar-review-product { width: 100%; }
     .senoobar-review-qty { align-self: flex-start; }
+    .senoobar-summary-row.senoobar-shipping-row { display: block; }
+    .senoobar-shipping-methods { margin-top: 8px; width: 100%; }
 }
 </style>
