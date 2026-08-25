@@ -9,23 +9,28 @@ defined( 'ABSPATH' ) || exit;
 $order = $args['order'] ?? null;
 if ( ! $order ) { return; }
 
-$oid          = $order->get_id();
-$status       = $order->get_status();
-$status_label = wc_get_order_status_name( $status );
-$date         = $order->get_date_created();
-$date_str     = $date ? wc_format_datetime( $date ) : '';
-$total        = $order->get_total();
-$subtotal     = $order->get_subtotal();
-$shipping     = $order->get_shipping_total();
-$discount     = $order->get_discount_total();
-$payment      = $order->get_payment_method_title();
-$items        = $order->get_items();
+$oid             = $order->get_id();
+$status          = $order->get_status();
+$status_label    = wc_get_order_status_name( $status );
+$date            = $order->get_date_created();
+$date_str        = $date ? wc_format_datetime( $date ) : '';
+$total           = $order->get_total();
+$subtotal        = $order->get_subtotal();
+$shipping        = $order->get_shipping_total();
+$shipping_method = $order->get_shipping_method();
+$discount        = $order->get_discount_total();
+$payment         = $order->get_payment_method_title();
+$items           = $order->get_items();
 
 $name     = $order->get_formatted_billing_full_name();
 $phone    = $order->get_billing_phone();
 $state    = $order->get_billing_state();
 $postcode = $order->get_billing_postcode();
 $address  = $order->get_billing_address_1();
+
+$shipping_display = $shipping > 0
+    ? number_format_i18n( $shipping ) . ' تومان'
+    : ( $shipping_method ? $shipping_method : 'رایگان' );
 
 $steps = [ 'ثبت سفارش', 'پردازش', 'ارسال', 'تحویل' ];
 $step_index = 0;
@@ -89,9 +94,27 @@ if ( in_array( $status, [ 'cancelled', 'failed', 'refunded' ], true ) ) { $step_
     <div class="snb-card snb-totals-card">
         <h3>خلاصه پرداخت</h3>
         <div class="snb-kv"><span>جمع محصولات</span><strong><?php echo number_format_i18n( $subtotal ); ?> تومان</strong></div>
-        <div class="snb-kv"><span>هزینه ارسال</span><strong><?php echo $shipping > 0 ? number_format_i18n( $shipping ) . ' تومان' : 'رایگان'; ?></strong></div>
+        <div class="snb-kv"><span>هزینه ارسال</span><strong><?php echo esc_html( $shipping_display ); ?></strong></div>
         <?php if ( $discount > 0 ) : ?><div class="snb-kv"><span>تخفیف</span><strong>-<?php echo number_format_i18n( $discount ); ?> تومان</strong></div><?php endif; ?>
         <div class="snb-kv snb-grand"><span>مبلغ نهایی</span><strong><?php echo number_format_i18n( $total ); ?> تومان</strong></div>
         <?php if ( $payment ) : ?><div class="snb-kv"><span>روش پرداخت</span><strong><?php echo esc_html( $payment ); ?></strong></div><?php endif; ?>
     </div>
+
+    <style>
+        .snb-order-detail .snb-kv {
+            display: flex;
+            align-items: baseline;
+            gap: 8px;
+        }
+        .snb-order-detail .snb-kv > span {
+            flex: 0 0 auto;
+        }
+        .snb-order-detail .snb-kv > span::after {
+            content: ':';
+            margin-right: 4px;
+        }
+        .snb-order-detail .snb-kv > strong {
+            min-width: 0;
+        }
+    </style>
 </div>
