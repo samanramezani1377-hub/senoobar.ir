@@ -75,6 +75,18 @@ function senoobar_optimize_jquery() {
 add_action('wp_enqueue_scripts', 'senoobar_optimize_jquery', 20);
 
 /**
+ * Prioritize the Persian Vazirmatn subset. The Latin subset is intentionally
+ * not preloaded so it does not compete with the Persian font on the initial
+ * render of this RTL/Persian site. It remains available through @font-face
+ * when Latin glyphs are actually needed.
+ */
+function senoobar_preload_vazirmatn_arabic() {
+    if (is_admin()) return;
+    echo '<link rel="preload" href="' . esc_url(SENOOBAR_URI . '/assets/fonts/vazirmatn-arabic.woff2') . '" as="font" type="font/woff2" crossorigin>';
+}
+add_action('wp_head', 'senoobar_preload_vazirmatn_arabic', 0);
+
+/**
  * Keep the newsletter script out of the browser's critical request chain.
  * It only performs an AJAX request after a visitor submits the newsletter
  * form, so it does not need to block initial rendering/LCP.
