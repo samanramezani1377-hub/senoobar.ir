@@ -1,0 +1,81 @@
+name: Senoobar Theme CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate-and-package:
+    name: Validate PHP and build installable theme ZIP
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: mbstring, zip
+          tools: composer
+          coverage: none
+
+      - name: PHP syntax check
+        shell: bash
+        run: |
+          set -euo pipefail
+          mapfile -t files < <(find . -type f -name '*.php' \
+            -not -path './.git/*' \
+            -not -path './vendor/*')
+          test "${#files[@]}" -gt 0
+          for file in "${files[@]}"; do
+            php -l "$file"
+          done
+
+      - name: Validate theme structure
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f style.css
+          test -f functions.php
+          test -f index.php
+          test -f header.php
+          test -f footer.php
+          grep -q '^Theme Name: Senoobar' style.css
+          grep -q '^Version:' style.css
+
+      - name: Build installable ZIP
+        shell: bash
+        run: |
+          set -euo pipefail
+          theme_dir="senoobar"
+          rm -rf "$theme_dir" dist
+          mkdir -p "$theme_dir" dist
+
+          rsync -a --exclude='.git/' --exclude='.github/' --exclude='dist/' --exclude='senoobar/' ./ "$theme_dir/"
+
+          test -f "$theme_dir/style.css"
+          test -f "$theme_dir/functions.php"
+
+          version="$(awk -F': ' '/^Version:/{print $2; exit}' "$theme_dir/style.css" | tr -d '\r')"
+          test -n "$version"
+
+          zip -qr "dist/senoobar-theme-v${version}.zip" "$theme_dir"
+          unzip -t "dist/senoobar-theme-v${version}.zip"
+
+          unzip -l "dist/senoobar-theme-v${version}.zip" | grep -q 'senoobar/style.css'
+          unzip -l "dist/senoobar-theme-v${version}.zip" | grep -q 'senoobar/functions.php'
+
+      - name: Upload installable theme artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: senoobar-theme-installable
+          path: dist/senoobar-theme-*.zip
+          if-no-files-found: error
+          retention-days: 30
