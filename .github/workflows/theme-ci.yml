@@ -12,18 +12,17 @@ permissions:
 
 jobs:
   validate-and-package:
-    name: Validate PHP and build installable theme ZIP
+    name: Validate PHP 8.3 and build installable theme ZIP
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup PHP
+      - name: Setup PHP 8.3
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.2'
+          php-version: '8.3'
           extensions: mbstring, zip
-          tools: composer
           coverage: none
 
       - name: PHP syntax check
@@ -49,6 +48,7 @@ jobs:
           test -f footer.php
           grep -q '^Theme Name: Senoobar' style.css
           grep -q '^Version:' style.css
+          grep -q '^Requires PHP: 8.0' style.css
 
       - name: Build installable ZIP
         shell: bash
