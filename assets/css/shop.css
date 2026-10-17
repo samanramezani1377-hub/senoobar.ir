@@ -823,7 +823,9 @@ body .shop-main.list-view ul.products li.product img {
   height: auto !important;
   max-width: 100% !important;
   aspect-ratio: 4/3 !important;
-  object-fit: cover !important;
+  object-fit: contain !important;
+  object-position: center center !important;
+  background: #fff !important;
   border-radius: 8px !important;
   margin: 0 !important;
 }
