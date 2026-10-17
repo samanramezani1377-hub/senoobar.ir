@@ -67,7 +67,7 @@ jobs:
           test -n "$version"
 
           zip -qr "dist/Senoobar-theme-v${version}.zip" "$theme_dir"
-          unzip -t "dist/senoobar-theme-v${version}.zip"
+          unzip -t "dist/Senoobar-theme-v${version}.zip"
 
           unzip -l "dist/senoobar-theme-v${version}.zip" | grep -q 'senoobar/style.css'
           unzip -l "dist/senoobar-theme-v${version}.zip" | grep -q 'senoobar/functions.php'
