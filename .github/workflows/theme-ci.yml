@@ -69,8 +69,8 @@ jobs:
           zip -qr "dist/Senoobar-theme-v${version}.zip" "$theme_dir"
           unzip -t "dist/Senoobar-theme-v${version}.zip"
 
-          unzip -l "dist/senoobar-theme-v${version}.zip" | grep -q 'senoobar/style.css'
-          unzip -l "dist/senoobar-theme-v${version}.zip" | grep -q 'senoobar/functions.php'
+          unzip -l "dist/Senoobar-theme-v${version}.zip" | grep -q 'senoobar/style.css'
+          unzip -l "dist/Senoobar-theme-v${version}.zip" | grep -q 'senoobar/functions.php'
 
       - name: Upload installable theme artifact
         uses: actions/upload-artifact@v4
