@@ -457,11 +457,14 @@ body .shop-main ul.products li.product a.woocommerce-LoopProduct-link {
   border-radius: 12px 12px 0 0 !important;
 }
 
-/* Product image */
+/* Product image: show the full product instead of cropping/zooming it. */
 body .shop-main ul.products li.product a.woocommerce-LoopProduct-link img {
   width: 100% !important;
   aspect-ratio: 3 / 2 !important;
-  object-fit: cover !important;
+  height: auto !important;
+  object-fit: contain !important;
+  object-position: center center !important;
+  background: #fff !important;
   display: block !important;
   margin: 0 !important;
   border-radius: 0 !important;
