@@ -96,10 +96,7 @@ if ( ! is_user_logged_in() && $checkout->is_registration_required() ) {
                             <?php wc_get_template( 'checkout/review-order.php' ); ?>
                         </div>
 
-                        <!-- Payment gateways must be rendered inside the same checkout form. -->
-                        <div class="senoobar-checkout-section senoobar-payment-section">
-                            <?php wc_get_template( 'checkout/payment.php', array( 'checkout' => $checkout ) ); ?>
-                        </div>
+                        <!-- Payment methods and the order button are rendered once by review-order.php. -->
                     </div>
 
                     <div class="senoobar-trust-badges">

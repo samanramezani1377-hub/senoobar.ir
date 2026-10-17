@@ -66,16 +66,17 @@ jobs:
           version="$(awk -F': ' '/^Version:/{print $2; exit}' "$theme_dir/style.css" | tr -d '\r')"
           test -n "$version"
 
-          zip -qr "dist/senoobar-theme-v${version}.zip" "$theme_dir"
-          unzip -t "dist/senoobar-theme-v${version}.zip"
+          zip -qr "dist/Senoobar-theme-v${version}.zip" "$theme_dir"
+          test -f "dist/Senoobar-theme-v${version}.zip"
+          unzip -t "dist/Senoobar-theme-v${version}.zip"
 
-          unzip -l "dist/senoobar-theme-v${version}.zip" | grep -q 'senoobar/style.css'
-          unzip -l "dist/senoobar-theme-v${version}.zip" | grep -q 'senoobar/functions.php'
+          unzip -l "dist/Senoobar-theme-v${version}.zip" | grep -q 'senoobar/style.css'
+          unzip -l "dist/Senoobar-theme-v${version}.zip" | grep -q 'senoobar/functions.php'
 
       - name: Upload installable theme artifact
         uses: actions/upload-artifact@v4
         with:
           name: senoobar-theme-installable
-          path: dist/senoobar-theme-*.zip
+          path: dist/Senoobar-theme-*.zip
           if-no-files-found: error
           retention-days: 30
