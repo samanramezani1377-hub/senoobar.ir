@@ -50,15 +50,17 @@ jobs:
           grep -q '^Version:' style.css
           grep -q '^Requires PHP: 8.0' style.css
 
-      - name: Build installable ZIP
+      - name: Build installable theme ZIP
         shell: bash
         run: |
           set -euo pipefail
-          theme_dir="senoobar"
+          # Keep the installed theme directory slug so WordPress replaces the
+          # existing senoobar.ir-main theme instead of installing a second theme.
+          theme_dir="senoobar.ir-main"
           rm -rf "$theme_dir" dist
           mkdir -p "$theme_dir" dist
 
-          rsync -a --exclude='.git/' --exclude='.github/' --exclude='dist/' --exclude='senoobar/' ./ "$theme_dir/"
+          rsync -a --exclude='.git/' --exclude='.github/' --exclude='dist/' --exclude="$theme_dir/" ./ "$theme_dir/"
 
           test -f "$theme_dir/style.css"
           test -f "$theme_dir/functions.php"
@@ -70,8 +72,8 @@ jobs:
           test -f "dist/Senoobar-theme-v${version}.zip"
           unzip -t "dist/Senoobar-theme-v${version}.zip"
 
-          unzip -l "dist/Senoobar-theme-v${version}.zip" | grep -q 'senoobar/style.css'
-          unzip -l "dist/Senoobar-theme-v${version}.zip" | grep -q 'senoobar/functions.php'
+          unzip -l "dist/Senoobar-theme-v${version}.zip" | grep -q 'senoobar.ir-main/style.css'
+          unzip -l "dist/Senoobar-theme-v${version}.zip" | grep -q 'senoobar.ir-main/functions.php'
 
       - name: Upload installable theme artifact
         uses: actions/upload-artifact@v4
