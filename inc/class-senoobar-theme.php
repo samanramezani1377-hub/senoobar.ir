@@ -214,8 +214,7 @@ final class Senoobar_Theme {
                     if (function_exists('senoobar_hero_responsive_data')) {
                         $responsive_data = senoobar_hero_responsive_data('hero-2.webp');
                         if (!empty($responsive_data['srcset'])) {
-                            $uploads = wp_upload_dir();
-                            $src = trailingslashit($uploads['baseurl']) . 'senoobar-hero/hero-2-800.webp';
+                            $src = !empty($responsive_data['src']) ? $responsive_data['src'] : $hero_image['fallback'];
                             $srcset = $responsive_data['srcset'];
                             $hero_sizes = $responsive_data['sizes'];
                         }
