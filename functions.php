@@ -87,12 +87,13 @@ function senoobar_generate_hero_responsive_images() {
     if (!current_user_can('manage_options')) return;
     $attempted = (int) get_option('senoobar_hero_responsive_attempted_v2', 0);
     if ($attempted && (time() - $attempted) < WEEK_IN_SECONDS) return;
-    update_option('senoobar_hero_responsive_attempted_v2', time(), false);
-
     $uploads = wp_upload_dir();
     if (!empty($uploads['error'])) return;
     $dir = trailingslashit($uploads['basedir']) . 'senoobar-hero/';
     if (!wp_mkdir_p($dir)) return;
+
+    // Mark the attempt only after the upload directory is confirmed writable.
+    update_option('senoobar_hero_responsive_attempted_v2', time(), false);
 
     foreach (['hero-1.webp', 'hero-2.webp'] as $filename) {
         $source = trailingslashit(SENOOBAR_DIR) . 'assets/images/' . $filename;
