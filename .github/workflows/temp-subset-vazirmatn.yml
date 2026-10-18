@@ -1,0 +1,56 @@
+name: Temporary Vazirmatn Latin subset check
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/temp-subset-vazirmatn.yml"
+      - "assets/fonts/vazirmatn-latin.woff2"
+permissions:
+  contents: write
+jobs:
+  subset:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python -m pip install --upgrade fonttools brotli
+      - name: Subset the existing variable font without changing its supported Unicode range
+        shell: bash
+        run: |
+          set -euo pipefail
+          input="assets/fonts/vazirmatn-latin.woff2"
+          output="/tmp/vazirmatn-latin-subset.woff2"
+          before=$(stat -c%s "$input")
+          pyftsubset "$input" --output-file="$output" --flavor=woff2 \
+            --unicodes="U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+2074,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD" \
+            --layout-features="*" --name-IDs="*" --name-languages="*" \
+            --notdef-glyph --notdef-outline --recommended-glyphs --glyph-names \
+            --symbol-cmap --legacy-cmap --hinting
+          after=$(stat -c%s "$output")
+          echo "Original bytes: $before; subset bytes: $after"
+          if [ "$after" -ge "$before" ]; then
+            echo "Safe subset did not reduce the file; leaving repository font untouched."
+            exit 0
+          fi
+          cp "$output" "$input"
+          python - <<'PY'
+          from fontTools.ttLib import TTFont
+          f=TTFont("assets/fonts/vazirmatn-latin.woff2")
+          assert "fvar" in f, "Variable axis was lost"
+          axes={a.axisTag:(a.minValue,a.maxValue) for a in f["fvar"].axes}
+          assert axes.get("wght")== (100.0,900.0), axes
+          cmap=set().union(*(set(t.cmap) for t in f["cmap"].tables if t.isUnicode()))
+          required=set(range(0x20,0x7f)) | set(range(0xa0,0x100)) | {0x131,0x152,0x153,0x2bb,0x2bc,0x2c6,0x2da,0x2dc,0x2074,0x20ac,0x2122,0x2191,0x2193,0x2212,0x2215,0xfeff,0xfffd}
+          required |= set(range(0x2000,0x2070))
+          missing=required-cmap
+          assert not missing, f"Missing Unicode codepoints: {sorted(missing)}"
+          print("Verified variable wght 100–900 and all declared Unicode codepoints.")
+          PY
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add "$input"
+          git commit -m "Optimize Vazirmatn Latin WOFF2 subset"
+          git push
