@@ -460,8 +460,11 @@ body .shop-main ul.products li.product a.woocommerce-LoopProduct-link {
 /* Product image: show the full product instead of cropping/zooming it. */
 body .shop-main ul.products li.product a.woocommerce-LoopProduct-link img {
   width: 100% !important;
-  aspect-ratio: 3 / 2 !important;
-  height: auto !important;
+  /* Keep the image in a bounded area so it cannot extend behind the title. */
+  height: clamp(100px, 35vw, 200px) !important;
+  max-height: 200px !important;
+  aspect-ratio: auto !important;
+  flex: 0 0 auto !important;
   object-fit: contain !important;
   object-position: center center !important;
   background: #fff !important;
