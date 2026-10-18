@@ -19,6 +19,7 @@ if ( ! function_exists( 'senoobar_tel_href' ) ) {
 }
 
 require_once SENOOBAR_DIR . '/inc/class-senoobar-theme.php';
+require_once SENOOBAR_DIR . '/inc/google-tags.php';
 require_once SENOOBAR_DIR . '/inc/critical-css.php';
 require_once SENOOBAR_DIR . '/inc/cart-handlers.php';
 require_once SENOOBAR_DIR . '/inc/woocommerce-setup.php';
