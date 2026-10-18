@@ -99,6 +99,12 @@
   --container-max: 1280px;
 }
 
+/* English/LTR documents use native Latin fonts and do not need Vazirmatn. */
+html[lang|="en"] {
+  --font-main: Arial, Helvetica, sans-serif;
+  --font-heading: Arial, Helvetica, sans-serif;
+}
+
 @media (min-width: 768px) {
   :root {
     --header-height: 88px;
