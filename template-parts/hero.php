@@ -19,7 +19,11 @@ $img1_webp = !$hero_img1 ? str_replace('.jpg', '.webp', $img1) : '';
 $img2_webp = !$hero_img2 ? str_replace('.jpg', '.webp', $img2) : '';
 ?><section class="hero"><div class="hero__grid"><div class="hero__image-wrap"><?php
 if ($img1_webp) {
-    echo '<picture><source type="image/webp" srcset="' . esc_url($img1_webp) . '">' .
+    $responsive1 = function_exists('senoobar_hero_responsive_data') ? senoobar_hero_responsive_data('hero-1.webp') : ['srcset' => '', 'sizes' => '50vw'];
+    $source1 = !empty($responsive1['srcset'])
+        ? '<source type="image/webp" srcset="' . esc_attr($responsive1['srcset']) . '" sizes="' . esc_attr($responsive1['sizes']) . '">'
+        : '<source type="image/webp" srcset="' . esc_url($img1_webp) . '">';
+    echo '<picture>' . $source1 .
         senoobar_img($img1, ['alt' => 'نشیمن مدرن', 'width' => $img1_w, 'height' => $img1_h, 'fetchpriority' => 'low', 'loading' => 'eager', 'decoding' => 'async']) .
         '</picture>';
 } elseif ($hero_img1) {
@@ -39,7 +43,11 @@ if ($img1_webp) {
 }
 ?></div><div class="hero__image-wrap"><?php
 if ($img2_webp) {
-    echo '<picture><source type="image/webp" srcset="' . esc_url($img2_webp) . '">' .
+    $responsive2 = function_exists('senoobar_hero_responsive_data') ? senoobar_hero_responsive_data('hero-2.webp') : ['srcset' => '', 'sizes' => '50vw'];
+    $source2 = !empty($responsive2['srcset'])
+        ? '<source type="image/webp" srcset="' . esc_attr($responsive2['srcset']) . '" sizes="' . esc_attr($responsive2['sizes']) . '">'
+        : '<source type="image/webp" srcset="' . esc_url($img2_webp) . '">';
+    echo '<picture>' . $source2 .
         senoobar_img($img2, ['alt' => 'اتاق خواب', 'width' => $img2_w, 'height' => $img2_h, 'fetchpriority' => 'high', 'loading' => 'eager', 'decoding' => 'async']) .
         '</picture>';
 } elseif ($hero_img2) {
