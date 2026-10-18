@@ -208,8 +208,18 @@ final class Senoobar_Theme {
                     $src = wp_get_attachment_url($hero_id);
                     $srcset = wp_get_attachment_image_srcset($hero_id, 'full');
                 } else {
-                    // Static image is rendered as the WebP <source> in hero.php.
+                    // Match the static WebP <source> used by hero.php, including
+                    // responsive candidates when they have been generated.
                     $src = $hero_image['fallback'];
+                    if (function_exists('senoobar_hero_responsive_data')) {
+                        $responsive_data = senoobar_hero_responsive_data('hero-2.webp');
+                        if (!empty($responsive_data['srcset'])) {
+                            $uploads = wp_upload_dir();
+                            $src = trailingslashit($uploads['baseurl']) . 'senoobar-hero/hero-2-800.webp';
+                            $srcset = $responsive_data['srcset'];
+                            $hero_sizes = $responsive_data['sizes'];
+                        }
+                    }
                 }
 
                 $responsive = '';
