@@ -31,7 +31,7 @@ if ($img1_webp) {
         'fetchpriority' => 'high',
         'loading' => 'eager',
         'decoding' => 'async',
-        'sizes' => '(max-width: 767px) 100vw, 50vw',
+        'sizes' => '50vw',
     ]);
     echo $hero_markup ? $hero_markup : senoobar_img($img1, ['alt' => 'نشیمن مدرن', 'width' => $img1_w, 'height' => $img1_h, 'fetchpriority' => 'high', 'loading' => 'eager', 'decoding' => 'async']);
 } else {
@@ -47,7 +47,7 @@ if ($img2_webp) {
         'alt' => 'اتاق خواب',
         'loading' => 'eager',
         'decoding' => 'async',
-        'sizes' => '(max-width: 767px) 100vw, 50vw',
+        'sizes' => '50vw',
     ]);
     echo $hero_markup ? $hero_markup : senoobar_img($img2, ['alt' => 'اتاق خواب', 'width' => $img2_w, 'height' => $img2_h, 'loading' => 'eager', 'decoding' => 'async']);
 } else {
