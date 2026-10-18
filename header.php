@@ -29,7 +29,17 @@
             <?php
             $logo_id = get_theme_mod('custom_logo');
             if ($logo_id):
-                echo wp_get_attachment_image($logo_id, 'full', false, ['class' => 'site-logo', 'alt' => get_bloginfo('name')]);
+                echo wp_get_attachment_image($logo_id, 'full', false, [
+                    'class'         => 'site-logo',
+                    'alt'           => get_bloginfo('name'),
+                    // The logo is small in the header; don't let a full-width
+                    // sizes hint make mobile browsers download the original.
+                    'sizes'         => '(max-width: 767px) 73px, 90px',
+                    // The hero image is the LCP candidate; avoid competing with
+                    // it for high-priority bandwidth.
+                    'fetchpriority' => 'low',
+                    'decoding'      => 'async',
+                ]);
             else:
             ?>
             <div class="logo-icon">

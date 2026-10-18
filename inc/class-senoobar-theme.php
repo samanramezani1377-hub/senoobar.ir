@@ -180,20 +180,36 @@ final class Senoobar_Theme {
             return $t;
         }, 10, 2);
 
-        // Preload the hero image (LCP element) on the front page so the browser
-        // fetches it at the highest priority instead of waiting to discover it
-        // after CSS + HTML parse. Guards against a non-existent/unset image.
+        // Preload exactly the hero image used by the template. When a
+        // Customizer image is selected, include the same responsive candidates
+        // and sizes as the rendered <img> to avoid duplicate downloads.
         add_action('wp_head', function () {
             if (!is_front_page()) return;
-            $hero_id = get_theme_mod('senoobar_hero_img1');
-            $img = $hero_id ? wp_get_attachment_image_src($hero_id, 'senoobar-hero') : null;
-            $src = $img ? $img[0] : SENOOBAR_URI . '/assets/images/hero-1.jpg';
-            // Preload the webp variant when using the theme's static hero, so
-            // the preload matches the <picture><source> actually rendered.
-            if (!$hero_id) {
+
+            $hero_id = absint(get_theme_mod('senoobar_hero_img1'));
+            $hero_sizes = '50vw';
+            $img = $hero_id ? wp_get_attachment_image_src($hero_id, 'senoobar-hero') : false;
+
+            if ($hero_id && $img) {
+                $src = $img[0];
+                $srcset = wp_get_attachment_image_srcset($hero_id, 'senoobar-hero');
+            } elseif ($hero_id && wp_get_attachment_url($hero_id)) {
+                // Match the original attachment URL used when the custom size
+                // is not available for this older media-library item.
+                $src = wp_get_attachment_url($hero_id);
+                $srcset = wp_get_attachment_image_srcset($hero_id, 'full');
+            } else {
+                // Static hero is rendered as a WebP <picture> source below.
                 $src = SENOOBAR_URI . '/assets/images/hero-1.webp';
+                $srcset = '';
             }
-            echo '<link rel="preload" as="image" href="' . esc_url($src) . '" fetchpriority="high">';
+
+            $responsive = '';
+            if (!empty($srcset)) {
+                $responsive = ' imagesrcset="' . esc_attr($srcset) . '" imagesizes="' . esc_attr($hero_sizes) . '"';
+            }
+
+            echo '<link rel="preload" as="image" href="' . esc_url($src) . '"' . $responsive . ' fetchpriority="high">';
         }, 1);
     }
 
@@ -781,6 +797,37 @@ final class Senoobar_Theme {
             // Newsletter JS (newsletter form in mobile menu + footer).
             wp_enqueue_script('senoobar-newsletter', SENOOBAR_URI . '/assets/js/newsletter.js', ['senoobar-app'], SENOOBAR_VERSION, true);
         });
+
+        // The homepage uses theme PHP templates rather than WooCommerce
+        // Blocks. Avoid downloading the Blocks stylesheet there; shop/search
+        // and checkout pages retain their normal styles.
+        add_action('wp_enqueue_scripts', function () {
+            if (is_front_page() && is_home()) {
+                wp_dequeue_style('wc-blocks-style');
+                wp_dequeue_style('wc-blocks-vendors-style');
+            }
+        }, 100);
+
+        // On the homepage, product cards are below the initial hero viewport.
+        // Load their non-critical styles asynchronously while retaining a
+        // no-JavaScript fallback. Keep main.css, RTL and bottom navigation
+        // render-blocking because they define the initial layout and visible UI.
+        add_filter('style_loader_tag', function ($html, $handle, $href, $media) {
+            if (is_admin() || !(is_front_page() && is_home())) {
+                return $html;
+            }
+
+            if (!in_array($handle, ['senoobar-shop', 'senoobar-wishlist'], true)) {
+                return $html;
+            }
+
+            $id = esc_attr($handle . '-css');
+            $url = esc_url($href);
+            $media_attr = esc_attr($media ?: 'all');
+
+            return '<link rel="preload" id="' . $id . '" href="' . $url . '" as="style" onload="this.onload=null;this.rel=\'stylesheet\'">' .
+                '<noscript><link rel="stylesheet" id="' . $id . '-noscript" href="' . $url . '" media="' . $media_attr . '"></noscript>' . "\n";
+        }, 10, 4);
 
         // Vazirmatn font — SELF-HOSTED + font-display:swap so text renders
         // immediately in the fallback and swaps in once the font arrives. This

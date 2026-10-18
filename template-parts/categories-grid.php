@@ -61,7 +61,8 @@ if (class_exists('WooCommerce')):
             $display[] = [
                 'name' => $t->name,
                 'link' => get_term_link($t),
-                'img'  => $tid ? wp_get_attachment_url($tid) : '',
+                'image_id' => $tid ? (int) $tid : 0,
+                'img'      => $tid ? wp_get_attachment_url($tid) : '',
             ];
         }
     endif;
@@ -106,8 +107,19 @@ $cat_title    = get_theme_mod('senoobar_section_cats_title', '');
       <?php foreach ($display as $c): ?>
         <a href="<?php echo isset($c['link']) ? esc_url($c['link']) : '#'; ?>" class="cat-item">
           <div class="cat-item__thumb">
-            <?php if (!empty($c['img'])): ?>
-              <?php echo senoobar_img($c['img'], ["alt"=>$c['name'], "loading"=>"lazy"]); ?>
+            <?php if (!empty($c['image_id'])): ?>
+              <?php
+              // Category thumbnails render at 70–90 CSS pixels. Use WordPress's
+              // responsive srcset/sizes instead of the full original upload.
+              echo wp_get_attachment_image((int) $c['image_id'], 'thumbnail', false, [
+                  'alt'      => $c['name'],
+                  'loading'  => 'lazy',
+                  'decoding' => 'async',
+                  'sizes'    => '(max-width: 767px) 70px, 90px',
+              ]);
+              ?>
+            <?php elseif (!empty($c['img'])): ?>
+              <?php echo senoobar_img($c['img'], ['alt' => $c['name'], 'width' => 150, 'height' => 150, 'loading' => 'lazy', 'decoding' => 'async']); ?>
             <?php else: ?>
               <div class="placeholder">🛋️</div>
             <?php endif; ?>
