@@ -85,9 +85,9 @@ function senoobar_hero_responsive_data($filename) {
 
 function senoobar_generate_hero_responsive_images() {
     if (!current_user_can('manage_options')) return;
-    $attempted = (int) get_option('senoobar_hero_responsive_attempted', 0);
+    $attempted = (int) get_option('senoobar_hero_responsive_attempted_v2', 0);
     if ($attempted && (time() - $attempted) < WEEK_IN_SECONDS) return;
-    update_option('senoobar_hero_responsive_attempted', time(), false);
+    update_option('senoobar_hero_responsive_attempted_v2', time(), false);
 
     $uploads = wp_upload_dir();
     if (!empty($uploads['error'])) return;
@@ -99,7 +99,6 @@ function senoobar_generate_hero_responsive_images() {
         if (!is_readable($source)) continue;
         foreach ([320, 480, 640, 800] as $width) {
             $target = $dir . pathinfo($filename, PATHINFO_FILENAME) . '-' . $width . '.webp';
-            if (is_readable($target) && filesize($target) > 0) continue;
             $editor = wp_get_image_editor($source);
             if (is_wp_error($editor)) continue;
             $resize_result = $editor->resize($width, (int) round($width * 1.25), false);
