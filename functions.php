@@ -1,5 +1,5 @@
 <?php
-define('SENOOBAR_VERSION', '2.16.7');
+define('SENOOBAR_VERSION', '2.16.8');
 define('SENOOBAR_DIR', get_template_directory());
 define('SENOOBAR_URI', get_template_directory_uri());
 
@@ -56,6 +56,54 @@ function senoobar_img($src, $attr = []) {
     }
     return '<img src="' . esc_url($src) . '" alt="' . esc_attr($alt) . '"' . $width . $height . $extra . '>';
 }
+
+
+/**
+ * Responsive WebP candidates for bundled hero images.
+ * Files are generated in uploads from wp-admin, never during a public request.
+ */
+function senoobar_hero_responsive_data($filename) {
+    $uploads = wp_upload_dir();
+    $dir = trailingslashit($uploads['basedir']) . 'senoobar-hero/';
+    $url = trailingslashit($uploads['baseurl']) . 'senoobar-hero/';
+    $stem = sanitize_file_name(pathinfo($filename, PATHINFO_FILENAME));
+    $candidates = [];
+    foreach ([320, 480, 640, 800] as $width) {
+        $path = $dir . $stem . '-' . $width . '.webp';
+        if (is_readable($path) && filesize($path) > 0) {
+            $candidates[] = esc_url($url . $stem . '-' . $width . '.webp') . ' ' . $width . 'w';
+        }
+    }
+    return ['srcset' => implode(', ', $candidates), 'sizes' => '50vw'];
+}
+
+function senoobar_generate_hero_responsive_images() {
+    if (!current_user_can('manage_options')) return;
+    $attempted = (int) get_option('senoobar_hero_responsive_attempted', 0);
+    if ($attempted && (time() - $attempted) < WEEK_IN_SECONDS) return;
+    update_option('senoobar_hero_responsive_attempted', time(), false);
+
+    $uploads = wp_upload_dir();
+    if (!empty($uploads['error'])) return;
+    $dir = trailingslashit($uploads['basedir']) . 'senoobar-hero/';
+    if (!wp_mkdir_p($dir)) return;
+
+    foreach (['hero-1.webp', 'hero-2.webp'] as $filename) {
+        $source = trailingslashit(SENOOBAR_DIR) . 'assets/images/' . $filename;
+        if (!is_readable($source)) continue;
+        foreach ([320, 480, 640, 800] as $width) {
+            $target = $dir . pathinfo($filename, PATHINFO_FILENAME) . '-' . $width . '.webp';
+            if (is_readable($target) && filesize($target) > 0) continue;
+            $editor = wp_get_image_editor($source);
+            if (is_wp_error($editor)) continue;
+            $resize_result = $editor->resize($width, (int) round($width * 1.25), true);
+            if (is_wp_error($resize_result)) continue;
+            $save_result = $editor->save($target, 'image/webp');
+            if (is_wp_error($save_result) && file_exists($target)) unlink($target);
+        }
+    }
+}
+add_action('admin_init', 'senoobar_generate_hero_responsive_images', 99);
 
 function senoobar_optimize_jquery() {
     if (is_admin()) return;
