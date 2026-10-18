@@ -96,7 +96,7 @@ function senoobar_generate_hero_responsive_images() {
             if (is_readable($target) && filesize($target) > 0) continue;
             $editor = wp_get_image_editor($source);
             if (is_wp_error($editor)) continue;
-            $resize_result = $editor->resize($width, (int) round($width * 1.25), true);
+            $resize_result = $editor->resize($width, (int) round($width * 1.25), false);
             if (is_wp_error($resize_result)) continue;
             $save_result = $editor->save($target, 'image/webp');
             if (is_wp_error($save_result) && file_exists($target)) unlink($target);
