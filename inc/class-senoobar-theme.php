@@ -802,7 +802,7 @@ final class Senoobar_Theme {
         // Blocks. Avoid downloading the Blocks stylesheet there; shop/search
         // and checkout pages retain their normal styles.
         add_action('wp_enqueue_scripts', function () {
-            if (is_front_page() || is_home()) {
+            if (is_front_page() && is_home()) {
                 wp_dequeue_style('wc-blocks-style');
                 wp_dequeue_style('wc-blocks-vendors-style');
             }
@@ -813,7 +813,7 @@ final class Senoobar_Theme {
         // no-JavaScript fallback. Keep main.css, RTL and bottom navigation
         // render-blocking because they define the initial layout and visible UI.
         add_filter('style_loader_tag', function ($html, $handle, $href, $media) {
-            if (is_admin() || !(is_front_page() || is_home())) {
+            if (is_admin() || !(is_front_page() && is_home())) {
                 return $html;
             }
 
