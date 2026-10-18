@@ -178,6 +178,83 @@ ul {
 }
 
 /* ============================================
+   SHOP ARCHIVE CRITICAL LAYOUT
+   Match main.css/shop.css geometry before product images paint. This prevents
+   the container and product grid from moving when the full stylesheets apply.
+   ============================================ */
+.shop-page .shop-layout {
+  display: block;
+  width: 100%;
+}
+.shop-page .shop-sidebar,
+.shop-page .shop-main,
+.shop-page .products-wrapper {
+  width: 100%;
+  min-width: 0;
+}
+.shop-page .shop-main { margin-top: 20px; }
+.shop-page .shop-main ul.products {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) !important;
+  gap: 12px !important;
+  width: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  list-style: none !important;
+}
+.shop-page .shop-main ul.products::before,
+.shop-page .shop-main ul.products::after {
+  display: none !important;
+  content: none !important;
+}
+.shop-page .shop-main ul.products li.product {
+  width: 100% !important;
+  max-width: none !important;
+  min-width: 0 !important;
+  margin: 0 !important;
+  float: none !important;
+  clear: none !important;
+}
+.shop-page .shop-main ul.products li.product img {
+  display: block !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  height: auto !important;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+}
+@media (min-width: 768px) {
+  .shop-page .shop-layout {
+    display: grid;
+    grid-template-columns: 260px minmax(0, 1fr);
+    gap: 24px;
+    align-items: start;
+  }
+  .shop-page .shop-main { margin-top: 0; }
+  .shop-page .shop-main ul.products {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 16px !important;
+  }
+}
+@media (min-width: 992px) {
+  .shop-page .container { max-width: 1340px; }
+  .shop-page .shop-layout {
+    grid-template-columns: 280px minmax(0, 1fr);
+    gap: 26px;
+  }
+  .shop-page .shop-main ul.products {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: 20px !important;
+  }
+}
+@media (min-width: 1200px) {
+  .shop-page .shop-layout {
+    grid-template-columns: 290px minmax(0, 1fr);
+    gap: 28px;
+  }
+}
+
+/* ============================================
    SKIP LINK
    ============================================ */
 .skip-link {

@@ -115,11 +115,11 @@ $current_cat_slug = is_product_category() ? get_queried_object()->slug : '';
         </div>
 
         <!-- Desktop-only "فیلتر" heading above the collapsible groups -->
-        <h3 class="filter-sidebar-title">فیلتر</h3>
+        <h2 class="filter-sidebar-title">فیلتر</h2>
 
         <!-- Category Filter -->
         <div class="filter-group">
-          <h4 class="filter-group-title">دسته‌بندی</h4>
+          <h3 class="filter-group-title">دسته‌بندی</h3>
           <ul class="category-filter-list">
             <li>
               <a href="<?php echo get_permalink(wc_get_page_id('shop')); ?>" 
@@ -143,7 +143,7 @@ $current_cat_slug = is_product_category() ? get_queried_object()->slug : '';
 
         <!-- Price Range Filter -->
         <div class="filter-group">
-          <h4 class="filter-group-title">محدوده قیمت</h4>
+          <h3 class="filter-group-title">محدوده قیمت</h3>
           <div class="price-filter">
             <div class="price-inputs">
               <div class="price-input-group">

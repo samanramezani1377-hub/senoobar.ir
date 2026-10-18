@@ -1,5 +1,5 @@
 <?php
-define('SENOOBAR_VERSION', '2.17.0');
+define('SENOOBAR_VERSION', '2.17.1');
 define('SENOOBAR_DIR', get_template_directory());
 define('SENOOBAR_URI', get_template_directory_uri());
 
@@ -222,3 +222,31 @@ function senoobar_reduce_below_fold_layout_work() {
     <?php
 }
 add_action('wp_head', 'senoobar_reduce_below_fold_layout_work', 99);
+
+
+/**
+ * Prioritize only the first product thumbnail on WooCommerce archive/search
+ * pages. The first card image is the usual mobile LCP candidate; all remaining
+ * product images keep WordPress/WooCommerce lazy-loading behavior.
+ */
+function senoobar_prioritize_first_archive_product_image($attr, $attachment, $size) {
+    if (is_admin() || !(is_shop() || is_product_category() || is_product_tag() || is_search())) {
+        return $attr;
+    }
+
+    if (empty($attr['class']) || strpos($attr['class'], 'woocommerce_thumbnail') === false) {
+        return $attr;
+    }
+
+    global $wp_query;
+    if (!($wp_query instanceof WP_Query) || (int) $wp_query->current_post !== 0) {
+        return $attr;
+    }
+
+    $attr['loading']       = 'eager';
+    $attr['fetchpriority'] = 'high';
+    $attr['decoding']      = 'async';
+
+    return $attr;
+}
+add_filter('wp_get_attachment_image_attributes', 'senoobar_prioritize_first_archive_product_image', 30, 3);

@@ -864,6 +864,32 @@ final class Senoobar_Theme {
                 '<noscript><link rel="stylesheet" id="' . $id . '-noscript" href="' . $url . '" media="' . $media_attr . '"></noscript>' . "\n";
         }, 10, 4);
 
+        // The custom archive template does not use WooCommerce Blocks. Remove
+        // only their stylesheet on shop/category/tag/search pages; preserve it
+        // on product, cart, checkout, account, and other pages that may need it.
+        add_action('wp_enqueue_scripts', function () {
+            if (!(is_shop() || is_product_category() || is_product_tag() || is_search())) {
+                return;
+            }
+
+            wp_dequeue_style('wc-blocks-style');
+            wp_dequeue_style('wc-blocks-vendors-style');
+            wp_dequeue_style('senoobar-wishlist');
+
+            $styles = wp_styles();
+            if (!$styles || empty($styles->registered)) {
+                return;
+            }
+
+            foreach ($styles->registered as $handle => $registered_style) {
+                $src = isset($registered_style->src) ? (string) $registered_style->src : '';
+                $path = wp_parse_url($src, PHP_URL_PATH);
+                if ($src !== '' && is_string($path) && preg_match('~(?:^|/)wc-blocks\\.css$~', $path)) {
+                    wp_dequeue_style($handle);
+                }
+            }
+        }, 100);
+
         // Vazirmatn font — SELF-HOSTED + font-display:swap so text renders
         // immediately in the fallback and swaps in once the font arrives. This
         // avoids the extra third-party request to fonts.googleapis.com and the

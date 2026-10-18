@@ -1157,3 +1157,29 @@ body .shop-main.list-view ul.products li.product .snb-card-heart {
     padding-bottom: 8px !important;
   }
 }
+
+
+/* Product-card wishlist control belongs to shop.css, not the full wishlist
+   stylesheet. This lets archive pages skip the wishlist page's unrelated CSS. */
+.snb-card-heart {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 5;
+  width: 34px;
+  height: 34px;
+  border: 0;
+  border-radius: 50%;
+  background: #fff;
+  color: #9ca3af;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
+  transition: color 0.15s, transform 0.15s;
+}
+.snb-card-heart svg { width: 17px; height: 17px; }
+.snb-card-heart:hover { color: #e11d48; transform: scale(1.08); }
+.snb-card-heart.is-active { color: #e11d48; }
+.snb-card-heart.is-active svg { fill: #e11d48; stroke: #e11d48; }
