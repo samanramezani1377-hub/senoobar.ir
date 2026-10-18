@@ -180,18 +180,14 @@ final class Senoobar_Theme {
             return $t;
         }, 10, 2);
 
-        // Both hero images are visible in the initial viewport. Preload both
-        // with the same responsive candidates/sizes used by the template so
-        // either image can become LCP without waiting for CSS/layout discovery.
+        // Mobile Lighthouse identifies the bedroom image as the current LCP.
+        // Preload only that image: preloading both visible hero images competes
+        // for scarce mobile bandwidth and delays the LCP request.
         add_action('wp_head', function () {
             if (!is_front_page()) return;
 
             $hero_sizes = '50vw';
             $hero_images = [
-                [
-                    'setting' => 'senoobar_hero_img1',
-                    'fallback' => SENOOBAR_URI . '/assets/images/hero-1.webp',
-                ],
                 [
                     'setting' => 'senoobar_hero_img2',
                     'fallback' => SENOOBAR_URI . '/assets/images/hero-2.webp',
