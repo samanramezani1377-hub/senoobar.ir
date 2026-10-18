@@ -187,7 +187,7 @@ final class Senoobar_Theme {
             if (!is_front_page()) return;
 
             $hero_id = absint(get_theme_mod('senoobar_hero_img1'));
-            $hero_sizes = '(max-width: 767px) 100vw, 50vw';
+            $hero_sizes = '50vw';
             $img = $hero_id ? wp_get_attachment_image_src($hero_id, 'senoobar-hero') : false;
 
             if ($hero_id && $img) {
