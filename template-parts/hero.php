@@ -40,16 +40,17 @@ if ($img1_webp) {
 ?></div><div class="hero__image-wrap"><?php
 if ($img2_webp) {
     echo '<picture><source type="image/webp" srcset="' . esc_url($img2_webp) . '">' .
-        senoobar_img($img2, ['alt' => 'اتاق خواب', 'width' => $img2_w, 'height' => $img2_h, 'loading' => 'eager', 'decoding' => 'async']) .
+        senoobar_img($img2, ['alt' => 'اتاق خواب', 'width' => $img2_w, 'height' => $img2_h, 'fetchpriority' => 'high', 'loading' => 'eager', 'decoding' => 'async']) .
         '</picture>';
 } elseif ($hero_img2) {
     $hero_markup = wp_get_attachment_image($hero_img2, 'senoobar-hero', false, [
         'alt' => 'اتاق خواب',
+        'fetchpriority' => 'high',
         'loading' => 'eager',
         'decoding' => 'async',
         'sizes' => '50vw',
     ]);
-    echo $hero_markup ? $hero_markup : senoobar_img($img2, ['alt' => 'اتاق خواب', 'width' => $img2_w, 'height' => $img2_h, 'loading' => 'eager', 'decoding' => 'async']);
+    echo $hero_markup ? $hero_markup : senoobar_img($img2, ['alt' => 'اتاق خواب', 'width' => $img2_w, 'height' => $img2_h, 'fetchpriority' => 'high', 'loading' => 'eager', 'decoding' => 'async']);
 } else {
     echo senoobar_img($img2, ['alt' => 'اتاق خواب', 'width' => $img2_w, 'height' => $img2_h, 'loading' => 'eager', 'decoding' => 'async']);
 }
