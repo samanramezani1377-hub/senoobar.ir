@@ -143,7 +143,7 @@ function senoobar_limit_home_product_thumbnail_srcset($sources, $size_array, $im
     }
 
     global $product;
-    if (!is_a($product, 'WC_Product') || (int) $product->get_image_id() !== (int) $attachment_id) {
+    if (!isset($product) || !is_object($product) || !is_a($product, 'WC_Product') || (int) $product->get_image_id() !== (int) $attachment_id) {
         return $sources;
     }
 
