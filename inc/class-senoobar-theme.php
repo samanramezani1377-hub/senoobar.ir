@@ -820,9 +820,26 @@ final class Senoobar_Theme {
         // Blocks. Avoid downloading the Blocks stylesheet there; shop/search
         // and checkout pages retain their normal styles.
         add_action('wp_enqueue_scripts', function () {
-            if (is_front_page()) {
-                wp_dequeue_style('wc-blocks-style');
-                wp_dequeue_style('wc-blocks-vendors-style');
+            if (!is_front_page()) {
+                return;
+            }
+
+            // WooCommerce/plugin versions may enqueue the Blocks stylesheet under
+            // different handles. On the theme homepage we use classic PHP product
+            // loops, not WooCommerce Blocks, so remove only the actual wc-blocks.css
+            // asset here. Never remove these styles on shop/cart/checkout pages.
+            wp_dequeue_style('wc-blocks-style');
+            wp_dequeue_style('wc-blocks-vendors-style');
+
+            $styles = wp_styles();
+            if ($styles && !empty($styles->registered)) {
+                foreach ($styles->registered as $handle => $registered_style) {
+                    $src = isset($registered_style->src) ? (string) $registered_style->src : '';
+                    $path = wp_parse_url($src, PHP_URL_PATH);
+                    if ($src !== '' && is_string($path) && preg_match('~(?:^|/)wc-blocks\.css$~', $path)) {
+                        wp_dequeue_style($handle);
+                    }
+                }
             }
         }, 100);
 
@@ -835,7 +852,7 @@ final class Senoobar_Theme {
                 return $html;
             }
 
-            if (!in_array($handle, ['senoobar-shop', 'senoobar-wishlist'], true)) {
+            if (!in_array($handle, ['senoobar-main', 'senoobar-shop', 'senoobar-wishlist'], true)) {
                 return $html;
             }
 
