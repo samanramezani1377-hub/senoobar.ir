@@ -249,8 +249,8 @@ ul {
 }
 @media (min-width: 1200px) {
   .shop-page .shop-layout {
-    grid-template-columns: 300px minmax(0, 1fr);
-    gap: 30px;
+    grid-template-columns: 290px minmax(0, 1fr);
+    gap: 28px;
   }
 }
 
