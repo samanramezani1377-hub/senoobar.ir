@@ -839,12 +839,7 @@ final class Senoobar_Theme {
         // first paint). See the setup notes in README for how to (re)generate
         // the woff2 subset files from Google Fonts.
         add_action('wp_head', function () {
-            // The Arabic subset is needed only on RTL pages. Do not preload
-            // the Persian font on English/LTR pages.
-            if (!is_rtl()) {
-                return;
-            }
-
+            // Preload the primary body weight so the swap happens ASAP.
             echo '<link rel="preload" as="font" type="font/woff2" crossorigin href="' . esc_url(SENOOBAR_URI . '/assets/fonts/vazirmatn-arabic.woff2') . '">';
         }, 1);
     }
