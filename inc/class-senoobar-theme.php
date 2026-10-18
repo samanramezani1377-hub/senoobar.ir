@@ -180,36 +180,49 @@ final class Senoobar_Theme {
             return $t;
         }, 10, 2);
 
-        // Preload exactly the hero image used by the template. When a
-        // Customizer image is selected, include the same responsive candidates
-        // and sizes as the rendered <img> to avoid duplicate downloads.
+        // Both hero images are visible in the initial viewport. Preload both
+        // with the same responsive candidates/sizes used by the template so
+        // either image can become LCP without waiting for CSS/layout discovery.
         add_action('wp_head', function () {
             if (!is_front_page()) return;
 
-            $hero_id = absint(get_theme_mod('senoobar_hero_img1'));
             $hero_sizes = '50vw';
-            $img = $hero_id ? wp_get_attachment_image_src($hero_id, 'senoobar-hero') : false;
+            $hero_images = [
+                [
+                    'setting' => 'senoobar_hero_img1',
+                    'fallback' => SENOOBAR_URI . '/assets/images/hero-1.webp',
+                ],
+                [
+                    'setting' => 'senoobar_hero_img2',
+                    'fallback' => SENOOBAR_URI . '/assets/images/hero-2.webp',
+                ],
+            ];
 
-            if ($hero_id && $img) {
-                $src = $img[0];
-                $srcset = wp_get_attachment_image_srcset($hero_id, 'senoobar-hero');
-            } elseif ($hero_id && wp_get_attachment_url($hero_id)) {
-                // Match the original attachment URL used when the custom size
-                // is not available for this older media-library item.
-                $src = wp_get_attachment_url($hero_id);
-                $srcset = wp_get_attachment_image_srcset($hero_id, 'full');
-            } else {
-                // Static hero is rendered as a WebP <picture> source below.
-                $src = SENOOBAR_URI . '/assets/images/hero-1.webp';
+            foreach ($hero_images as $hero_image) {
+                $hero_id = absint(get_theme_mod($hero_image['setting']));
+                $img = $hero_id ? wp_get_attachment_image_src($hero_id, 'senoobar-hero') : false;
                 $srcset = '';
-            }
 
-            $responsive = '';
-            if (!empty($srcset)) {
-                $responsive = ' imagesrcset="' . esc_attr($srcset) . '" imagesizes="' . esc_attr($hero_sizes) . '"';
-            }
+                if ($hero_id && $img) {
+                    $src = $img[0];
+                    $srcset = wp_get_attachment_image_srcset($hero_id, 'senoobar-hero');
+                } elseif ($hero_id && wp_get_attachment_url($hero_id)) {
+                    // Older uploads may not have the generated hero size.
+                    // Match the template's original-attachment fallback.
+                    $src = wp_get_attachment_url($hero_id);
+                    $srcset = wp_get_attachment_image_srcset($hero_id, 'full');
+                } else {
+                    // Static image is rendered as the WebP <source> in hero.php.
+                    $src = $hero_image['fallback'];
+                }
 
-            echo '<link rel="preload" as="image" href="' . esc_url($src) . '"' . $responsive . ' fetchpriority="high">';
+                $responsive = '';
+                if (!empty($srcset)) {
+                    $responsive = ' imagesrcset="' . esc_attr($srcset) . '" imagesizes="' . esc_attr($hero_sizes) . '"';
+                }
+
+                echo '<link rel="preload" as="image" href="' . esc_url($src) . '"' . $responsive . ' fetchpriority="high">';
+            }
         }, 1);
     }
 
