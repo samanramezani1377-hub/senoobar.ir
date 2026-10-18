@@ -1252,3 +1252,86 @@ a.site-branding:hover .logo-text { color: var(--color-brand); }
   animation: shimmer 1.5s infinite;
   border-radius: var(--radius-sm);
 }
+
+
+/* Homepage hero critical styles: these remain inline while main.css is loaded
+   asynchronously on the homepage to avoid a flash of unstyled hero content. */
+.hero {
+  position: relative;
+  overflow: hidden;
+  height: min(560px, 70vh);
+}
+.hero__grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  height: 100%;
+}
+.hero__image-wrap {
+  position: relative;
+  overflow: hidden;
+}
+.hero__image-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.hero__image-wrap::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.2);
+}
+.hero__content {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.hero__content-inner {
+  text-align: center;
+  color: var(--color-white);
+  padding: 0 24px;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
+}
+.hero__kicker {
+  font-size: 0.85rem;
+  font-weight: 300;
+  margin-bottom: 8px;
+  opacity: 0.9;
+}
+.hero__title {
+  font-size: 2rem;
+  font-weight: 900;
+  margin-bottom: 8px;
+  line-height: 1.2;
+}
+.hero__subtitle {
+  font-size: 0.85rem;
+  font-weight: 300;
+  margin-bottom: 24px;
+  opacity: 0.8;
+}
+.hero__actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.hero__btn-outline {
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  color: var(--color-white);
+  font-weight: 600;
+  padding: 12px 24px;
+  border-radius: var(--radius-xl);
+  transition: var(--transition);
+  font-size: 0.85rem;
+}
+@media (min-width: 768px) {
+  .hero__kicker, .hero__subtitle { font-size: 1rem; }
+  .hero__title { font-size: 3.2rem; }
+  .hero__btn-outline { font-size: 1rem; }
+}
