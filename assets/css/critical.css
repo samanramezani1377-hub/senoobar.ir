@@ -177,6 +177,40 @@ ul {
   }
 }
 
+/* Shop archive header geometry: avoid the browser-default h1 metrics
+   being replaced when shop.css arrives. */
+.shop-page .shop-header {
+  padding: 40px 0 32px;
+  text-align: right;
+  margin-bottom: 0;
+  border-bottom: 1px solid #f3f4f6;
+}
+.shop-page .shop-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+  margin-bottom: 14px;
+}
+.shop-page .shop-title {
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: #111827;
+  margin: 0 0 8px;
+  line-height: 1.3;
+}
+.shop-page .shop-desc {
+  font-size: 0.9rem;
+  max-width: 640px;
+  margin: 0;
+  line-height: 1.7;
+}
+@media (min-width: 768px) {
+  .shop-page .shop-header { padding: 48px 0 40px; }
+  .shop-page .shop-title { font-size: 2.25rem; }
+  .shop-page .shop-desc { font-size: 1rem; }
+}
+
 /* ============================================
    SHOP ARCHIVE CRITICAL LAYOUT
    Match main.css/shop.css geometry before product images paint. This prevents
