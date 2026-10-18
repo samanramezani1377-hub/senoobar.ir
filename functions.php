@@ -1,5 +1,5 @@
 <?php
-define('SENOOBAR_VERSION', '2.16.3');
+define('SENOOBAR_VERSION', '2.16.4');
 define('SENOOBAR_DIR', get_template_directory());
 define('SENOOBAR_URI', get_template_directory_uri());
 
@@ -71,14 +71,6 @@ function senoobar_optimize_jquery() {
 }
 add_action('wp_enqueue_scripts', 'senoobar_optimize_jquery', 20);
 
-/**
- * Prioritize the Persian Vazirmatn subset.
- */
-function senoobar_preload_vazirmatn_arabic() {
-    if (is_admin()) return;
-    echo '<link rel="preload" href="' . esc_url(SENOOBAR_URI . '/assets/fonts/vazirmatn-arabic.woff2') . '" as="font" type="font/woff2" crossorigin>';
-}
-add_action('wp_head', 'senoobar_preload_vazirmatn_arabic', 0);
 
 /**
  * Keep the newsletter script out of the browser's critical request chain.
