@@ -1,5 +1,5 @@
 <?php
-define('SENOOBAR_VERSION', '2.16.9');
+define('SENOOBAR_VERSION', '2.17.0');
 define('SENOOBAR_DIR', get_template_directory());
 define('SENOOBAR_URI', get_template_directory_uri());
 
@@ -130,6 +130,36 @@ function senoobar_responsive_home_product_thumbnail_sizes($attr, $attachment, $s
     return $attr;
 }
 add_filter('wp_get_attachment_image_attributes', 'senoobar_responsive_home_product_thumbnail_sizes', 20, 3);
+
+/**
+ * Avoid downloading 600px product images for homepage cards whose rendered
+ * thumbnail is about 300px or smaller. The 300px generated WooCommerce
+ * thumbnail remains the largest candidate on the homepage; other pages and
+ * full-size product/gallery images retain their normal high-DPI srcset.
+ */
+function senoobar_limit_home_product_thumbnail_srcset($sources, $size_array, $image_src, $image_meta, $attachment_id) {
+    if (is_admin() || !is_front_page() || empty($sources) || !function_exists('is_a')) {
+        return $sources;
+    }
+
+    global $product;
+    if (!isset($product) || !is_object($product) || !is_a($product, 'WC_Product') || (int) $product->get_image_id() !== (int) $attachment_id) {
+        return $sources;
+    }
+
+    if (empty($size_array[0]) || empty($size_array[1]) || max((int) $size_array[0], (int) $size_array[1]) > 320) {
+        return $sources;
+    }
+
+    foreach ($sources as $width => $source) {
+        if (!empty($source['value']) && (int) $source['value'] > 320) {
+            unset($sources[$width]);
+        }
+    }
+
+    return $sources;
+}
+add_filter('wp_calculate_image_srcset', 'senoobar_limit_home_product_thumbnail_srcset', 20, 5);
 
 function senoobar_optimize_jquery() {
     if (is_admin()) return;
