@@ -1,5 +1,5 @@
 <?php
-define('SENOOBAR_VERSION', '2.16.8');
+define('SENOOBAR_VERSION', '2.16.9');
 define('SENOOBAR_DIR', get_template_directory());
 define('SENOOBAR_URI', get_template_directory_uri());
 
@@ -110,6 +110,26 @@ function senoobar_generate_hero_responsive_images() {
     }
 }
 add_action('admin_init', 'senoobar_generate_hero_responsive_images', 99);
+
+/**
+ * Match WooCommerce thumbnail srcset selection to the real homepage product grid.
+ * The homepage uses 2 columns on mobile, 3 on tablet and 4 on desktop; the
+ * default WooCommerce sizes value (300px) overstates the mobile slot and can
+ * cause unnecessarily large source candidates to be selected.
+ */
+function senoobar_responsive_home_product_thumbnail_sizes($attr, $attachment, $size) {
+    if (is_admin() || !is_front_page()) {
+        return $attr;
+    }
+
+    if (empty($attr['class']) || strpos($attr['class'], 'woocommerce_thumbnail') === false) {
+        return $attr;
+    }
+
+    $attr['sizes'] = '(max-width: 639px) calc(50vw - 24px), (max-width: 991px) calc(33.333vw - 24px), 25vw';
+    return $attr;
+}
+add_filter('wp_get_attachment_image_attributes', 'senoobar_responsive_home_product_thumbnail_sizes', 20, 3);
 
 function senoobar_optimize_jquery() {
     if (is_admin()) return;
