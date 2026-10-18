@@ -186,11 +186,33 @@ ul {
   display: block;
   width: 100%;
 }
-.shop-page .shop-sidebar,
 .shop-page .shop-main,
 .shop-page .products-wrapper {
   width: 100%;
   min-width: 0;
+}
+/* Match the mobile off-canvas filter panel immediately. If this is left in
+   normal document flow until shop.css arrives, the entire product area jumps. */
+.shop-page .shop-sidebar {
+  position: fixed;
+  top: 0;
+  right: -320px;
+  width: 300px;
+  max-width: calc(100vw - 32px);
+  height: 100vh;
+  z-index: 1001;
+  border-radius: 0 0 0 16px;
+  overflow-y: auto;
+  transition: right 0.3s ease;
+  box-shadow: -4px 0 24px rgba(0,0,0,0.15);
+}
+.shop-page .shop-sidebar.open { right: 0; }
+.shop-page .filter-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.4);
+  z-index: 1000;
 }
 .shop-page .shop-main { margin-top: 20px; }
 .shop-page .shop-main ul.products {
@@ -220,10 +242,37 @@ ul {
   width: 100% !important;
   max-width: 100% !important;
   height: auto !important;
-  aspect-ratio: 1 / 1;
+  aspect-ratio: 3 / 2;
   object-fit: cover;
+  margin: 0 !important;
+  align-self: center !important;
+}
+.shop-page .shop-main ul.products li.product {
+  display: flex !important;
+  flex-direction: column !important;
+  position: relative !important;
+  box-sizing: border-box;
+  padding-bottom: 30px !important;
+}
+.shop-page .shop-main ul.products li.product a.woocommerce-LoopProduct-link {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  flex: 1 !important;
+  width: 100% !important;
+  overflow: hidden !important;
+}
+@media (max-width: 767px) {
+  .shop-page .filter-overlay.open { display: block; }
 }
 @media (min-width: 768px) {
+  .shop-page .shop-sidebar {
+    position: sticky;
+    top: 100px;
+    width: auto;
+    max-height: calc(100vh - 120px);
+    overflow-y: auto;
+  }
   .shop-page .shop-layout {
     display: grid;
     grid-template-columns: 260px minmax(0, 1fr);
