@@ -74,7 +74,13 @@ function senoobar_hero_responsive_data($filename) {
             $candidates[] = esc_url($url . $stem . '-' . $width . '.webp') . ' ' . $width . 'w';
         }
     }
-    return ['srcset' => implode(', ', $candidates), 'sizes' => '50vw'];
+    $srcset = implode(', ', $candidates);
+    $last_candidate = $candidates ? explode(' ', end($candidates), 2) : [];
+    return [
+        'srcset' => $srcset,
+        'sizes' => '50vw',
+        'src' => !empty($last_candidate[0]) ? $last_candidate[0] : '',
+    ];
 }
 
 function senoobar_generate_hero_responsive_images() {
