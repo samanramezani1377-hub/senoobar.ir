@@ -31,7 +31,7 @@ $snb_f_faq     = function_exists('senoobar_legal_page_url') && senoobar_legal_pa
 $snb_f_terms   = function_exists('senoobar_legal_page_url') && senoobar_legal_page_url('terms')   ? senoobar_legal_page_url('terms')   : home_url('/terms-and-conditions/');
 $snb_f_privacy = function_exists('senoobar_legal_page_url') && senoobar_legal_page_url('privacy') ? senoobar_legal_page_url('privacy') : home_url('/privacy-policy/');
 ?>
-        <div class="footer-col"><h3>دسترسی سریع</h3><ul><li><a href="<?php echo esc_url($snb_f_about); ?>">درباره ما</a></li><li><a href="<?php echo esc_url($snb_f_contact); ?>">تماس با ما</a></li><li><a href="<?php echo esc_url($snb_f_faq); ?>">سوالات متداول</a></li><li><a href="<?php echo esc_url($snb_f_terms); ?>">شرایط و قوانین</a></li><li><a href="<?php echo esc_url($snb_f_privacy); ?>">حریم خصوصی</a></li></ul></div>
+        <div class="footer-col"><h3>دسترسی سریع</h3><ul><li><a href="<?php echo esc_url($snb_f_about); ?>">درباره ما</a></li><li><a href="<?php echo esc_url($snb_f_contact); ?>">تماس با ما</a></li><li><a href="<?php echo esc_url($snb_f_faq); ?>">سوالات متداول</a></li><li><a href="<?php echo esc_url(function_exists('senoobar_articles_url') ? senoobar_articles_url() : home_url('/')); ?>">مقالات</a></li><li><a href="<?php echo esc_url($snb_f_terms); ?>">شرایط و قوانین</a></li><li><a href="<?php echo esc_url($snb_f_privacy); ?>">حریم خصوصی</a></li></ul></div>
         <?php
         // شماره‌های تماس با پیش‌فرض صحیح (هماهنگ با page-contact.php)
         $snb_f_phone1 = get_theme_mod('senoobar_footer_phone1', '۰۹۱۳۰۲۰۵۸۹۸');
