@@ -23,6 +23,13 @@ if (!is_a($product, 'WC_Product')) {
 }
 if (!is_a($product, 'WC_Product')) continue;
 
+// The custom template never fires `woocommerce_single_product_summary`, which is
+// the hook WooCommerce uses to build its Product JSON-LD (price, availability,
+// rating, reviews). Generate it explicitly; it is printed later in wp_footer.
+if (function_exists('WC') && WC()->structured_data) {
+    WC()->structured_data->generate_product_data($product);
+}
+
 $product_id     = $product->get_id();
 $product_name   = $product->get_name();
 $product_desc   = $product->get_description();
@@ -130,7 +137,8 @@ wp_enqueue_style('senoobar-product-detail', get_template_directory_uri() . '/ass
                                 data-idx="<?php echo $idx; ?>"
                                 data-full="<?php echo esc_url(wp_get_attachment_image_url($img_id, 'large')); ?>"
                                 aria-label="تصویر <?php echo $idx + 1; ?>">
-                            <img src="<?php echo esc_url(wp_get_attachment_image_url($img_id, 'thumbnail')); ?>" alt="" loading="lazy"/>
+                            <?php $thumb_alt = trim((string) get_post_meta($img_id, '_wp_attachment_image_alt', true)); if ($thumb_alt === '') { $thumb_alt = $product_name . ' - تصویر ' . ($idx + 1); } ?>
+                            <img src="<?php echo esc_url(wp_get_attachment_image_url($img_id, 'thumbnail')); ?>" alt="<?php echo esc_attr($thumb_alt); ?>" loading="lazy"/>
                         </button>
                     <?php endforeach; ?>
                 </div>

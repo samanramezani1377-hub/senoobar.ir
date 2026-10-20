@@ -991,8 +991,32 @@ body .shop-main.list-view ul.products li.product .snb-card-heart {
   }
 }
 
-/* ─── Pagination (hidden) ──────────────────── */
-.shop-pagination { display: none !important; }
+/* ─── Pagination (visually hidden, still crawlable) ───
+   Infinite scroll replaces the visible pager, but the real /page/N/ links must
+   stay in the rendered DOM so crawlers (which don't scroll) can reach products
+   beyond page 1. `display:none` removed them from rendering; this keeps them
+   rendered and reveals them for keyboard users on focus. */
+.shop-pagination {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  margin: -1px !important;
+  padding: 0 !important;
+  border: 0 !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  clip-path: inset(50%) !important;
+  white-space: nowrap !important;
+}
+.shop-pagination:focus-within {
+  position: static !important;
+  width: auto !important;
+  height: auto !important;
+  margin: 24px 0 !important;
+  overflow: visible !important;
+  clip: auto !important;
+  clip-path: none !important;
+}
 
 /* ─── Loading Spinner ──────────────────────── */
 .filter-loading {

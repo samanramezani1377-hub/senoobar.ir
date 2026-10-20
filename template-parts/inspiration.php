@@ -26,8 +26,6 @@ $fallback = [
 			<h2 class="section__title" style="margin-bottom:0;"><?php echo esc_html( $title ); ?></h2>
 			<?php if ( $archive_url ) : ?>
 				<a href="<?php echo esc_url( $archive_url ); ?>" class="section-link">گالری ایده‌ها</a>
-			<?php else : ?>
-				<a href="#" class="section-link">گالری ایده‌ها</a>
 			<?php endif; ?>
 		</div>
 

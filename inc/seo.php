@@ -59,6 +59,7 @@ function senoobar_clean_archive_title( $title ) {
 }
 
 function senoobar_build_description( $text ) {
+    $text = strip_shortcodes( (string) $text );
     $text = wp_strip_all_tags( $text );
     $text = html_entity_decode( $text, ENT_QUOTES, 'UTF-8' );
     $text = preg_replace( '/\s+/u', ' ', $text );
@@ -221,27 +222,25 @@ function senoobar_get_document_title() {
  * ---------------------------------------------------------------------- */
 
 function senoobar_render_seo_meta() {
-    $desc      = senoobar_get_meta_description();
-    $title     = senoobar_get_document_title();
     $use_yoast = senoobar_seo_plugin_active();
 
     // اگر Yoast فعال نباشد، خودمان همه‌چیز را چاپ می‌کنیم.
     if ( ! $use_yoast ) {
+        $desc  = senoobar_get_meta_description();
+        $title = senoobar_get_document_title();
         if ( ! empty( $desc ) ) {
             echo '<meta name="description" content="' . esc_attr( $desc ) . '" />' . "\n";
         }
         echo '<title>' . esc_html( $title ) . "</title>\n";
         echo '<meta property="og:title" content="' . esc_attr( $title ) . '" />' . "\n";
         echo '<meta property="og:description" content="' . esc_attr( $desc ) . '" />' . "\n";
-    } else {
-        // Yoast فعال است: <title> و <meta description> را خودش چاپ می‌کند
-        // (مقادیرش از فیلتر wpseo_title / wpseo_metadesc می‌آید). ما فقط
-        // تگ‌های OG تکمیلی را اضافه می‌کنیم که Yoast نمی‌دهد.
-        echo '<meta property="og:site_name" content="' . esc_attr( senoobar_brand() ) . '" />' . "\n";
     }
+    // وقتی Yoast فعال است، <title>، meta description و همه‌ی تگ‌های OG/Twitter
+    // (og:site_name، og:image، og:url، ...) را خودش چاپ می‌کند؛ چیزی اضافه
+    // نمی‌کنیم تا تگ تکراری ساخته نشود.
 
-    // تصویر OG برای صفحات تک‌محتوا (هر دو حالت).
-    if ( is_singular() ) {
+    // تصویر OG برای صفحات تک‌محتوا (فقط وقتی Yoast فعال نیست).
+    if ( ! $use_yoast && is_singular() ) {
         $id    = get_queried_object_id();
         $og_ok = (bool) post_type_supports( get_post_type( $id ), 'thumbnail' ) && has_post_thumbnail( $id );
         if ( $og_ok ) {
@@ -258,14 +257,14 @@ add_action( 'wp_head', 'senoobar_render_seo_meta', 1 );
  * مدیریت افزونه‌های سئو (Yoast) — تا title/desc خراب یا تکراری نشود.
  * ---------------------------------------------------------------------- */
 
-if ( senoobar_seo_plugin_active() ) {
-    // تایتل و توضیحِ ما جایگزین خروجی Yoast می‌شود.
-    add_filter( 'wpseo_title', 'senoobar_get_document_title', 999 );
-    add_filter( 'wpseo_metadesc', 'senoobar_get_meta_description', 999 );
+// وقتی Yoast فعال است، عنوان و توضیحاتی که در باکس Yoast نوشته می‌شود (یا
+// قالب‌های پیش‌فرض Yoast) باید اعمال شود؛ پس هیچ فیلتری روی wpseo_title،
+// wpseo_metadesc یا pre_get_document_title نمی‌گذاریم. موتور داخلی قالب فقط
+// وقتی Yoast نیست فعال است.
+if ( ! senoobar_seo_plugin_active() ) {
+    // جلوگیری از چاپ تایتل پیش‌فرض وردپرس.
+    add_filter( 'pre_get_document_title', 'senoobar_get_document_title', 998 );
 }
-
-// جلوگیری از چاپ تایتل پیش‌فرض وردپرس.
-add_filter( 'pre_get_document_title', 'senoobar_get_document_title', 998 );
 
 /* -------------------------------------------------------------------------
  * رفع تداخل تگ <title>: وقتی افزونه‌ی سئو (Yoast) فعال نیست، موتور سئوی
@@ -281,3 +280,151 @@ function senoobar_reconcile_title_tag() {
     remove_action( 'wp_head', '_wp_render_title_tag', 1 );
 }
 add_action( 'after_setup_theme', 'senoobar_reconcile_title_tag', 20 );
+
+/* -------------------------------------------------------------------------
+ * داده ساختاریافته‌ی کسب‌وکار (Organization / فروشگاه مبلمان)
+ *
+ * Yoast رایگان فقط Organization ساده (نام و لوگو) می‌سازد؛ آدرس و تلفن را
+ * از تنظیمات قالب (همان مقادیر فوتر و صفحه تماس) به همان گره اضافه می‌کنیم تا
+ * موتورهای جستجو و دستیارهای هوشمند بتوانند فروشگاه را به‌عنوان یک کسب‌وکار
+ * محلی بشناسند. اگر Yoast فعال نباشد، یک JSON-LD ساده در صفحه اصلی چاپ می‌شود.
+ * ---------------------------------------------------------------------- */
+
+/**
+ * تبدیل شماره تلفن ایرانی به قالب بین‌المللی (E.164).
+ */
+function senoobar_schema_phone( $num ) {
+    $digits = function_exists( 'senoobar_tel_href' ) ? senoobar_tel_href( $num ) : preg_replace( '/[^0-9+]/', '', (string) $num );
+    if ( '' === $digits ) {
+        return '';
+    }
+    if ( 0 === strpos( $digits, '+' ) ) {
+        return $digits;
+    }
+    if ( 0 === strpos( $digits, '00' ) ) {
+        return '+' . substr( $digits, 2 );
+    }
+    if ( 0 === strpos( $digits, '0' ) ) {
+        return '+98' . substr( $digits, 1 );
+    }
+    return '+98' . $digits;
+}
+
+/**
+ * اطلاعات تماس فروشگاه از تنظیمات قالب (مقادیر پیش‌فرض هماهنگ با footer.php).
+ */
+function senoobar_contact_info() {
+    $phones = array();
+    $defaults = array(
+        'senoobar_footer_phone1' => '۰۹۱۳۰۲۰۵۸۹۸',
+        'senoobar_footer_phone2' => '۰۹۱۳۰۲۰۵۸۶۸',
+        'senoobar_footer_phone3' => '۰۹۱۳۰۲۰۵۳۲۳',
+    );
+    foreach ( $defaults as $key => $default ) {
+        $phone = senoobar_schema_phone( get_theme_mod( $key, $default ) );
+        if ( '' !== $phone && ! in_array( $phone, $phones, true ) ) {
+            $phones[] = $phone;
+        }
+    }
+    return array(
+        'phones'  => $phones,
+        'address' => trim( (string) get_theme_mod( 'senoobar_footer_address', 'اصفهان، شهرک صنعتی دولت‌آباد، خیابان شماره ۱۰ (خیام)، فروشگاه صنوبر' ) ),
+        'hours'   => trim( (string) get_theme_mod( 'senoobar_footer_hours', '' ) ),
+    );
+}
+
+/**
+ * فیلدهای کسب‌وکار محلی را به آرایه‌ی گره‌ی Organization اضافه می‌کند.
+ *
+ * @param array $data گره‌ی Organization.
+ * @return array
+ */
+function senoobar_schema_add_business_fields( $data ) {
+    if ( ! is_array( $data ) ) {
+        $data = array();
+    }
+    $info = senoobar_contact_info();
+
+    $types   = isset( $data['@type'] ) ? (array) $data['@type'] : array( 'Organization' );
+    $types[] = 'FurnitureStore';
+    $data['@type'] = array_values( array_unique( $types ) );
+
+    if ( empty( $data['name'] ) ) {
+        $data['name'] = senoobar_brand();
+    }
+    if ( empty( $data['url'] ) ) {
+        $data['url'] = home_url( '/' );
+    }
+    if ( '' !== $info['address'] ) {
+        $data['address'] = array(
+            '@type'          => 'PostalAddress',
+            'streetAddress'  => $info['address'],
+            'addressCountry' => 'IR',
+        );
+    }
+    if ( ! empty( $info['phones'] ) ) {
+        $data['telephone']    = $info['phones'][0];
+        $data['contactPoint'] = array();
+        foreach ( $info['phones'] as $phone ) {
+            $data['contactPoint'][] = array(
+                '@type'             => 'ContactPoint',
+                'telephone'         => $phone,
+                'contactType'       => 'customer service',
+                'areaServed'        => 'IR',
+                'availableLanguage' => 'fa',
+            );
+        }
+    }
+    return $data;
+}
+
+if ( senoobar_seo_plugin_active() ) {
+    add_filter( 'wpseo_schema_organization', 'senoobar_schema_add_business_fields', 20 );
+}
+
+/**
+ * بدون Yoast: Organization و WebSite (با جستجوی سایت) در صفحه اصلی.
+ */
+function senoobar_print_fallback_jsonld() {
+    if ( senoobar_seo_plugin_active() || ! is_front_page() ) {
+        return;
+    }
+    $org = array(
+        '@type' => 'Organization',
+        '@id'   => home_url( '/#organization' ),
+        'name'  => senoobar_brand(),
+        'url'   => home_url( '/' ),
+    );
+    $logo_id = get_theme_mod( 'custom_logo' );
+    if ( $logo_id ) {
+        $logo = wp_get_attachment_image_url( $logo_id, 'full' );
+        if ( $logo ) {
+            $org['logo'] = $logo;
+        }
+    }
+    $org   = senoobar_schema_add_business_fields( $org );
+    $graph = array(
+        '@context' => 'https://schema.org',
+        '@graph'   => array(
+            $org,
+            array(
+                '@type'           => 'WebSite',
+                '@id'             => home_url( '/#website' ),
+                'url'             => home_url( '/' ),
+                'name'            => senoobar_brand(),
+                'inLanguage'      => get_bloginfo( 'language' ),
+                'publisher'       => array( '@id' => home_url( '/#organization' ) ),
+                'potentialAction' => array(
+                    '@type'       => 'SearchAction',
+                    'target'      => array(
+                        '@type'       => 'EntryPoint',
+                        'urlTemplate' => home_url( '/?s={search_term_string}' ),
+                    ),
+                    'query-input' => 'required name=search_term_string',
+                ),
+            ),
+        ),
+    );
+    echo '<script type="application/ld+json">' . wp_json_encode( $graph, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG ) . "</script>\n";
+}
+add_action( 'wp_head', 'senoobar_print_fallback_jsonld', 5 );

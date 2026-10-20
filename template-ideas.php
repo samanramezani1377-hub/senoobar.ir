@@ -30,7 +30,7 @@ $ideas = senoobar_ideas_query( 60 ); // همه ایده‌ها (تا مقدار 
 						<?php if ( $idea['cover'] ) : ?>
 							<img src="<?php echo esc_url( $idea['cover'] ); ?>" alt="<?php echo esc_attr( $idea['title'] ); ?>" loading="lazy">
 						<?php else : ?>
-							<img src="<?php echo esc_url( SENOOBAR_URI . '/assets/images/hero-1.jpg' ); ?>" alt="" loading="lazy">
+							<img src="<?php echo esc_url( SENOOBAR_URI . '/assets/images/hero-1.jpg' ); ?>" alt="<?php echo esc_attr( $idea['title'] ); ?>" loading="lazy">
 						<?php endif; ?>
 						<?php if ( ! empty( $idea['video'] ) ) : ?>
 							<span class="idea-card__badge">
