@@ -213,3 +213,15 @@ function senoobar_articles_fallback_collection_jsonld(): void {
 	] );
 }
 add_action( 'wp_head', 'senoobar_articles_fallback_collection_jsonld', 6 );
+
+/* ════════════════════════════════════════════════════════════════
+   اسکیمای مقاله: BlogPosting
+   ════════════════════════════════════════════════════════════════ */
+
+/**
+ * Yoast: نوع اسکیمای نوشته‌ها «BlogPosting» باشد (پیش‌فرض: Article).
+ */
+function senoobar_articles_yoast_article_type( $type ) {
+	return is_singular( 'post' ) ? 'BlogPosting' : $type;
+}
+add_filter( 'wpseo_schema_article_type', 'senoobar_articles_yoast_article_type', 20 );
