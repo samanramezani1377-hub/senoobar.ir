@@ -54,3 +54,22 @@ function senoobar_articles_yoast_robots( $robots ) {
 	return $robots;
 }
 add_filter( 'wpseo_robots', 'senoobar_articles_yoast_robots', 20 );
+
+/**
+ * بردکرامب Yoast: برای دسته/برچسب نوشته‌ها «مقالات» بین «خانه» و نام دسته قرار بگیرد
+ * تا با بردکرامب نمایشی و اسکیمای BreadcrumbList یکی باشد.
+ */
+function senoobar_articles_breadcrumb_links( $links ) {
+	if ( ! is_array( $links ) || ! ( is_category() || is_tag() ) ) {
+		return $links;
+	}
+	$url = senoobar_articles_url();
+	foreach ( $links as $link ) {
+		if ( isset( $link['url'] ) && untrailingslashit( $link['url'] ) === untrailingslashit( $url ) ) {
+			return $links; // قبلاً هست
+		}
+	}
+	array_splice( $links, 1, 0, [ [ 'url' => $url, 'text' => 'مقالات' ] ] );
+	return $links;
+}
+add_filter( 'wpseo_breadcrumb_links', 'senoobar_articles_breadcrumb_links', 20 );
