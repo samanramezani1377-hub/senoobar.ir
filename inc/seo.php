@@ -375,6 +375,39 @@ function senoobar_schema_add_business_fields( $data ) {
             );
         }
     }
+    // لوکیشن و ساعت کاری (از Customizer ← «لوکیشن و ساعت کاری فروشگاه»).
+    if ( function_exists( 'senoobar_business_location_data' ) ) {
+        $loc = senoobar_business_location_data();
+
+        if ( '' !== $loc['locality'] || '' !== $loc['region'] ) {
+            if ( empty( $data['address'] ) || ! is_array( $data['address'] ) ) {
+                $data['address'] = array(
+                    '@type'          => 'PostalAddress',
+                    'addressCountry' => 'IR',
+                );
+            }
+            if ( '' !== $loc['locality'] ) {
+                $data['address']['addressLocality'] = $loc['locality'];
+            }
+            if ( '' !== $loc['region'] ) {
+                $data['address']['addressRegion'] = $loc['region'];
+            }
+        }
+        if ( '' !== $loc['lat'] ) {
+            $data['geo'] = array(
+                '@type'     => 'GeoCoordinates',
+                'latitude'  => $loc['lat'],
+                'longitude' => $loc['lng'],
+            );
+        }
+        if ( '' !== $loc['map_url'] ) {
+            $data['hasMap'] = $loc['map_url'];
+        }
+        if ( ! empty( $loc['hours'] ) ) {
+            $data['openingHoursSpecification'] = array( $loc['hours'] );
+        }
+    }
+
     return $data;
 }
 
