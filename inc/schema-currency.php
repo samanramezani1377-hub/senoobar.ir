@@ -3,9 +3,9 @@
  * Normalise WooCommerce Product schema prices to ISO 4217 Rial (IRR).
  *
  * WooCommerce stores prices in the configured store currency. A display symbol
- * such as "تومان" does not change the unit of the stored value, so we must not
- * infer a conversion from the symbol. IRT means Toman (1 IRT = 10 IRR);
- * IRHT means thousand Toman (1 IRHT = 10,000 IRR); IRR is already Rial.
+ * such as "تومان" does not change the unit of the stored value. The IRT-to-IRR
+ * multiplier is temporarily disabled for diagnosis because the live schema
+ * appears to be converted twice. IRHT conversion remains unchanged.
  *
  * If another integration has already converted an Offer and marks its
  * priceCurrency as IRR, this filter leaves those numeric prices alone to avoid
@@ -20,7 +20,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * Number of Rial represented by one unit of the configured store currency.
+ * Diagnostic multiplier for the configured store currency.
+ *
+ * IRT conversion is temporarily disabled to test whether another active
+ * component already converts Toman to Rial before this theme filter runs.
  *
  * Do not infer the stored unit from the currency symbol: symbols are display
  * labels and may be changed independently of the actual WooCommerce currency.
@@ -32,7 +35,7 @@ function senoobar_schema_price_multiplier() {
 	$multiplier = 1;
 
 	if ( 'IRT' === $currency ) {
-		$multiplier = 10; // Toman.
+		$multiplier = 1; // Diagnostic test: disable IRT-to-IRR multiplication.
 	} elseif ( 'IRHT' === $currency ) {
 		$multiplier = 10000; // Thousand Toman.
 	}
@@ -73,7 +76,7 @@ function senoobar_schema_convert_offer( $offer, $product = null ) {
 			if ( 'IRR' === $node_currency ) {
 				$factor = 1;
 			} elseif ( 'IRT' === $node_currency ) {
-				$factor = ( 'IRT' === $store_currency ) ? $multiplier : 10;
+				$factor = 1; // Diagnostic test: do not multiply IRT prices by 10.
 			} elseif ( 'IRHT' === $node_currency ) {
 				$factor = ( 'IRHT' === $store_currency ) ? $multiplier : 10000;
 			} else {
