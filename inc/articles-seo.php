@@ -73,3 +73,143 @@ function senoobar_articles_breadcrumb_links( $links ) {
 	return $links;
 }
 add_filter( 'wpseo_breadcrumb_links', 'senoobar_articles_breadcrumb_links', 20 );
+
+/* ════════════════════════════════════════════════════════════════
+   اسکیمای لیست: CollectionPage + ItemList
+   ════════════════════════════════════════════════════════════════ */
+
+/**
+ * آدرس canonical لیست فعلی (بدون پارامترهای فیلتر).
+ */
+function senoobar_articles_listing_url(): string {
+	if ( is_category() || is_tag() ) {
+		$link = get_term_link( get_queried_object() );
+		return is_wp_error( $link ) ? senoobar_articles_url() : $link;
+	}
+	if ( is_home() && ! is_front_page() ) {
+		$id = (int) get_option( 'page_for_posts' );
+		return $id ? get_permalink( $id ) : senoobar_articles_url();
+	}
+	return get_permalink( get_queried_object_id() );
+}
+
+function senoobar_articles_listing_name(): string {
+	if ( is_category() || is_tag() ) {
+		return single_term_title( '', false );
+	}
+	$title = get_the_title( get_queried_object_id() );
+	return $title ? $title : 'مقالات';
+}
+
+/**
+ * ItemList مقالات همین صفحه. برای صفحه‌ی مقالات فهرست بدون فیلتر (مطابق canonical).
+ */
+function senoobar_articles_item_list(): array {
+	$ids    = [];
+	$offset = 0;
+
+	if ( is_page_template( 'template-articles.php' ) ) {
+		$per    = 12;
+		$paged  = max( 1, (int) get_query_var( 'paged' ), (int) get_query_var( 'page' ) );
+		$q      = new WP_Query( [
+			'post_type'           => 'post',
+			'post_status'         => 'publish',
+			'posts_per_page'      => $per,
+			'paged'               => $paged,
+			'ignore_sticky_posts' => true,
+			'orderby'             => 'date',
+			'order'               => 'DESC',
+			'fields'              => 'ids',
+			'no_found_rows'       => true,
+		] );
+		$ids    = $q->posts;
+		$offset = ( $paged - 1 ) * $per;
+	} else {
+		global $wp_query;
+		$ids    = wp_list_pluck( $wp_query->posts, 'ID' );
+		$paged  = max( 1, (int) get_query_var( 'paged' ) );
+		$offset = ( $paged - 1 ) * (int) $wp_query->get( 'posts_per_page' );
+	}
+
+	if ( empty( $ids ) ) {
+		return [];
+	}
+
+	$items = [];
+	foreach ( array_values( $ids ) as $i => $id ) {
+		$items[] = [
+			'@type'    => 'ListItem',
+			'position' => $offset + $i + 1,
+			'url'      => get_permalink( $id ),
+			'name'     => wp_strip_all_tags( get_the_title( $id ) ),
+		];
+	}
+
+	return [
+		'@type'           => 'ItemList',
+		'numberOfItems'   => count( $items ),
+		'itemListElement' => $items,
+	];
+}
+
+/**
+ * Yoast: صفحه‌ی لیست → CollectionPage با mainEntity از نوع ItemList.
+ */
+function senoobar_articles_yoast_webpage( $data ) {
+	if ( ! is_array( $data ) || ! senoobar_articles_is_listing() || senoobar_articles_is_filtered_request() ) {
+		return $data;
+	}
+	$data['@type'] = 'CollectionPage';
+	$list          = senoobar_articles_item_list();
+	if ( $list ) {
+		$data['mainEntity'] = $list;
+	}
+	return $data;
+}
+add_filter( 'wpseo_schema_webpage', 'senoobar_articles_yoast_webpage', 20 );
+
+/**
+ * چاپ JSON-LD (امن برای تگ script).
+ */
+function senoobar_articles_print_jsonld( array $graph ): void {
+	echo '<script type="application/ld+json">' . wp_json_encode(
+		[ '@context' => 'https://schema.org', '@graph' => $graph ],
+		JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG
+	) . "</script>\n";
+}
+
+/**
+ * بدون Yoast: CollectionPage + BreadcrumbList برای لیست‌ها.
+ */
+function senoobar_articles_fallback_collection_jsonld(): void {
+	if ( senoobar_seo_plugin_active() || ! senoobar_articles_is_listing() || senoobar_articles_is_filtered_request() ) {
+		return;
+	}
+	$url   = senoobar_articles_listing_url();
+	$name  = senoobar_articles_listing_name();
+	$crumb = [
+		[ '@type' => 'ListItem', 'position' => 1, 'name' => 'خانه', 'item' => home_url( '/' ) ],
+		[ '@type' => 'ListItem', 'position' => 2, 'name' => 'مقالات', 'item' => senoobar_articles_url() ],
+	];
+	if ( is_category() || is_tag() ) {
+		$crumb[] = [ '@type' => 'ListItem', 'position' => 3, 'name' => $name, 'item' => $url ];
+	}
+	$page = [
+		'@type'      => 'CollectionPage',
+		'@id'        => $url . '#webpage',
+		'url'        => $url,
+		'name'       => $name,
+		'inLanguage' => get_bloginfo( 'language' ),
+		'isPartOf'   => [ '@id' => home_url( '/#website' ) ],
+		'breadcrumb' => [ '@id' => $url . '#breadcrumb' ],
+	];
+	$list = senoobar_articles_item_list();
+	if ( $list ) {
+		$page['mainEntity'] = $list;
+	}
+	senoobar_articles_print_jsonld( [
+		$page,
+		[ '@type' => 'BreadcrumbList', '@id' => $url . '#breadcrumb', 'itemListElement' => $crumb ],
+	] );
+}
+add_action( 'wp_head', 'senoobar_articles_fallback_collection_jsonld', 6 );
