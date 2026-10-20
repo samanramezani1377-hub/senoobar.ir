@@ -742,7 +742,7 @@ final class Senoobar_Theme {
             }
 
             // ── Articles page + post category/tag archives only ──
-            if (is_page_template('template-articles.php') || is_category() || is_tag()) {
+            if (is_page_template('template-articles.php') || is_category() || is_tag() || (is_home() && !is_front_page())) {
                 wp_enqueue_style('senoobar-articles', SENOOBAR_URI . '/assets/css/articles.css', ['senoobar-main'], SENOOBAR_VERSION);
             }
 
