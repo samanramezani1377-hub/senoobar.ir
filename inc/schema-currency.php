@@ -44,12 +44,54 @@ function senoobar_schema_price_multiplier() {
 }
 
 /**
+ * First numeric price found in an offer markup (price, lowPrice, spec price).
+ *
+ * @param array $offer Offer markup.
+ * @return float
+ */
+function senoobar_schema_first_price( $offer ) {
+	foreach ( array( 'price', 'lowPrice' ) as $key ) {
+		if ( isset( $offer[ $key ] ) && is_numeric( $offer[ $key ] ) && (float) $offer[ $key ] > 0 ) {
+			return (float) $offer[ $key ];
+		}
+	}
+	if ( ! empty( $offer['priceSpecification'] ) && is_array( $offer['priceSpecification'] ) ) {
+		foreach ( $offer['priceSpecification'] as $spec ) {
+			if ( is_array( $spec ) && isset( $spec['price'] ) && is_numeric( $spec['price'] ) && (float) $spec['price'] > 0 ) {
+				return (float) $spec['price'];
+			}
+		}
+	}
+	return 0.0;
+}
+
+/**
+ * The product's own price in store currency (used to detect markup that was
+ * already converted to Rial by another plugin, e.g. Persian WooCommerce).
+ *
+ * @param mixed $product WC_Product or null.
+ * @return float
+ */
+function senoobar_schema_reference_price( $product ) {
+	if ( ! is_object( $product ) || ! method_exists( $product, 'get_price' ) ) {
+		return 0.0;
+	}
+	$price = $product->get_price();
+	return is_numeric( $price ) ? (float) $price : 0.0;
+}
+
+/**
  * Convert an Offer / AggregateOffer markup array to IRR.
  *
- * @param array $offer Offer markup from WooCommerce.
+ * Idempotent: if the markup already holds Rial values (another plugin ran
+ * first), prices are left alone and only the currency code is normalised, so
+ * values are never multiplied twice.
+ *
+ * @param array $offer   Offer markup from WooCommerce.
+ * @param mixed $product WC_Product the markup was built for.
  * @return array
  */
-function senoobar_schema_convert_offer( $offer ) {
+function senoobar_schema_convert_offer( $offer, $product = null ) {
 	if ( ! is_array( $offer ) ) {
 		return $offer;
 	}
@@ -58,12 +100,25 @@ function senoobar_schema_convert_offer( $offer ) {
 		return $offer;
 	}
 
-	$walk = function ( $node ) use ( &$walk, $multiplier ) {
+	$node_price = senoobar_schema_first_price( $offer );
+	$reference  = senoobar_schema_reference_price( $product );
+
+	if ( $reference > 0 && $node_price > 0 ) {
+		// Converted values are ~$multiplier x the product price; unconverted
+		// ones (even with tax) stay close to 1x, so 0.5x is a safe midpoint.
+		$already_converted = $node_price >= $reference * $multiplier * 0.5;
+	} else {
+		$node_currency     = isset( $offer['priceCurrency'] ) ? $offer['priceCurrency'] : '';
+		$already_converted = ( 'IRR' === $node_currency && 'IRR' !== get_woocommerce_currency() );
+	}
+	$factor = $already_converted ? 1 : $multiplier;
+
+	$walk = function ( $node ) use ( &$walk, $factor ) {
 		foreach ( $node as $key => $value ) {
 			if ( is_array( $value ) ) {
 				$node[ $key ] = $walk( $value );
-			} elseif ( in_array( $key, array( 'price', 'lowPrice', 'highPrice' ), true ) && is_numeric( $value ) ) {
-				$node[ $key ] = number_format( round( (float) $value * $multiplier ), 0, '.', '' );
+			} elseif ( $factor > 1 && in_array( $key, array( 'price', 'lowPrice', 'highPrice' ), true ) && is_numeric( $value ) ) {
+				$node[ $key ] = number_format( round( (float) $value * $factor ), 0, '.', '' );
 			} elseif ( 'priceCurrency' === $key ) {
 				$node[ $key ] = 'IRR';
 			}
@@ -73,4 +128,4 @@ function senoobar_schema_convert_offer( $offer ) {
 
 	return $walk( $offer );
 }
-add_filter( 'woocommerce_structured_data_product_offer', 'senoobar_schema_convert_offer', 20 );
+add_filter( 'woocommerce_structured_data_product_offer', 'senoobar_schema_convert_offer', 20, 2 );
