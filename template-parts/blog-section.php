@@ -14,15 +14,14 @@ if ( ! $q->have_posts() ) {
     return;
 }
 
-$posts_page_id  = (int) get_option( 'page_for_posts' );
-$posts_page_url = $posts_page_id ? get_permalink( $posts_page_id ) : '';
+$articles_url = function_exists( 'senoobar_articles_url' ) ? senoobar_articles_url() : '';
 ?>
 <section class="section section--white">
     <div class="container">
         <div class="flex-between mb-6">
             <h2 class="section__title" style="margin-bottom:0;"><?php echo esc_html( $title ); ?></h2>
-            <?php if ( $posts_page_url ) : ?>
-                <a href="<?php echo esc_url( $posts_page_url ); ?>" class="section-link">مشاهده همه</a>
+            <?php if ( $articles_url ) : ?>
+                <a href="<?php echo esc_url( $articles_url ); ?>" class="section-link">مشاهده همه مقالات</a>
             <?php endif; ?>
         </div>
         <div class="blog-grid">
