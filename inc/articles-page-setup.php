@@ -88,3 +88,59 @@ function senoobar_reading_time( $post = null ): int {
 	$words = preg_split( '/\s+/u', trim( $text ), -1, PREG_SPLIT_NO_EMPTY );
 	return max( 1, (int) ceil( count( $words ) / 200 ) );
 }
+
+/**
+ * گزینه‌های مرتب‌سازی مقالات (کلید ← عنوان نمایشی).
+ */
+function senoobar_articles_sort_options(): array {
+	return [
+		'new'      => 'جدیدترین',
+		'old'      => 'قدیمی‌ترین',
+		'comments' => 'پربحث‌ترین',
+		'title'    => 'الفبایی',
+	];
+}
+
+/**
+ * تبدیل کلید مرتب‌سازی به آرگومان‌های WP_Query. مقدار نامعتبر → جدیدترین.
+ */
+function senoobar_articles_sort_args( string $sort ): array {
+	switch ( $sort ) {
+		case 'old':
+			return [ 'orderby' => 'date', 'order' => 'ASC' ];
+		case 'comments':
+			return [ 'orderby' => [ 'comment_count' => 'DESC', 'date' => 'DESC' ] ];
+		case 'title':
+			return [ 'orderby' => 'title', 'order' => 'ASC' ];
+		case 'new':
+		default:
+			return [ 'orderby' => 'date', 'order' => 'DESC' ];
+	}
+}
+
+/**
+ * مقدار فعلی مرتب‌سازی از آدرس (فقط کلیدهای مجاز).
+ */
+function senoobar_articles_current_sort(): string {
+	$sort = isset( $_GET['asort'] ) ? sanitize_key( wp_unslash( $_GET['asort'] ) ) : 'new'; // phpcs:ignore WordPress.Security.NonceVerification
+	return array_key_exists( $sort, senoobar_articles_sort_options() ) ? $sort : 'new';
+}
+
+/**
+ * اعمال مرتب‌سازی (?asort=) روی آرشیو دسته/برچسب نوشته‌ها.
+ */
+function senoobar_articles_archive_sort( WP_Query $query ): void {
+	if ( is_admin() || ! $query->is_main_query() ) {
+		return;
+	}
+	if ( ! ( $query->is_category() || $query->is_tag() ) ) {
+		return;
+	}
+	if ( empty( $_GET['asort'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification
+		return;
+	}
+	foreach ( senoobar_articles_sort_args( senoobar_articles_current_sort() ) as $key => $val ) {
+		$query->set( $key, $val );
+	}
+}
+add_action( 'pre_get_posts', 'senoobar_articles_archive_sort' );
