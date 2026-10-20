@@ -17,7 +17,16 @@ $size     = $featured ? 'large' : 'medium_large';
 	<a href="<?php the_permalink(); ?>" class="article-card__link" aria-label="<?php echo esc_attr( get_the_title() ); ?>">
 		<div class="article-card__img">
 			<?php if ( has_post_thumbnail() ) : ?>
-				<?php the_post_thumbnail( $size, [ 'loading' => $featured ? 'eager' : 'lazy', 'alt' => esc_attr( get_the_title() ) ] ); ?>
+				<?php
+				$thumb_attr = [ 'loading' => $featured ? 'eager' : 'lazy' ];
+				if ( $featured ) {
+					$thumb_attr['fetchpriority'] = 'high';
+				}
+				// متن جایگزین ثبت‌شده‌ی رسانه اولویت دارد؛ در غیر این‌صورت عنوان مقاله.
+				$thumb_alt = trim( (string) get_post_meta( get_post_thumbnail_id(), '_wp_attachment_image_alt', true ) );
+				$thumb_attr['alt'] = $thumb_alt !== '' ? $thumb_alt : get_the_title();
+				the_post_thumbnail( $size, $thumb_attr );
+				?>
 			<?php else : ?>
 				<img src="<?php echo esc_url( SENOOBAR_URI ); ?>/assets/images/blog-1.jpg" alt="<?php echo esc_attr( get_the_title() ); ?>" loading="lazy">
 			<?php endif; ?>
