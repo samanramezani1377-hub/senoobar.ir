@@ -1,5 +1,5 @@
 <?php
-define('SENOOBAR_VERSION', '2.18.0');
+define('SENOOBAR_VERSION', '2.19.0');
 define('SENOOBAR_DIR', get_template_directory());
 define('SENOOBAR_URI', get_template_directory_uri());
 
