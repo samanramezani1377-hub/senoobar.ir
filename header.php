@@ -242,6 +242,8 @@ $snb_quick_defs = [
     'terms'    => ['شرایط و ضوابط', 'text', senoobar_menu_legal_url('terms', '/terms-and-conditions/')],
     'privacy'  => ['حریم خصوصی', 'text', senoobar_menu_legal_url('privacy', '/privacy-policy/')],
 ];
+// مقالات (آدرس خودکار؛ از Customizer قابل تغییر/مخفی‌شدن)
+$snb_quick_defs['articles'] = ['مقالات', 'text', function_exists('senoobar_articles_url') ? senoobar_articles_url() : home_url('/')];
 
 $snb_quick_links = [];
 foreach ($snb_quick_defs as $key => $def) {

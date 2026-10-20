@@ -613,6 +613,7 @@ final class Senoobar_Theme {
                 'about'    => ['label' => 'درباره ما', 'default' => home_url('/about/')],
                 'contact'  => ['label' => 'تماس با ما', 'default' => home_url('/contact/')],
                 'faq'      => ['label' => 'سوالات متداول', 'default' => home_url('/faq/')],
+                'articles' => ['label' => 'مقالات', 'default' => ''],   // empty = auto
                 'terms'    => ['label' => 'شرایط و ضوابط', 'default' => home_url('/terms/')],
                 'privacy'  => ['label' => 'حریم خصوصی', 'default' => home_url('/privacy-policy/')],
             ];
