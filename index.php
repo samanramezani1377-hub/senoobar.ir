@@ -20,7 +20,7 @@ get_header();
     <div class="container page-content"><?php get_template_part('template-parts/content', 'single'); ?></div>
 <?php elseif (is_page()) : ?>
     <div class="container page-content"><?php get_template_part('template-parts/content', 'page'); ?></div>
-<?php elseif (is_archive()) : ?>
+<?php elseif (is_archive() || is_home()) : ?>
     <div class="container page-content"><?php get_template_part('template-parts/content', 'archive'); ?></div>
 <?php else : ?>
     <div class="container page-content"><?php get_template_part('template-parts/content', 'none'); ?></div>
