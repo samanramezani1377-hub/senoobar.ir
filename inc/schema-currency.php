@@ -8,7 +8,7 @@
  * IRHT means thousand Toman (1 IRHT = 10,000 IRR); IRR is already Rial.
  *
  * If another integration has already converted an Offer and marks its
- * priceCurrency as IRR, this filter leaves the numeric prices alone to avoid
+ * priceCurrency as IRR, this filter leaves those numeric prices alone to avoid
  * converting the same amount twice. The multiplier can be customised with
  * the senoobar_schema_price_multiplier filter.
  *
@@ -58,24 +58,42 @@ function senoobar_schema_convert_offer( $offer, $product = null ) {
 	}
 
 	$multiplier = senoobar_schema_price_multiplier();
-
-	// An IRR offer is already expressed in the target unit, even if the store
-	// currency is IRT. This prevents multiplying prices that another plugin
-	// has already converted and labelled as Rial.
-	$offer_currency = isset( $offer['priceCurrency'] ) && is_string( $offer['priceCurrency'] )
-		? strtoupper( $offer['priceCurrency'] )
-		: '';
-
-	if ( 1 === $multiplier || 'IRR' === $offer_currency ) {
+	if ( 1 === $multiplier ) {
 		return $offer;
 	}
 
-	$walk = function ( $node ) use ( &$walk, $multiplier ) {
+	$store_currency = strtoupper( (string) get_woocommerce_currency() );
+
+	/*
+	 * Carry the source-unit multiplier down through nested Offer structures.
+	 * A nested priceCurrency of IRR overrides the inherited multiplier, which
+	 * prevents double conversion when priceSpecification was converted by
+	 * another plugin even if the outer Offer still uses IRT.
+	 */
+	$walk = function ( $node, $inherited_factor ) use ( &$walk, $multiplier, $store_currency ) {
+		if ( isset( $node['priceCurrency'] ) && is_string( $node['priceCurrency'] ) ) {
+			$node_currency = strtoupper( $node['priceCurrency'] );
+
+			if ( 'IRR' === $node_currency ) {
+				$factor = 1;
+			} elseif ( 'IRT' === $node_currency ) {
+				$factor = ( 'IRT' === $store_currency ) ? $multiplier : 10;
+			} elseif ( 'IRHT' === $node_currency ) {
+				$factor = ( 'IRHT' === $store_currency ) ? $multiplier : 10000;
+			} else {
+				$factor = $inherited_factor;
+			}
+		} else {
+			$factor = $inherited_factor;
+		}
+
 		foreach ( $node as $key => $value ) {
 			if ( is_array( $value ) ) {
-				$node[ $key ] = $walk( $value );
+				$node[ $key ] = $walk( $value, $factor );
 			} elseif ( in_array( $key, array( 'price', 'lowPrice', 'highPrice' ), true ) && is_numeric( $value ) ) {
-				$node[ $key ] = number_format( round( (float) $value * $multiplier ), 0, '.', '' );
+				if ( $factor > 1 ) {
+					$node[ $key ] = number_format( round( (float) $value * $factor ), 0, '.', '' );
+				}
 			} elseif ( 'priceCurrency' === $key ) {
 				$node[ $key ] = 'IRR';
 			}
@@ -84,14 +102,6 @@ function senoobar_schema_convert_offer( $offer, $product = null ) {
 		return $node;
 	};
 
-	$converted = $walk( $offer );
-
-	// Also normalise the top-level currency if the offer has no numeric price
-	// fields, so the schema does not advertise a non-ISO Toman currency code.
-	if ( isset( $converted['priceCurrency'] ) ) {
-		$converted['priceCurrency'] = 'IRR';
-	}
-
-	return $converted;
+	return $walk( $offer, $multiplier );
 }
 add_filter( 'woocommerce_structured_data_product_offer', 'senoobar_schema_convert_offer', 20, 2 );
