@@ -741,6 +741,11 @@ final class Senoobar_Theme {
                 wp_enqueue_style('senoobar-account', SENOOBAR_URI . '/assets/css/account.css', ['senoobar-main'], SENOOBAR_VERSION);
             }
 
+            // ── Articles page + post category/tag archives only ──
+            if (is_page_template('template-articles.php') || is_category() || is_tag()) {
+                wp_enqueue_style('senoobar-articles', SENOOBAR_URI . '/assets/css/articles.css', ['senoobar-main'], SENOOBAR_VERSION);
+            }
+
             // Mobile bottom navigation (tiny; always loaded, hidden on desktop).
             wp_enqueue_style('senoobar-bottom-nav', SENOOBAR_URI . '/assets/css/bottom-nav.css', ['senoobar-main'], SENOOBAR_VERSION);
 
