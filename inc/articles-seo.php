@@ -225,3 +225,54 @@ function senoobar_articles_yoast_article_type( $type ) {
 	return is_singular( 'post' ) ? 'BlogPosting' : $type;
 }
 add_filter( 'wpseo_schema_article_type', 'senoobar_articles_yoast_article_type', 20 );
+
+/**
+ * بدون Yoast: JSON-LD مقاله (BlogPosting) برای تک‌نوشته‌ها.
+ */
+function senoobar_articles_fallback_post_jsonld(): void {
+	if ( senoobar_seo_plugin_active() || ! is_singular( 'post' ) ) {
+		return;
+	}
+	$id        = get_queried_object_id();
+	$permalink = get_permalink( $id );
+	$brand     = senoobar_brand();
+
+	$publisher = [ '@type' => 'Organization', 'name' => $brand, 'url' => home_url( '/' ) ];
+	$logo_id   = get_theme_mod( 'custom_logo' );
+	if ( $logo_id ) {
+		$logo = wp_get_attachment_image_url( $logo_id, 'full' );
+		if ( $logo ) {
+			$publisher['logo'] = [ '@type' => 'ImageObject', 'url' => $logo ];
+		}
+	}
+
+	$post = [
+		'@type'            => 'BlogPosting',
+		'@id'              => $permalink . '#article',
+		'headline'         => wp_strip_all_tags( get_the_title( $id ) ),
+		'url'              => $permalink,
+		'mainEntityOfPage' => [ '@type' => 'WebPage', '@id' => $permalink ],
+		'datePublished'    => get_the_date( 'c', $id ),
+		'dateModified'     => get_the_modified_date( 'c', $id ),
+		'inLanguage'       => get_bloginfo( 'language' ),
+		'author'           => [
+			'@type' => 'Person',
+			'name'  => get_the_author_meta( 'display_name', (int) get_post_field( 'post_author', $id ) ),
+		],
+		'publisher'        => $publisher,
+	];
+
+	$desc = senoobar_get_meta_description();
+	if ( $desc ) {
+		$post['description'] = $desc;
+	}
+	if ( has_post_thumbnail( $id ) ) {
+		$img = wp_get_attachment_image_url( get_post_thumbnail_id( $id ), 'large' );
+		if ( $img ) {
+			$post['image'] = [ $img ];
+		}
+	}
+
+	senoobar_articles_print_jsonld( [ $post ] );
+}
+add_action( 'wp_head', 'senoobar_articles_fallback_post_jsonld', 6 );
