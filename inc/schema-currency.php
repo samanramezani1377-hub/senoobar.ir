@@ -57,11 +57,7 @@ function senoobar_schema_convert_offer( $offer, $product = null ) {
 		return $offer;
 	}
 
-	$multiplier = senoobar_schema_price_multiplier();
-	if ( 1 === $multiplier ) {
-		return $offer;
-	}
-
+	$multiplier     = senoobar_schema_price_multiplier();
 	$store_currency = strtoupper( (string) get_woocommerce_currency() );
 
 	/*
