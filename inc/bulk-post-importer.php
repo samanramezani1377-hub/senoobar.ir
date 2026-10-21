@@ -442,13 +442,13 @@ function senoobar_process_inline_images( $html, $images_map = array() ) {
 
 			$image_count++;
 
-			// The first successfully imported/resolved image becomes featured.
+			// The first successfully imported/resolved image becomes featured,
+			// but every image remains at its original position in the article body.
 			if ( ! $first_image_id ) {
 				$first_image_id = $attach_id;
-				return '';
 			}
 
-			// Other images remain inline, but use their local Media Library URL.
+			// Keep the image inline and use its local Media Library URL.
 			$clean_tag = preg_replace( '/\\s+class="senoobar-bpi-img"/i', '', $full_tag );
 			$clean_tag = preg_replace( '/\\s+data-src="[^"]*"/i', '', $clean_tag );
 			$clean_tag = preg_replace( '/\\s+src="[^"]*"/i', ' src="' . esc_url( $final_url ) . '"', $clean_tag );
