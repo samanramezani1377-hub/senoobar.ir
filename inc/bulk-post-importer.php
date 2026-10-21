@@ -11,7 +11,7 @@
  *      - شناسایی `![alt](src)` و `![alt](src "title")`.
  *      - عکس‌های نسبی از داخل ZIP استخراج و در کتابخانه رسانه آپلود می‌شوند.
  *      - URL واقعی جایگزین مسیر نسبی می‌شود.
- *      - URL مطلق (http/https) دست‌نخورده می‌ماند.
+ *      - تمام URLهای مطلق (http/https) دانلود و در کتابخانه رسانه ذخیره می‌شوند؛ در صورت شکست دانلود، لینک اصلی برای جلوگیری از شکستن متن حفظ می‌شود.
  *   ۵. اولین عکس مقاله به‌صورت تصویر شاخص (featured image) ست می‌شود.
  *   ۶. پشتیبانی از WEBP / PNG / JPG / GIF.
  *
@@ -147,7 +147,7 @@ blog.zip
 				<h2 style="margin-top:0;">📦 آپلود دسته‌ای (ZIP)</h2>
 				<p style="color:#555;font-size:.9rem;">یک فایل ZIP شامل چند فایل متنی (txt / md / html) را بارگذاری کنید تا هر فایل به یک نوشته تبدیل شود.</p>
 				<p style="color:#1e3a2f;font-size:.9rem;background:#f0f7f4;padding:10px;border-radius:8px;">
-					🖼️ عکس‌های درون متن (با هر تعداد و موقعیتی) به‌صورت خودکار از ZIP استخراج و به کتابخانه رسانه اضافه می‌شوند؛ اولین عکس، تصویر شاخص می‌شود.
+					🖼️ عکس‌های داخل ZIP و همه لینک‌های تصویری خارجی (از هر دامنه‌ای) به کتابخانه رسانه منتقل می‌شوند؛ اولین تصویر موفق، تصویر شاخص می‌شود و بقیه با آدرس محلی نمایش داده می‌شوند.
 				</p>
 				<form method="post" enctype="multipart/form-data" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
 					<?php wp_nonce_field( 'senoobar_zip_import', 'senoobar_zip_nonce' ); ?>
@@ -405,62 +405,49 @@ function senoobar_process_inline_images( $html, $images_map = array() ) {
 	$image_count    = 0;
 
 	$html = preg_replace_callback(
-		'/<img\s+[^>]*data-src="([^"]+)"[^>]*>/i',
+		'/<img\\s+[^>]*data-src="([^"]+)"[^>]*>/i',
 		function ( $m ) use ( $images_map, &$first_image_id, &$image_count ) {
 			$full_tag = $m[0];
 			$src      = html_entity_decode( $m[1], ENT_QUOTES, 'UTF-8' );
-
-			$is_absolute = (bool) preg_match( '/^https?:\/\//i', $src );
-
-			// Resolve final attachment id + URL for this image.
-			$attach_id = 0;
-			$final_url = '';
+			$is_absolute = (bool) preg_match( '/^https?:\\/\\//i', $src );
+			$attach_id   = 0;
 
 			if ( $is_absolute ) {
-				$final_url = $src;
-			} else {
-				$clean_src = ltrim( $src, './\\' );
-				if ( isset( $images_map[ $clean_src ] ) ) {
-					$mapped_id = (int) $images_map[ $clean_src ];
-					$final_url = wp_get_attachment_url( $mapped_id );
-					if ( $final_url ) {
-						$attach_id = $mapped_id;
-					}
+				// Download every external image, not only the featured image.
+				$attach_id = senoobar_import_image_from_url( $src );
+				if ( ! $attach_id ) {
+					// If a remote host blocks the download, do not break the article.
+					return $full_tag;
 				}
+			} else {
+				$clean_src = ltrim( $src, './\\\\' );
+				if ( isset( $images_map[ $clean_src ] ) ) {
+					$attach_id = (int) $images_map[ $clean_src ];
+				}
+				if ( ! $attach_id ) {
+					// Unresolvable relative path — omit the broken image.
+					return '';
+				}
+			}
+
+			$final_url = wp_get_attachment_url( $attach_id );
+			if ( ! $final_url ) {
+				return $full_tag;
 			}
 
 			$image_count++;
 
-			// First valid image becomes the featured image AND its <img> tag is
-			// removed from the body so it isn't shown twice (once as featured,
-			// once inline). For absolute URLs we side-load the image into the
-			// media library first so it can also be set as the featured image.
-			if ( 1 === $image_count ) {
-				if ( $is_absolute ) {
-					$sideloaded = senoobar_import_image_from_url( $src );
-					if ( $sideloaded ) {
-						$first_image_id = $sideloaded;
-					}
-				} elseif ( $attach_id ) {
-					$first_image_id = $attach_id;
-				}
-				// Remove the tag from body regardless.
+			// The first successfully imported/resolved image becomes featured.
+			if ( ! $first_image_id ) {
+				$first_image_id = $attach_id;
 				return '';
 			}
 
-			// Non-first image: keep it inline with the correct URL.
-			if ( $is_absolute ) {
-				return $full_tag;
-			}
-
-			if ( $attach_id && $final_url ) {
-				$clean_tag = preg_replace( '/\s+class="senoobar-bpi-img"\s+data-src="[^"]*"/i', '', $full_tag );
-				$clean_tag = preg_replace( '/\s+src="[^"]*"/i', ' src="' . esc_attr( $final_url ) . '"', $clean_tag );
-				return $clean_tag;
-			}
-
-			// Unresolvable relative path — drop the tag.
-			return '';
+			// Other images remain inline, but use their local Media Library URL.
+			$clean_tag = preg_replace( '/\\s+class="senoobar-bpi-img"/i', '', $full_tag );
+			$clean_tag = preg_replace( '/\\s+data-src="[^"]*"/i', '', $clean_tag );
+			$clean_tag = preg_replace( '/\\s+src="[^"]*"/i', ' src="' . esc_url( $final_url ) . '"', $clean_tag );
+			return $clean_tag;
 		},
 		$html
 	);
@@ -488,14 +475,19 @@ function senoobar_import_image( $file ) {
 
 /**
  * دانلود عکس از URL خارجی و افزودن به کتابخانه رسانه.
- * برای تبدیل لینک‌های مطلق (http/https) به تصویر شاخص قابل استفاده است.
+ * برای دانلود همه تصاویر خارجی (http/https) و افزودن امن آن‌ها به کتابخانه رسانه استفاده می‌شود.
  *
  * @param string $url آدرس عکس.
  * @return int|false شناسه پیوست یا false در صورت خطا.
  */
 function senoobar_import_image_from_url( $url ) {
-	$url = esc_url_raw( $url );
-	if ( '' === $url ) {
+	$url = esc_url_raw( trim( (string) $url ) );
+	if ( '' === $url || ! wp_http_validate_url( $url ) ) {
+		return false;
+	}
+
+	$scheme = strtolower( (string) wp_parse_url( $url, PHP_URL_SCHEME ) );
+	if ( ! in_array( $scheme, array( 'http', 'https' ), true ) ) {
 		return false;
 	}
 
@@ -505,23 +497,37 @@ function senoobar_import_image_from_url( $url ) {
 
 	senoobar_allow_webp();
 
+	// download_url() uses WordPress safe HTTP handling and follows WordPress
+	// HTTP validation rules, reducing the risk of importing private-network URLs.
 	$tmp = download_url( $url, 30 );
 	if ( is_wp_error( $tmp ) ) {
 		return false;
 	}
 
-	$ext = strtolower( pathinfo( parse_url( $url, PHP_URL_PATH ), PATHINFO_EXTENSION ) );
-	if ( '' === $ext || ! in_array( $ext, array( 'png', 'jpg', 'jpeg', 'gif', 'webp', 'svg' ), true ) ) {
-		$ext = 'jpg';
+	// Accept actual raster image data only; never trust the URL extension or
+	// remote Content-Type. SVG is deliberately excluded because it can contain
+	// active content and is not enabled by default in WordPress.
+	$image_info = @getimagesize( $tmp );
+	$mime_to_ext = array(
+		'image/jpeg' => 'jpg',
+		'image/png'  => 'png',
+		'image/gif'  => 'gif',
+		'image/webp' => 'webp',
+		'image/avif' => 'avif',
+	);
+
+	if ( ! is_array( $image_info ) || empty( $image_info['mime'] ) || ! isset( $mime_to_ext[ $image_info['mime'] ] ) ) {
+		@unlink( $tmp );
+		return false;
 	}
 
+	$ext = $mime_to_ext[ $image_info['mime'] ];
 	$file_array = array(
-		'name'     => 'senoobar-import-' . uniqid() . '.' . $ext,
+		'name'     => 'senoobar-import-' . wp_generate_password( 12, false, false ) . '.' . $ext,
 		'tmp_name' => $tmp,
 	);
 
 	$id = media_handle_sideload( $file_array, 0 );
-
 	if ( is_wp_error( $id ) ) {
 		@unlink( $tmp );
 		return false;
