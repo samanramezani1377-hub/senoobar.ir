@@ -405,10 +405,15 @@ function senoobar_process_inline_images( $html, $images_map = array() ) {
 	$image_count    = 0;
 
 	$html = preg_replace_callback(
-		'/<img\\s+[^>]*data-src="([^"]+)"[^>]*>/i',
+		'/<img\\b[^>]*>/i',
 		function ( $m ) use ( $images_map, &$first_image_id, &$image_count ) {
 			$full_tag = $m[0];
-			$src      = html_entity_decode( $m[1], ENT_QUOTES, 'UTF-8' );
+			// Markdown-generated tags use data-src; raw HTML usually uses src.
+			if ( preg_match( '/\\bdata-src="([^"]+)"/i', $full_tag, $src_match ) || preg_match( '/\\bsrc="([^"]+)"/i', $full_tag, $src_match ) ) {
+				$src = html_entity_decode( $src_match[1], ENT_QUOTES, 'UTF-8' );
+			} else {
+				return $full_tag;
+			}
 			$is_absolute = (bool) preg_match( '/^https?:\\/\\//i', $src );
 			$attach_id   = 0;
 
