@@ -56,7 +56,7 @@
 
         <!-- Search (Desktop) -->
         <div class="header-search">
-            <form role="search" method="get" class="header-search-form" toolname="senoobar_search_products" tooldescription="جست‌وجوی محصولات عمومی فروشگاه صنوبر" action="<?php echo esc_url(home_url('/')); ?>">
+            <form role="search" method="get" class="header-search-form" toolname="senoobar_search_form_desktop" tooldescription="جست‌وجوی محصولات عمومی فروشگاه صنوبر" action="<?php echo esc_url(home_url('/')); ?>">
                 <input type="search" name="s" toolparam="s" placeholder="<?php esc_attr_e('جستجو در محصولات...', 'senoobar'); ?>" value="<?php echo esc_attr(get_search_query()); ?>">
                 <button type="submit" aria-label="<?php esc_attr_e('جستجو', 'senoobar'); ?>">
                     <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
