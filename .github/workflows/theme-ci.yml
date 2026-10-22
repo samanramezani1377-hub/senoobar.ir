@@ -68,7 +68,7 @@ jobs:
           rm -rf "$theme_dir" dist
           mkdir -p "$theme_dir" dist
 
-          rsync -a --exclude='.git/' --exclude='.github/' --exclude='dist/' --exclude="$theme_dir/" ./ "$theme_dir/"
+          rsync -a --exclude='.git/' --exclude='.github/' --exclude='dist/' --exclude='tests/' --exclude='docs/' --exclude="$theme_dir/" ./ "$theme_dir/"
 
           test -f "$theme_dir/style.css"
           test -f "$theme_dir/functions.php"
