@@ -4,7 +4,6 @@
   var config = window.SenoobarWebMCPConfig || {};
   var MAX_QUERY_LENGTH = 100;
   var MAX_RESULTS = 5;
-  var registered = Boolean(window.__senoobarWebMCPRegistered);
   var status = window.SenoobarWebMCPStatus || { supported: false, ready: false, registeredTools: [], errors: [], reason: "" };
   window.SenoobarWebMCPStatus = status;
   status.expectedTools = ["senoobar_search_products", "senoobar_get_product_details", "senoobar_get_store_info"];
@@ -165,7 +164,6 @@
   async function registerTools() {
     var context = document && document.modelContext;
     if (!context && window.navigator) context = window.navigator.modelContext;
-    if (registered) return;
     if (!context || typeof context.registerTool !== "function") {
       status.supported = false;
       status.ready = false;
@@ -174,8 +172,8 @@
     }
     status.supported = true;
     status.reason = "";
-    registered = true;
-    window.__senoobarWebMCPRegistered = true;
+    status.errors = [];
+    if (!Array.isArray(status.registeredTools)) status.registeredTools = [];
     var tools = [
       {
         name: "senoobar_search_products",
@@ -203,6 +201,7 @@
       }
     ];
     for (var i = 0; i < tools.length; i += 1) {
+      if (status.registeredTools.indexOf(tools[i].name) !== -1) continue;
       try {
         await context.registerTool(tools[i]);
         if (status.registeredTools.indexOf(tools[i].name) === -1) status.registeredTools.push(tools[i].name);
@@ -215,5 +214,11 @@
     if (!status.ready) status.reason = "One or more WebMCP tools failed to register";
   }
 
-  void registerTools();
+  // Prevent concurrent duplicate registration if the script is evaluated twice.
+  // A later load can retry only the tools that failed during an earlier attempt.
+  if (!window.__senoobarWebMCPRegistrationPromise) {
+    window.__senoobarWebMCPRegistrationPromise = registerTools().finally(function () {
+      window.__senoobarWebMCPRegistrationPromise = null;
+    });
+  }
 })(typeof window !== "undefined" ? window : {}, typeof document !== "undefined" ? document : null);
