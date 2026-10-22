@@ -56,8 +56,8 @@
 
         <!-- Search (Desktop) -->
         <div class="header-search">
-            <form role="search" method="get" class="header-search-form" action="<?php echo esc_url(home_url('/')); ?>">
-                <input type="search" name="s" placeholder="<?php esc_attr_e('جستجو در محصولات...', 'senoobar'); ?>" value="<?php echo esc_attr(get_search_query()); ?>">
+            <form role="search" method="get" class="header-search-form" toolname="senoobar_search_products" tooldescription="جست‌وجوی محصولات عمومی فروشگاه صنوبر" action="<?php echo esc_url(home_url('/')); ?>">
+                <input type="search" name="s" toolparam="s" placeholder="<?php esc_attr_e('جستجو در محصولات...', 'senoobar'); ?>" value="<?php echo esc_attr(get_search_query()); ?>">
                 <button type="submit" aria-label="<?php esc_attr_e('جستجو', 'senoobar'); ?>">
                     <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
@@ -286,8 +286,8 @@ $snb_newsletter_nonce = wp_create_nonce('senoobar_newsletter_nonce');
 
             <?php if ($section === 'search'): ?>
                 <div class="mobile-menu__search">
-                    <form role="search" method="get" action="<?php echo esc_url(home_url('/')); ?>">
-                        <input type="search" name="s" placeholder="<?php esc_attr_e('جستجو در محصولات...', 'senoobar'); ?>" value="<?php echo esc_attr(get_search_query()); ?>">
+                    <form role="search" method="get" toolname="senoobar_search_products_mobile" tooldescription="جست‌وجوی محصولات عمومی فروشگاه صنوبر در منوی موبایل" action="<?php echo esc_url(home_url('/')); ?>">
+                        <input type="search" name="s" toolparam="s" placeholder="<?php esc_attr_e('جستجو در محصولات...', 'senoobar'); ?>" value="<?php echo esc_attr(get_search_query()); ?>">
                         <button type="submit" aria-label="جستجو">
                             <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
                         </button>
