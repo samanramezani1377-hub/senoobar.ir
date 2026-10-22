@@ -4,7 +4,7 @@
   var config = window.SenoobarWebMCPConfig || {};
   var MAX_QUERY_LENGTH = 100;
   var MAX_RESULTS = 5;
-  var registered = false;
+  var registered = Boolean(window.__senoobarWebMCPRegistered);
 
   var schemas = {
     search: {
@@ -155,6 +155,7 @@
     var context = document && document.modelContext;
     if (registered || !context || typeof context.registerTool !== "function") return;
     registered = true;
+    window.__senoobarWebMCPRegistered = true;
     var tools = [
       {
         name: "senoobar_search_products",
