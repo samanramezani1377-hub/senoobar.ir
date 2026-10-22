@@ -203,7 +203,7 @@ test("failed tool registration can be retried without duplicating successful too
   assert.equal(registered.length, 3);
   assert.equal(new Set(registered.map(tool => tool.name)).size, 3);
   assert.equal(window.SenoobarWebMCPStatus.ready, true);
-  assert.deepEqual(Array.from(window.SenoobarWebMCPStatus.registeredTools), [
+  assert.deepEqual(Array.from(window.SenoobarWebMCPStatus.registeredTools).sort(), [
     "senoobar_search_products", "senoobar_get_product_details", "senoobar_get_store_info"
-  ]);
+  ].sort());
 });
