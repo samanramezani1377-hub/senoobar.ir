@@ -80,6 +80,11 @@
 
   function productSummary(product) {
     if (!product || !Number.isSafeInteger(Number(product.id)) || typeof product.name !== "string" || typeof product.permalink !== "string") return null;
+    var permalink;
+    try {
+      permalink = new URL(product.permalink, window.location.href);
+      if (permalink.origin !== new URL(window.location.href).origin || !/^https?:$/.test(permalink.protocol)) return null;
+    } catch (error) { return null; }
     var images = Array.isArray(product.images) ? product.images.slice(0, 3).filter(function (image) {
       return image && typeof image.src === "string" && /^https?:\/\//i.test(image.src);
     }).map(function (image) {
@@ -89,11 +94,12 @@
     return {
       id: Number(product.id),
       name: cleanText(product.name, 200),
-      url: product.permalink.slice(0, 1000),
+      url: permalink.href.slice(0, 1000),
       description: cleanText(product.short_description || "", 500),
       price: typeof prices.price === "string" ? prices.price.slice(0, 32) : null,
       currencyCode: typeof prices.currency_code === "string" ? prices.currency_code.slice(0, 8) : null,
       currencySymbol: typeof prices.currency_symbol === "string" ? cleanText(prices.currency_symbol, 8) : null,
+      currencyMinorUnit: Number.isInteger(prices.currency_minor_unit) ? prices.currency_minor_unit : null,
       inStock: typeof product.is_in_stock === "boolean" ? product.is_in_stock : null,
       images: images
     };
