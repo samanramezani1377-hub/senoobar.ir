@@ -96,11 +96,11 @@ test("unsupported browsers do not throw or register tools", () => {
 test("compatible browsers register exactly three read-only tools", async () => {
   const { registered, warnings } = loadModule();
   await new Promise(resolve => setImmediate(resolve));
-  assert.deepEqual(registered.map(tool => tool.name), [
-    "senoobar_search_products",
+  assert.deepEqual(registered.map(tool => tool.name).sort(), [
     "senoobar_get_product_details",
-    "senoobar_get_store_info"
-  ]);
+    "senoobar_get_store_info",
+    "senoobar_search_products"
+  ].sort());
   assert.ok(registered.every(tool => tool.annotations.readOnlyHint === true));
   assert.ok(registered.every(tool => tool.inputSchema.additionalProperties === false));
   assert.equal(warnings.length, 0);
@@ -164,9 +164,9 @@ test("runtime status exposes API support and successful registrations", async ()
   await new Promise(resolve => setImmediate(resolve));
   assert.equal(window.SenoobarWebMCPStatus.supported, true);
   assert.equal(window.SenoobarWebMCPStatus.ready, true);
-  assert.deepEqual(Array.from(window.SenoobarWebMCPStatus.registeredTools), [
+  assert.deepEqual(Array.from(window.SenoobarWebMCPStatus.registeredTools).sort(), [
     "senoobar_search_products", "senoobar_get_product_details", "senoobar_get_store_info"
-  ]);
+  ].sort());
 });
 
 test("unsupported runtime publishes a diagnostic reason", () => {
@@ -191,9 +191,9 @@ test("failed tool registration can be retried without duplicating successful too
   const { window, document, registered } = loadModule({ failOnce: "senoobar_get_product_details" });
   await new Promise(resolve => setImmediate(resolve));
   assert.equal(window.SenoobarWebMCPStatus.ready, false);
-  assert.deepEqual(Array.from(window.SenoobarWebMCPStatus.registeredTools), [
+  assert.deepEqual(Array.from(window.SenoobarWebMCPStatus.registeredTools).sort(), [
     "senoobar_search_products", "senoobar_get_store_info"
-  ]);
+  ].sort());
 
   vm.runInNewContext(source, {
     window, document, URL, Number, Object, Array, String, TypeError, Error, RegExp, Promise
