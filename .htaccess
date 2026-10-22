@@ -1,3 +1,12 @@
+# Canonical redirect: send every HTTP/www variant directly to HTTPS non-www.
+# This must run before WordPress so the request is redirected in one server-level hop.
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteCond %{HTTP_HOST} ^www\.senoobar\.ir$ [NC,OR]
+    RewriteCond %{HTTPS} !=on
+    RewriteRule ^ https://senoobar.ir%{REQUEST_URI} [R=301,L,NE]
+</IfModule>
+
 # Senoobar - Performance Optimization
 # Cache Control & Security Headers
 
@@ -19,16 +28,16 @@
     # Fonts - 1 year
     ExpiresByType font/woff2 "access plus 1 year"
     ExpiresByType font/woff "access plus 1 year"
-    ExpiresByType application/font-woff2 "access plus 1 year"
+    ExpiresByType application/font-woff "access plus 1 year"
 </IfModule>
 
 <IfModule mod_headers.c>
     # Cache-Control
-    <FilesMatch "\.(jpg|jpeg|png|gif|webp|svg|ico|woff2?)$">
+    <FilesMatch "\\.(jpg|jpeg|png|gif|webp|svg|ico|woff2?)$">
         Header set Cache-Control "public, max-age=31536000, immutable"
     </FilesMatch>
     
-    <FilesMatch "\.(css|js)$">
+    <FilesMatch "\\.(css|js)$">
         Header set Cache-Control "public, max-age=2592000"
     </FilesMatch>
     
@@ -48,15 +57,6 @@
     AddOutputFilterByType DEFLATE text/html text/plain text/css application/javascript application/json application/xml text/xml image/svg+xml
 </IfModule>
 
-# Canonical redirect: force HTTPS and the non-www hostname in one hop.
-# Keep this before the WordPress rewrite rules to avoid PHP canonical redirects.
-<IfModule mod_rewrite.c>
-    RewriteEngine On
-    RewriteCond %{HTTP_HOST} ^www\.senoobar\.ir$ [NC,OR]
-    RewriteCond %{HTTPS} !=on
-    RewriteRule ^ https://senoobar.ir%{REQUEST_URI} [R=301,L]
-</IfModule>
-
 # ===== Security: Disable XML-RPC & block WordPress info leaks =====
 # Block xmlrpc.php (not used — the site uses WP REST API / wp-json)
 <Files xmlrpc.php>
@@ -64,7 +64,7 @@
 </Files>
 
 # Block access to readme.html, license.txt, and other WP info-disclosure files
-<FilesMatch "^(readme\.html|license\.txt|wp-config-sample\.php|wp-config\.php~)$">
+<FilesMatch "^(readme\\.html|license\\.txt|wp-config-sample\\.php|wp-config\\.php~)$">
     Require all denied
 </FilesMatch>
 # ===== END Security =====
@@ -74,7 +74,7 @@
     RewriteEngine On
     RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
     RewriteBase /
-    RewriteRule ^index\.php$ - [L]
+    RewriteRule ^index\\.php$ - [L]
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteCond %{REQUEST_FILENAME} !-d
     RewriteRule . /index.php [L]
