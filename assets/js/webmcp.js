@@ -65,7 +65,9 @@
     var base = new URL(config.storeApiBase, current.href);
     if (base.origin !== current.origin) throw new Error("آدرس Store API باید هم‌مبدأ با فروشگاه باشد.");
     if (!base.pathname.endsWith("/")) base.pathname += "/";
-    var target = new URL(String(path).replace(/^\/+/, ""), base.href);
+    var safePath = path === "products" || (typeof path === "string" && /^products\/[1-9]\d*$/.test(path));
+    if (!safePath) throw new Error("مسیر API مجاز نیست.");
+    var target = new URL(path, base.href);
     if (target.origin !== base.origin || target.pathname.indexOf(base.pathname) !== 0) throw new Error("مسیر API مجاز نیست.");
     Object.keys(params || {}).forEach(function (key) {
       target.searchParams.set(key, String(params[key]));
