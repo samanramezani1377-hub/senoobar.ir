@@ -2,7 +2,7 @@ name: Senoobar Theme CI
 
 on:
   push:
-    branches: [main]
+    branches: [main, branch-agent-mcp]
   pull_request:
     branches: [main]
   workflow_dispatch:
@@ -17,6 +17,14 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Run WebMCP automated tests
+        run: node --test tests/webmcp/*.test.cjs
 
       - name: Setup PHP 8.3
         uses: shivammathur/setup-php@v2
