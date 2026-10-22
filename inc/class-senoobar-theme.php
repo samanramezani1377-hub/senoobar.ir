@@ -718,9 +718,8 @@ final class Senoobar_Theme {
             // ── Core (always) ──────────────────────────────
             // critical.css اینلاین می‌شود (inc/critical-css.php) تا از FOUC بازدید اول جلوگیری شود.
             wp_enqueue_style('senoobar-main', SENOOBAR_URI . '/assets/css/main.css', [], SENOOBAR_VERSION);
-            if (is_rtl()) {
-                wp_enqueue_style('senoobar-rtl', SENOOBAR_URI . '/assets/css/rtl.css', ['senoobar-main'], SENOOBAR_VERSION);
-            }
+            // RTL overrides are inlined in critical.css to avoid a separate
+            // render-blocking stylesheet request on every page.
 
             // ── Shop card styles (only where product loops appear) ──
             if ($is_wc && ($is_shop_page || $is_search_page || $is_home_loop || $is_cart_page || $is_checkout_page || $is_account_page)) {
@@ -842,7 +841,7 @@ final class Senoobar_Theme {
                 foreach ($styles->registered as $handle => $registered_style) {
                     $src = isset($registered_style->src) ? (string) $registered_style->src : '';
                     $path = wp_parse_url($src, PHP_URL_PATH);
-                    if ($src !== '' && is_string($path) && preg_match('~(?:^|/)wc-blocks\.css$~', $path)) {
+                    if ($src !== '' && is_string($path) && preg_match('~(?:^|/)wc-blocks(?:-rtl)?\.css$~', $path)) {
                         wp_dequeue_style($handle);
                     }
                 }
@@ -881,7 +880,9 @@ final class Senoobar_Theme {
         // the woff2 subset files from Google Fonts.
         add_action('wp_head', function () {
             // Preload the primary body weight so the swap happens ASAP.
-            echo '<link rel="preload" as="font" type="font/woff2" crossorigin href="' . esc_url(SENOOBAR_URI . '/assets/fonts/vazirmatn-arabic.woff2') . '">';
+            echo '<link rel="preload" as="font" type="font/woff2" crossorigin href="' . esc_url(SENOOBAR_URI . '/assets/fonts/vazirmatn-arabic.woff2') . '">' . "\n";
+            // The Latin subset is requested by visible Latin characters and digits.
+            echo '<link rel="preload" as="font" type="font/woff2" crossorigin href="' . esc_url(SENOOBAR_URI . '/assets/fonts/vazirmatn-latin.woff2') . '">';
         }, 1);
     }
 }
