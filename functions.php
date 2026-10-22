@@ -43,6 +43,7 @@ require_once SENOOBAR_DIR . '/inc/articles-seo.php';
 require_once SENOOBAR_DIR . '/inc/ideas-setup.php';
 require_once SENOOBAR_DIR . '/inc/idea-admin.php';
 require_once SENOOBAR_DIR . '/inc/bulk-post-importer.php';
+require_once SENOOBAR_DIR . '/inc/webmcp.php';
 
 function senoobar_init() {
     Senoobar_Theme::get_instance()->init();
