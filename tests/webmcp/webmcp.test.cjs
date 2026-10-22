@@ -21,13 +21,20 @@ function loadModule(options = {}) {
     console: { warn: (...args) => warnings.push(args) },
     fetch: async () => ({ ok: true, json: async () => [] })
   };
+  const failedOnce = new Set();
   const document = options.noWebMCP ? {} : {
     modelContext: {
-      registerTool: async tool => { registered.push(tool); }
+      registerTool: async tool => {
+        if (options.failOnce === tool.name && !failedOnce.has(tool.name)) {
+          failedOnce.add(tool.name);
+          throw new Error("temporary registration failure");
+        }
+        registered.push(tool);
+      }
     }
   };
   vm.runInNewContext(source, { window, document, URL, Number, Object, Array, String, TypeError, Error, RegExp, Promise });
-  return { window, registered, warnings };
+  return { window, document, registered, warnings };
 }
 
 test("strict schemas disallow additional properties and bound inputs", () => {
@@ -178,4 +185,25 @@ test("loading the module twice does not register duplicate tools", async () => {
   });
   await new Promise(resolve => setImmediate(resolve));
   assert.equal(registered.length, 3);
+});
+
+test("failed tool registration can be retried without duplicating successful tools", async () => {
+  const { window, document, registered } = loadModule({ failOnce: "senoobar_get_product_details" });
+  await new Promise(resolve => setImmediate(resolve));
+  assert.equal(window.SenoobarWebMCPStatus.ready, false);
+  assert.deepEqual(Array.from(window.SenoobarWebMCPStatus.registeredTools), [
+    "senoobar_search_products", "senoobar_get_store_info"
+  ]);
+
+  vm.runInNewContext(source, {
+    window, document, URL, Number, Object, Array, String, TypeError, Error, RegExp, Promise
+  });
+  await new Promise(resolve => setImmediate(resolve));
+
+  assert.equal(registered.length, 3);
+  assert.equal(new Set(registered.map(tool => tool.name)).size, 3);
+  assert.equal(window.SenoobarWebMCPStatus.ready, true);
+  assert.deepEqual(Array.from(window.SenoobarWebMCPStatus.registeredTools), [
+    "senoobar_search_products", "senoobar_get_product_details", "senoobar_get_store_info"
+  ]);
 });
