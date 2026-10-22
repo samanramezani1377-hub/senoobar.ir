@@ -1335,3 +1335,193 @@ a.site-branding:hover .logo-text { color: var(--color-brand); }
   .hero__title { font-size: 3.2rem; }
   .hero__btn-outline { font-size: 1rem; }
 }
+
+/* RTL overrides formerly served by rtl.css; inline with critical CSS to avoid a request chain. */
+html[dir="rtl"] .header-actions{margin-right:auto;margin-left:0}
+html[dir="rtl"] .cart-count{right:auto;left:0;transform:translate(-20%,-20%)}
+html[dir="rtl"] .onsale{right:auto;left:10px}
+html[dir="rtl"] .woocommerce .price del{margin-left:0;margin-right:6px}
+html[dir="rtl"] .slider-arrow--prev{right:auto;left:12px}
+html[dir="rtl"] .slider-arrow--next{left:auto;right:12px}
+
+/* Inlined from assets/css/bottom-nav.css to remove a render-blocking request. */
+/* ============================================
+   Senoobar — Mobile Bottom Navigation
+   Shown only on mobile (<768px), hidden on desktop.
+   RTL-friendly. 5 items with a prominent center Home.
+   ============================================ */
+
+.mobile-bottom-nav {
+  display: flex;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  height: 62px;
+  background: var(--color-white, #fff);
+  border-top: 1px solid var(--color-gray-200, #e8e4df);
+  box-shadow: 0 -2px 12px rgba(0, 0, 0, 0.06);
+  padding-bottom: env(safe-area-inset-bottom, 0);
+}
+
+.mbn-item {
+  flex: 1 1 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  text-decoration: none;
+  color: var(--color-text-light, #6b6560);
+  background: none;
+  border: none;
+  font: inherit;
+  cursor: pointer;
+  padding: 6px 2px;
+  border-radius: 12px;
+  margin: 4px 4px;
+  transition: color 0.2s ease, background-color 0.2s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.mbn-item:hover,
+.mbn-item:focus {
+  color: var(--color-brand, #1e3a2f);
+}
+
+/* Active item: brand tint background + brand text */
+.mbn-item.is-active {
+  color: var(--color-brand, #1e3a2f);
+  background: var(--color-brand-lighter, #e8f0ec);
+}
+
+.mbn-item.is-active .mbn-label {
+  font-weight: 700;
+}
+
+.mbn-icon {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+}
+
+.mbn-icon svg {
+  width: 22px;
+  height: 22px;
+}
+
+.mbn-badge.is-hidden {
+  display: none;
+}
+.mbn-badge {
+  position: absolute;
+  top: -6px;
+  left: -8px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  border-radius: 8px;
+  background: var(--color-red, #ef4444);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 16px;
+  text-align: center;
+}
+
+.mbn-label {
+  font-size: 10px;
+  line-height: 1;
+  font-weight: 500;
+}
+
+/* Center "Home" item — raised circular button */
+.mbn-home {
+  margin-top: -18px;
+}
+
+.mbn-home-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--color-brand, #1e3a2f);
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(30, 58, 47, 0.32);
+}
+
+.mbn-home-icon svg {
+  width: 26px;
+  height: 26px;
+}
+
+.mbn-home.is-active .mbn-home-icon {
+  background: var(--color-brand-light, #2d5a47);
+}
+
+/* Add bottom padding to body so fixed nav never covers page content */
+@media (max-width: 767px) {
+  body {
+    padding-bottom: 72px;
+  }
+}
+
+/* iPhone PWA: give the bottom navigation enough vertical space for the
+   safe-area/home-indicator region instead of squeezing the five items. */
+@supports (-webkit-touch-callout: none) {
+  @media (display-mode: standalone) and (max-width: 767px) {
+    .mobile-bottom-nav {
+      height: 76px;
+      min-height: 76px;
+      box-sizing: border-box;
+      padding-bottom: env(safe-area-inset-bottom, 0px);
+    }
+
+    .mobile-bottom-nav .mbn-item {
+      min-height: 68px;
+      padding-top: 8px;
+      padding-bottom: 8px;
+      margin-top: 2px;
+      margin-bottom: 2px;
+    }
+
+    .mobile-bottom-nav .mbn-label {
+      font-size: 11px;
+      line-height: 1.15;
+    }
+
+    .mobile-bottom-nav .mbn-home {
+      margin-top: -12px;
+    }
+
+    body {
+      padding-bottom: calc(76px + env(safe-area-inset-bottom, 0px));
+    }
+  }
+}
+
+/* Hide on desktop */
+@media (min-width: 768px) {
+  .mobile-bottom-nav {
+    display: none;
+  }
+}
+
+/* ============================================
+   Wishlist empty-state page
+   ============================================ */
+.senoobar-wishlist-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 64px 24px;
+  min-height: 50vh;
+}
