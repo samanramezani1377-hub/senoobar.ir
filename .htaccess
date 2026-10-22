@@ -1,9 +1,15 @@
-# Canonical redirect: send every HTTP/www variant directly to HTTPS non-www.
-# This must run before WordPress so the request is redirected in one server-level hop.
+# Canonical redirects: force non-www and HTTPS before WordPress.
+# Separate rules avoid combining host and proxy HTTPS checks into an ambiguous condition.
 <IfModule mod_rewrite.c>
     RewriteEngine On
-    RewriteCond %{HTTP_HOST} ^www\.senoobar\.ir$ [NC,OR]
+
+    # www -> apex, regardless of whether the incoming request uses HTTP or HTTPS.
+    RewriteCond %{HTTP_HOST} ^www\.senoobar\.ir$ [NC]
+    RewriteRule ^ https://senoobar.ir%{REQUEST_URI} [R=301,L,NE]
+
+    # HTTP -> HTTPS. Respect HTTPS termination by a reverse proxy / LiteSpeed setup.
     RewriteCond %{HTTPS} !=on
+    RewriteCond %{HTTP:X-Forwarded-Proto} !https [NC]
     RewriteRule ^ https://senoobar.ir%{REQUEST_URI} [R=301,L,NE]
 </IfModule>
 
