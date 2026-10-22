@@ -747,7 +747,7 @@ final class Senoobar_Theme {
             }
 
             // Mobile bottom navigation (tiny; always loaded, hidden on desktop).
-            wp_enqueue_style('senoobar-bottom-nav', SENOOBAR_URI . '/assets/css/bottom-nav.css', ['senoobar-main'], SENOOBAR_VERSION);
+            // Mobile bottom navigation CSS is inlined in critical.css to avoid another request.
 
             // ── Wishlist styles (wishlist page + pages w/ product cards) ──
             // The heart button is rendered onto every product card, so this is
