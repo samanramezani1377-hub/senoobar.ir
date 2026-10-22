@@ -130,7 +130,12 @@ test("product summary returns bounded public fields only", () => {
 test("public search forms are annotated while sensitive forms are not", () => {
   const header = fs.readFileSync(path.join(__dirname, "../../header.php"), "utf8");
   assert.equal((header.match(/toolname="senoobar_search_form_/g) || []).length, 2);
-  assert.equal((header.match(/toolparam="s"/g) || []).length, 2);
+  assert.equal((header.match(/toolparamdescription="عبارت جست‌وجوی محصول؛ نام محصول یا بخشی از آن"/g) || []).length, 2);
+  const php = fs.readFileSync(path.join(__dirname, "../../inc/webmcp.php"), "utf8");
+  const functions = fs.readFileSync(path.join(__dirname, "../../functions.php"), "utf8");
+  assert.match(functions, /webmcp\.php/);
+  assert.match(php, /filemtime\(\$file_path\)/);
+  assert.match(php, /wp_enqueue_script\(/);
   assert.doesNotMatch(header, /class="mobile-newsletter-form"[^>]*toolname=/);
   assert.doesNotMatch(header, /checkout[^>]*toolname=/i);
   assert.doesNotMatch(header, /newsletter[^>]*toolname=/i);
@@ -145,6 +150,22 @@ test("tool schemas are object schemas with explicit closed inputs", () => {
     assert.ok(Array.isArray(schema.required) || schema === window.SenoobarWebMCPInternals.schemas.store);
     for (const key of schema.required || []) assert.ok(key in schema.properties);
   }
+});
+
+test("runtime status exposes API support and successful registrations", async () => {
+  const { window } = loadModule();
+  await new Promise(resolve => setImmediate(resolve));
+  assert.equal(window.SenoobarWebMCPStatus.supported, true);
+  assert.equal(window.SenoobarWebMCPStatus.ready, true);
+  assert.deepEqual(Array.from(window.SenoobarWebMCPStatus.registeredTools), [
+    "senoobar_search_products", "senoobar_get_product_details", "senoobar_get_store_info"
+  ]);
+});
+
+test("unsupported runtime publishes a diagnostic reason", () => {
+  const { window } = loadModule({ noWebMCP: true });
+  assert.equal(window.SenoobarWebMCPStatus.supported, false);
+  assert.match(window.SenoobarWebMCPStatus.reason, /API is unavailable/);
 });
 
 test("loading the module twice does not register duplicate tools", async () => {

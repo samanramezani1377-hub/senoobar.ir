@@ -16,11 +16,17 @@ function senoobar_webmcp_enqueue_assets() {
         return;
     }
 
+    // Bust browser/CDN caches whenever this file changes, even if the theme version stays the same.
+    $asset_version = filemtime($file_path);
+    if ($asset_version === false) {
+        $asset_version = defined('SENOOBAR_VERSION') ? SENOOBAR_VERSION : null;
+    }
+
     wp_enqueue_script(
         'senoobar-webmcp',
         SENOOBAR_URI . $relative_path,
         [],
-        defined('SENOOBAR_VERSION') ? SENOOBAR_VERSION : (string) filemtime($file_path),
+        $asset_version,
         true
     );
 

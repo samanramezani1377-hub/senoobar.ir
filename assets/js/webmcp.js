@@ -5,6 +5,9 @@
   var MAX_QUERY_LENGTH = 100;
   var MAX_RESULTS = 5;
   var registered = Boolean(window.__senoobarWebMCPRegistered);
+  var status = window.SenoobarWebMCPStatus || { supported: false, ready: false, registeredTools: [], errors: [], reason: "" };
+  window.SenoobarWebMCPStatus = status;
+  status.expectedTools = ["senoobar_search_products", "senoobar_get_product_details", "senoobar_get_store_info"];
 
   var schemas = {
     search: {
@@ -161,7 +164,16 @@
 
   async function registerTools() {
     var context = document && document.modelContext;
-    if (registered || !context || typeof context.registerTool !== "function") return;
+    if (!context && window.navigator) context = window.navigator.modelContext;
+    if (registered) return;
+    if (!context || typeof context.registerTool !== "function") {
+      status.supported = false;
+      status.ready = false;
+      status.reason = context ? "registerTool is unavailable" : "WebMCP ModelContext API is unavailable in this browser";
+      return;
+    }
+    status.supported = true;
+    status.reason = "";
     registered = true;
     window.__senoobarWebMCPRegistered = true;
     var tools = [
@@ -193,10 +205,14 @@
     for (var i = 0; i < tools.length; i += 1) {
       try {
         await context.registerTool(tools[i]);
+        if (status.registeredTools.indexOf(tools[i].name) === -1) status.registeredTools.push(tools[i].name);
       } catch (error) {
+        status.errors.push(tools[i].name);
         if (window.console && typeof window.console.warn === "function") window.console.warn("Senoobar WebMCP: registration failed for " + tools[i].name, error);
       }
     }
+    status.ready = status.registeredTools.length === tools.length && status.errors.length === 0;
+    if (!status.ready) status.reason = "One or more WebMCP tools failed to register";
   }
 
   void registerTools();
