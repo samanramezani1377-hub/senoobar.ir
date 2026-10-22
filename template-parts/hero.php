@@ -24,7 +24,7 @@ if ($img1_webp) {
         ? '<source type="image/webp" srcset="' . esc_attr($responsive1['srcset']) . '" sizes="' . esc_attr($responsive1['sizes']) . '">'
         : '<source type="image/webp" srcset="' . esc_url($img1_webp) . '">';
     echo '<picture>' . $source1 .
-        senoobar_img($img1, ['alt' => 'نشیمن مدرن', 'width' => $img1_w, 'height' => $img1_h, 'fetchpriority' => 'low', 'loading' => 'eager', 'decoding' => 'async']) .
+        senoobar_img($img1, ['alt' => 'نشیمن مدرن', 'width' => $img1_w, 'height' => $img1_h, 'fetchpriority' => 'high', 'loading' => 'eager', 'decoding' => 'async']) .
         '</picture>';
 } elseif ($hero_img1) {
     // Use WordPress responsive image markup for Customizer uploads so phones
@@ -32,14 +32,14 @@ if ($img1_webp) {
     // original full-resolution attachment.
     $hero_markup = wp_get_attachment_image($hero_img1, 'senoobar-hero', false, [
         'alt' => 'نشیمن مدرن',
-        'fetchpriority' => 'low',
+        'fetchpriority' => 'high',
         'loading' => 'eager',
         'decoding' => 'async',
         'sizes' => '50vw',
     ]);
-    echo $hero_markup ? $hero_markup : senoobar_img($img1, ['alt' => 'نشیمن مدرن', 'width' => $img1_w, 'height' => $img1_h, 'fetchpriority' => 'low', 'loading' => 'eager', 'decoding' => 'async']);
+    echo $hero_markup ? $hero_markup : senoobar_img($img1, ['alt' => 'نشیمن مدرن', 'width' => $img1_w, 'height' => $img1_h, 'fetchpriority' => 'high', 'loading' => 'eager', 'decoding' => 'async']);
 } else {
-    echo senoobar_img($img1, ['alt' => 'نشیمن مدرن', 'width' => $img1_w, 'height' => $img1_h, 'fetchpriority' => 'low', 'loading' => 'eager', 'decoding' => 'async']);
+    echo senoobar_img($img1, ['alt' => 'نشیمن مدرن', 'width' => $img1_w, 'height' => $img1_h, 'fetchpriority' => 'high', 'loading' => 'eager', 'decoding' => 'async']);
 }
 ?></div><div class="hero__image-wrap"><?php
 if ($img2_webp) {
