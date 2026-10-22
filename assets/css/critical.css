@@ -1335,3 +1335,11 @@ a.site-branding:hover .logo-text { color: var(--color-brand); }
   .hero__title { font-size: 3.2rem; }
   .hero__btn-outline { font-size: 1rem; }
 }
+
+/* RTL overrides formerly served by rtl.css; inline with critical CSS to avoid a request chain. */
+html[dir="rtl"] .header-actions{margin-right:auto;margin-left:0}
+html[dir="rtl"] .cart-count{right:auto;left:0;transform:translate(-20%,-20%)}
+html[dir="rtl"] .onsale{right:auto;left:10px}
+html[dir="rtl"] .woocommerce .price del{margin-left:0;margin-right:6px}
+html[dir="rtl"] .slider-arrow--prev{right:auto;left:12px}
+html[dir="rtl"] .slider-arrow--next{left:auto;right:12px}
