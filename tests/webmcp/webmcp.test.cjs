@@ -123,3 +123,35 @@ test("product summary returns bounded public fields only", () => {
   assert.equal("customer_data" in summary, false);
   assert.equal("sku" in summary, false);
 });
+
+test("public search forms are annotated while sensitive forms are not", () => {
+  const header = fs.readFileSync(path.join(__dirname, "../../header.php"), "utf8");
+  assert.equal((header.match(/toolname="senoobar_search_form_/g) || []).length, 2);
+  assert.equal((header.match(/toolparam="s"/g) || []).length, 2);
+  assert.doesNotMatch(header, /class="mobile-newsletter-form"[^>]*toolname=/);
+  assert.doesNotMatch(header, /checkout[^>]*toolname=/i);
+  assert.doesNotMatch(header, /newsletter[^>]*toolname=/i);
+});
+
+test("tool schemas are object schemas with explicit closed inputs", () => {
+  const { window } = loadModule({ noWebMCP: true });
+  for (const schema of Object.values(window.SenoobarWebMCPInternals.schemas)) {
+    assert.equal(schema.type, "object");
+    assert.equal(schema.additionalProperties, false);
+    assert.ok(schema.properties && typeof schema.properties === "object");
+    assert.ok(Array.isArray(schema.required) || schema === window.SenoobarWebMCPInternals.schemas.store);
+    for (const key of schema.required || []) assert.ok(key in schema.properties);
+  }
+});
+
+test("loading the module twice does not register duplicate tools", async () => {
+  const { window, registered } = loadModule();
+  await new Promise(resolve => setImmediate(resolve));
+  vm.runInNewContext(source, {
+    window,
+    document: { modelContext: { registerTool: async tool => { registered.push(tool); } } },
+    URL, Number, Object, Array, String, TypeError, Error, RegExp, Promise
+  });
+  await new Promise(resolve => setImmediate(resolve));
+  assert.equal(registered.length, 3);
+});
