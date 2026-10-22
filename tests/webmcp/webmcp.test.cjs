@@ -76,6 +76,8 @@ test("API URLs are same-origin and query values are encoded", () => {
   assert.equal(url.searchParams.get("search"), "تخت خواب");
   window.SenoobarWebMCPConfig.storeApiBase = "https://evil.example/wp-json/wc/store/v1/";
   assert.throws(() => build("products", {}), /هم‌مبدأ/);
+  window.SenoobarWebMCPConfig.storeApiBase = "https://senoobar.ir/wp-json/wc/store/v1/";
+  assert.throws(() => build("../users", {}), /مسیر API مجاز/);
 });
 
 test("unsupported browsers do not throw or register tools", () => {
@@ -112,7 +114,7 @@ test("product summary returns bounded public fields only", () => {
     permalink: "https://senoobar.ir/product/bed/",
     description: "private field should be ignored",
     short_description: "<p>توضیح&nbsp;کوتاه</p>",
-    prices: { price: "120000", currency_code: "IRR", currency_symbol: "ریال" },
+    prices: { price: "120000", currency_code: "IRR", currency_symbol: "ریال", currency_minor_unit: 0 },
     is_in_stock: true,
     images: [{ src: "https://senoobar.ir/image.webp", alt: "تصویر" }],
     customer_data: { email: "secret@example.com" }
@@ -120,6 +122,7 @@ test("product summary returns bounded public fields only", () => {
   assert.equal(summary.id, 4);
   assert.equal(summary.description, "توضیح کوتاه");
   assert.equal(summary.inStock, true);
+  assert.equal(summary.currencyMinorUnit, 0);
   assert.equal("customer_data" in summary, false);
   assert.equal("sku" in summary, false);
 });
