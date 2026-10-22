@@ -48,11 +48,13 @@
     AddOutputFilterByType DEFLATE text/html text/plain text/css application/javascript application/json application/xml text/xml image/svg+xml
 </IfModule>
 
-# Redirect to HTTPS
+# Canonical redirect: force HTTPS and the non-www hostname in one hop.
+# Keep this before the WordPress rewrite rules to avoid PHP canonical redirects.
 <IfModule mod_rewrite.c>
     RewriteEngine On
-    RewriteCond %{HTTPS} off
-    RewriteRule ^(.*)$ https://%{HTTP_HOST}/$1 [R=301,L]
+    RewriteCond %{HTTP_HOST} ^www\.senoobar\.ir$ [NC,OR]
+    RewriteCond %{HTTPS} !=on
+    RewriteRule ^ https://senoobar.ir%{REQUEST_URI} [R=301,L]
 </IfModule>
 
 # ===== Security: Disable XML-RPC & block WordPress info leaks =====
